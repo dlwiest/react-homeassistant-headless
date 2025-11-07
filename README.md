@@ -1,54 +1,37 @@
 # react-homeassistant-headless
 
-> Headless React hooks and components for Home Assistant integration
+> Headless React hooks and components for building custom Home Assistant dashboards
 
-Build custom Home Assistant dashboards and interfaces with complete design freedom. No UI components, no design opinions—just powerful, type-safe hooks and headless components that handle the data and logic while you bring your own UI.
+This library handles WebSocket connections, entity subscriptions, and state management for Home Assistant so you can focus on building the UI you want. Use any component library, styling approach, or UI framework - build your own custom design without the library getting in your way.
 
-## ✨ Why Choose This?
+## Features
 
-**🎯 Truly Headless**  
-Zero UI components or styling. Works with any design system—Material-UI, Chakra UI, Tailwind, or custom CSS.
+- **Full TypeScript support** - Complete type definitions for all entities and their properties
+- **Automatic reconnection** - Handles connection drops and network issues transparently
+- **Developer-friendly warnings** - Helpful console messages for common configuration issues
+- **Entity ID shortcuts** - Automatically adds domain prefixes (e.g., `light.` for lights) when missing
+- **Mock mode** - Develop and test without a real Home Assistant instance
+- **No UI constraints** - Works with any React setup, styling, or component library
 
-**🏗️ Sophisticated Architecture**  
-Unique render props pattern gives you maximum flexibility while maintaining clean, predictable APIs.
-
-**📦 Lightweight**  
-Minimal dependencies (just zustand + home-assistant-js-websocket). No bloated component libraries.
-
-**🔷 Full TypeScript Support**  
-Complete type safety with comprehensive interfaces for all Home Assistant entity types.
-
-**🏠 Comprehensive Entity Support**  
-Climate, Light, Sensor, Switch, Cover, Entity Groups—everything you need for complex dashboards.
-
-**⚡ Real-time Updates**  
-Automatic WebSocket subscriptions keep your UI in sync with Home Assistant state changes.
-
-## 🚀 Quick Start
+## Installation
 
 ```bash
-# Coming soon to npm!
-# For now, clone the repository
-git clone https://github.com/dlwiest/react-homeassistant-headless.git
-cd react-homeassistant-headless
-npm install
-npm run build
+npm install @dlwiest/react-homeassistant-headless
 ```
 
+## Quick Example
+
 ```jsx
-import { HAProvider, Light } from 'react-homeassistant-headless'
+import { HAProvider, Light } from '@dlwiest/react-homeassistant-headless'
 
 function App() {
   return (
     <HAProvider url="ws://homeassistant.local:8123" token="your-long-lived-access-token">
       <Light entityId="light.living_room">
-        {({ isOn, brightness, turnOn, turnOff, setBrightness }) => (
-          <div className="light-control">
+        {({ isOn, brightness, toggle, setBrightness }) => (
+          <div>
             <h3>Living Room Light</h3>
-            <button 
-              onClick={isOn ? turnOff : turnOn}
-              className={isOn ? 'light-on' : 'light-off'}
-            >
+            <button onClick={toggle}>
               {isOn ? '💡 ON' : '⚫ OFF'}
             </button>
             {isOn && (
@@ -68,56 +51,25 @@ function App() {
 }
 ```
 
-## 🎨 Works with Any UI Library
+## Examples
 
-### Material-UI Example
-```jsx
-import { Switch, Slider, Card, CardContent, Typography } from '@mui/material'
+Three complete dashboard examples showing different UI approaches:
+- **[Vanilla React](./examples/vanilla-dashboard)** - Custom CSS
+- **[shadcn/ui](./examples/shadcn-dashboard)** - Tailwind + Radix UI components  
+- **[Material-UI](./examples/mui-dashboard)** - Material Design
 
-<Light entityId="light.bedroom">
-  {({ isOn, brightness, turnOn, turnOff, setBrightness }) => (
-    <Card>
-      <CardContent>
-        <Typography variant="h6">Bedroom Light</Typography>
-        <Switch checked={isOn} onChange={isOn ? turnOff : turnOn} />
-        <Slider value={brightness} max={255} onChange={(_, val) => setBrightness(val)} />
-      </CardContent>
-    </Card>
-  )}
-</Light>
-```
 
-### Tailwind + Headless UI Example
-```jsx
-import { Switch } from '@headlessui/react'
+## Supported Entities
 
-<Light entityId="light.kitchen">
-  {({ isOn, turnOn, turnOff }) => (
-    <Switch
-      checked={isOn}
-      onChange={isOn ? turnOff : turnOn}
-      className={`${isOn ? 'bg-blue-600' : 'bg-gray-200'} relative inline-flex h-6 w-11 items-center rounded-full`}
-    >
-      <span className={`${isOn ? 'translate-x-6' : 'translate-x-1'} inline-block h-4 w-4 transform rounded-full bg-white transition`} />
-    </Switch>
-  )}
-</Light>
-```
-
-## 🧱 Entity Components
-
-All components use the render props pattern, giving you complete control over the UI:
-
-### Light
+### Lights
 ```jsx
 <Light entityId="light.living_room">
   {({ 
-    isOn, brightness, brightnessPercent, 
+    isOn, brightness, rgbColor, effect,
     supportsBrightness, supportsColor, supportsEffects,
-    availableEffects, rgbColor, colorTemp,
-    turnOn, turnOff, toggle, setBrightness, setRgbColor, setEffect 
+    toggle, setBrightness, setRgbColor, setEffect
   }) => (
-    // Your custom UI here
+    // Your light controls
   )}
 </Light>
 ```
@@ -127,55 +79,53 @@ All components use the render props pattern, giving you complete control over th
 <Climate entityId="climate.thermostat">
   {({ 
     currentTemperature, targetTemperature, mode,
-    supportedModes, supportsTargetTemperature,
-    setMode, setTemperature 
+    setMode, setTemperature
   }) => (
-    // Your custom thermostat UI here
+    // Your thermostat interface
   )}
 </Climate>
 ```
 
-### Switch
+### Switches
 ```jsx
 <Switch entityId="switch.coffee_maker">
-  {({ isOn, turnOn, turnOff, toggle }) => (
-    // Your custom switch UI here
+  {({ isOn, toggle }) => (
+    // Your switch controls
   )}
 </Switch>
 ```
 
-### Sensor
+### Sensors
 ```jsx
 <Sensor entityId="sensor.temperature">
   {({ value, numericValue, unitOfMeasurement, deviceClass }) => (
-    // Your custom sensor display here
+    // Your sensor display
   )}
 </Sensor>
 ```
 
-### Cover
+### Covers
 ```jsx
 <Cover entityId="cover.garage_door">
   {({ 
-    isOpen, isClosed, isOpening, isClosing, 
-    position, supportsPosition,
-    openCover, closeCover, setPosition 
+    isOpen, isClosed, position,
+    open, close, setPosition
   }) => (
-    // Your custom cover control here
+    // Your cover controls
   )}
 </Cover>
 ```
 
-## 🪝 Direct Hooks
+## Using Hooks Directly
 
-Prefer hooks over render props? Use the underlying hooks directly:
+If you prefer hooks over render props:
 
 ```jsx
-import { useLight, useClimate } from 'react-homeassistant-headless'
+import { useLight, useClimate } from '@dlwiest/react-homeassistant-headless'
 
 function MyComponent() {
   const light = useLight('light.living_room')
-  const climate = useClimate('climate.thermostat')
+  const thermostat = useClimate('climate.main_floor')
   
   return (
     <div>
@@ -183,31 +133,28 @@ function MyComponent() {
         Light: {light.isOn ? 'ON' : 'OFF'}
       </button>
       <div>
-        Temperature: {climate.currentTemperature}°
+        Temperature: {thermostat.currentTemperature}°
       </div>
     </div>
   )
 }
 ```
 
-## 🔗 Entity Groups
+## Entity Groups
 
-Work with multiple entities efficiently:
+Work with multiple entities:
 
 ```jsx
-import { useEntityGroup } from 'react-homeassistant-headless'
+import { useEntityGroup } from '@dlwiest/react-homeassistant-headless'
 
 function AllLights() {
   const lights = useEntityGroup(['light.living_room', 'light.kitchen', 'light.bedroom'])
   
   return (
     <div>
-      <button onClick={() => lights.forEach(light => light.turnOn())}>
-        Turn All On
-      </button>
       {lights.map(light => (
         <div key={light.entityId}>
-          {light.entityId}: {light.isOn ? 'ON' : 'OFF'}
+          {light.entityId}: {light.state}
         </div>
       ))}
     </div>
@@ -215,64 +162,40 @@ function AllLights() {
 }
 ```
 
-## ⚙️ Configuration
-
-### HAProvider Props
+## Configuration
 
 ```jsx
-<HAProvider
-  url="ws://homeassistant.local:8123"  // WebSocket URL
-  token="your-token"                    // Long-lived access token
-  options={{
-    reconnectInterval: 5000,            // Auto-reconnect interval (ms)
-    reconnectAttempts: 10,              // Max reconnect attempts
-    autoReconnect: true                 // Enable auto-reconnect
-  }}
->
-  {/* Your app */}
+<HAProvider url="ws://homeassistant.local:8123" token="your-token">
+  <YourApp />
 </HAProvider>
 ```
 
-### Connection Status
-
+Connection options and status monitoring:
 ```jsx
-import { useConnectionStatus } from 'react-homeassistant-headless'
+<HAProvider
+  url="ws://homeassistant.local:8123"
+  token="your-token"
+  options={{
+    reconnectInterval: 5000,
+    reconnectAttempts: 10,
+    autoReconnect: true
+  }}
+/>
 
-function ConnectionStatus() {
-  const { connected, connecting, error, reconnect } = useConnectionStatus()
-  
-  if (connecting) return <div>Connecting...</div>
-  if (error) return <div>Error: {error.message} <button onClick={reconnect}>Retry</button></div>
-  if (connected) return <div>✅ Connected</div>
-  
-  return <div>❌ Disconnected</div>
-}
+// Monitor connection status
+const { connected, connecting, error, reconnect } = useHAConnection()
 ```
 
-## 🔧 TypeScript
 
-Full TypeScript support with comprehensive interfaces:
+## API Reference
 
-```typescript
-import type { LightState, ClimateState } from 'react-homeassistant-headless'
-
-// All entity states are fully typed
-const MyLightControl: React.FC<{ light: LightState }> = ({ light }) => {
-  // TypeScript knows about all properties and methods
-  light.setBrightness(128)  // ✅ Fully typed
-  light.invalidMethod()     // ❌ TypeScript error
-}
-```
-
-## 📚 API Reference
-
-### Core Components
-- `<HAProvider>` - Connection provider
-- `<Light>` - Light entity component  
-- `<Climate>` - Climate entity component
-- `<Switch>` - Switch entity component
-- `<Sensor>` - Sensor entity component
-- `<Cover>` - Cover entity component
+### Components
+- `<HAProvider>` - WebSocket connection provider
+- `<Light>` - Light controls with brightness, color, effects
+- `<Climate>` - Climate/thermostat controls  
+- `<Switch>` - Switch controls
+- `<Sensor>` - Sensor data
+- `<Cover>` - Cover/blind controls
 - `<Entity>` - Generic entity component
 
 ### Hooks
@@ -280,28 +203,18 @@ const MyLightControl: React.FC<{ light: LightState }> = ({ light }) => {
 - `useClimate(entityId)` - Climate entity hook
 - `useSwitch(entityId)` - Switch entity hook
 - `useSensor(entityId)` - Sensor entity hook
-- `useCover(entityId)` - Cover entity hook  
+- `useCover(entityId)` - Cover entity hook
 - `useEntity(entityId)` - Generic entity hook
 - `useEntityGroup(entityIds)` - Multiple entities hook
-- `useConnectionStatus()` - Connection status hook
+- `useHAConnection()` - Connection status hook
 
-### Types
-- `LightState` - Light entity interface
-- `ClimateState` - Climate entity interface  
-- `SwitchState` - Switch entity interface
-- `SensorState` - Sensor entity interface
-- `CoverState` - Cover entity interface
-- `HAConfig` - Provider configuration
-- `ConnectionStatus` - Connection state
+## Development
 
-## 🤝 Contributing
+Mock mode for development without Home Assistant:
+```jsx
+<HAProvider url="mock" mockMode={true} mockData={yourMockEntities} />
+```
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-## 📄 License
+## License
 
 MIT © [dlwiest](https://github.com/dlwiest)
-
----
-
-**Build any Home Assistant interface you can imagine.** 🏠✨

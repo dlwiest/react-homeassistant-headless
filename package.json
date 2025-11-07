@@ -1,5 +1,5 @@
 {
-  "name": "react-homeassistant-headless",
+  "name": "@dlwiest/react-homeassistant-headless",
   "version": "0.1.0",
   "description": "Headless React framework for Home Assistant dashboards",
   "main": "./dist/index.cjs.js",
