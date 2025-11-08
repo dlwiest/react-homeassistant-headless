@@ -19,6 +19,9 @@ coverage
 # Personal development dashboard
 /playground
 
+# Test installation directory
+/test-install
+
 # Logs
 npm-debug.log*
 yarn-debug.log*

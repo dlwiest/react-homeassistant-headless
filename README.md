@@ -1,5 +1,8 @@
 # react-homeassistant-headless
 
+[![npm version](https://badge.fury.io/js/@dlwiest%2Freact-homeassistant-headless.svg)](https://badge.fury.io/js/@dlwiest%2Freact-homeassistant-headless)
+[![npm downloads](https://img.shields.io/npm/dm/@dlwiest/react-homeassistant-headless.svg)](https://www.npmjs.com/package/@dlwiest/react-homeassistant-headless)
+
 > Headless React hooks and components for building custom Home Assistant dashboards
 
 This library handles WebSocket connections, entity subscriptions, and state management for Home Assistant so you can focus on building the UI you want. Use any component library, styling approach, or UI framework - build your own custom design without the library getting in your way.
@@ -189,7 +192,49 @@ const { connected, connecting, error, reconnect } = useHAConnection()
 
 ## API Reference
 
-### Components
+### Light Control (Detailed Example)
+
+```jsx
+<Light entityId="living_room_light">
+  {({ 
+    isOn, brightness, rgbColor, effect,
+    supportsBrightness, supportsColor, supportsEffects,
+    toggle, turnOn, turnOff, setBrightness, setRgbColor, setEffect
+  }) => (
+    <div>
+      <button onClick={toggle}>
+        {isOn ? 'Turn Off' : 'Turn On'}
+      </button>
+      
+      {isOn && supportsBrightness && (
+        <input
+          type="range"
+          min="0" max="255"
+          value={brightness}
+          onChange={(e) => setBrightness(parseInt(e.target.value))}
+        />
+      )}
+      
+      {isOn && supportsColor && (
+        <input
+          type="color"
+          onChange={(e) => {
+            const hex = e.target.value.slice(1)
+            const rgb = [
+              parseInt(hex.slice(0, 2), 16),
+              parseInt(hex.slice(2, 4), 16),
+              parseInt(hex.slice(4, 6), 16)
+            ]
+            setRgbColor(rgb)
+          }}
+        />
+      )}
+    </div>
+  )}
+</Light>
+```
+
+### All Components
 - `<HAProvider>` - WebSocket connection provider
 - `<Light>` - Light controls with brightness, color, effects
 - `<Climate>` - Climate/thermostat controls  
@@ -198,7 +243,7 @@ const { connected, connecting, error, reconnect } = useHAConnection()
 - `<Cover>` - Cover/blind controls
 - `<Entity>` - Generic entity component
 
-### Hooks
+### All Hooks
 - `useLight(entityId)` - Light entity hook
 - `useClimate(entityId)` - Climate entity hook
 - `useSwitch(entityId)` - Switch entity hook
