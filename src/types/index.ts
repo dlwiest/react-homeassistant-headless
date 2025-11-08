@@ -141,6 +141,24 @@ export interface SensorState extends BaseEntityHook<SensorAttributes> {
   icon?: string
 }
 
+// Lock types
+export interface LockAttributes {
+  friendly_name?: string
+  code_format?: string
+  changed_by?: string
+  supported_features?: number
+}
+
+export interface LockState extends BaseEntityHook<LockAttributes> {
+  isLocked: boolean
+  isUnlocked: boolean
+  isLocking: boolean
+  isUnlocking: boolean
+  isJammed: boolean
+  lock: () => Promise<void>
+  unlock: () => Promise<void>
+}
+
 // Feature flags for supported features
 export const LightFeatures = {
   SUPPORT_BRIGHTNESS: 1,
