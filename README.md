@@ -119,6 +119,18 @@ Three complete dashboard examples showing different UI approaches:
 </Cover>
 ```
 
+### Locks
+```jsx
+<Lock entityId="lock.front_door">
+  {({ 
+    isLocked, isUnlocked, isLocking, isUnlocking, isJammed,
+    lock, unlock
+  }) => (
+    // Your lock controls
+  )}
+</Lock>
+```
+
 ## Using Hooks Directly
 
 If you prefer hooks over render props:
@@ -241,6 +253,7 @@ const { connected, connecting, error, reconnect } = useHAConnection()
 - `<Switch>` - Switch controls
 - `<Sensor>` - Sensor data
 - `<Cover>` - Cover/blind controls
+- `<Lock>` - Lock controls
 - `<Entity>` - Generic entity component
 
 ### All Hooks
@@ -249,6 +262,7 @@ const { connected, connecting, error, reconnect } = useHAConnection()
 - `useSwitch(entityId)` - Switch entity hook
 - `useSensor(entityId)` - Sensor entity hook
 - `useCover(entityId)` - Cover entity hook
+- `useLock(entityId)` - Lock entity hook
 - `useEntity(entityId)` - Generic entity hook
 - `useEntityGroup(entityIds)` - Multiple entities hook
 - `useHAConnection()` - Connection status hook
