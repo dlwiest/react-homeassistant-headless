@@ -13,6 +13,7 @@ export { useSensor } from './hooks/useSensor'
 export { useSwitch } from './hooks/useSwitch'
 export { useCover } from './hooks/useCover'
 export { useFan } from './hooks/useFan'
+export { useLock } from './hooks/useLock'
 
 // Headless components
 export { default as Light } from './components/Light'
@@ -21,9 +22,10 @@ export { default as Sensor } from './components/Sensor'
 export { default as Switch } from './components/Switch'
 export { default as Entity } from './components/Entity'
 export { default as Fan } from './components/Fan'
+export { default as Lock } from './components/Lock'
 
 // Types
-export type { EntityState, LightState, ClimateState, SensorState, FanState, HAConfig, ConnectionStatus, LightAttributes, ClimateAttributes, FanAttributes, BaseEntityHook } from './types'
+export type { EntityState, LightState, ClimateState, SensorState, FanState, LockState, HAConfig, ConnectionStatus, LightAttributes, ClimateAttributes, FanAttributes, LockAttributes, BaseEntityHook } from './types'
 export type { SwitchState } from './hooks/useSwitch'
 
 // Utils

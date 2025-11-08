@@ -174,6 +174,93 @@ body, html {
   background: #dc2626;
 }
 
+/* Lock Card Styles */
+.status-indicator {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.status-indicator.locked {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+}
+
+.status-indicator.unlocked {
+  background: #dcfce7;
+  color: #16a34a;
+  border: 1px solid #86efac;
+}
+
+.status-indicator.unknown {
+  background: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fcd34d;
+}
+
+.button-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.action-button {
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  flex: 1;
+  min-width: 80px;
+}
+
+.action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lock-button {
+  background: #ef4444;
+  color: white;
+}
+
+.lock-button:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.unlock-button {
+  background: #22c55e;
+  color: white;
+}
+
+.unlock-button:hover:not(:disabled) {
+  background: #16a34a;
+}
+
+.open-button {
+  background: #3b82f6;
+  color: white;
+}
+
+.open-button:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.lock-info {
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+  background: #f8fafc;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
 /* Toggle Switch */
 .toggle-switch {
   width: 60px;

@@ -95,6 +95,17 @@ export function createMockConnection(): Partial<Connection> {
               newAttributes.direction = service_data.direction
             }
           }
+        } else if (domain === 'lock') {
+          if (service === 'lock') {
+            newState = 'locked'
+            newAttributes.changed_by = 'User'
+          } else if (service === 'unlock') {
+            newState = 'unlocked'
+            newAttributes.changed_by = 'User'
+          } else if (service === 'open') {
+            newState = 'unlocked'
+            newAttributes.changed_by = 'User'
+          }
         }
 
         // Update the entity in the store

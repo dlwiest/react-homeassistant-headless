@@ -1,7 +1,7 @@
 import React from 'react'
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
-import { LightCard, SwitchCard, SensorCard, FanCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, FanCard, LockCard } from './components/cards'
 import './styles/dashboard.css'
 
 // Mock data for demo - simulating a typical smart home setup
@@ -131,6 +131,24 @@ const mockData = {
       supported_features: 9, // Speed + Preset
     },
   },
+
+  // Locks
+  'lock.front_door': {
+    state: 'locked',
+    attributes: {
+      friendly_name: 'Front Door',
+      changed_by: 'Manual',
+      supported_features: 1, // Open support
+    },
+  },
+  'lock.back_door': {
+    state: 'unlocked',
+    attributes: {
+      friendly_name: 'Back Door',
+      changed_by: 'Key',
+      supported_features: 0, // Basic lock/unlock only
+    },
+  },
 }
 
 const Dashboard = () => {
@@ -159,6 +177,14 @@ const Dashboard = () => {
           <div className="dashboard-grid">
             <FanCard entityId="fan.living_room_ceiling" name="Living Room Ceiling Fan" />
             <FanCard entityId="fan.bedroom_fan" name="Bedroom Fan" />
+          </div>
+        </section>
+
+        <section className="dashboard-section">
+          <h2 className="section-title">🔒 Security</h2>
+          <div className="dashboard-grid">
+            <LockCard entityId="lock.front_door" name="Front Door" />
+            <LockCard entityId="lock.back_door" name="Back Door" />
           </div>
         </section>
 

@@ -29,10 +29,11 @@ import {
   Lightbulb,
   Settings,
   Security,
+  Lock,
   Speed,
   Smartphone
 } from '@mui/icons-material'
-import { LightCard, SwitchCard, SensorCard, FanCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, FanCard, LockCard } from './components/cards'
 
 // Create MUI theme
 const theme = createTheme({
@@ -194,6 +195,24 @@ const mockData = {
       supported_features: 9, // Speed + Preset
     },
   },
+
+  // Locks
+  'lock.front_door': {
+    state: 'locked',
+    attributes: {
+      friendly_name: 'Front Door',
+      changed_by: 'Manual',
+      supported_features: 1, // Open support
+    },
+  },
+  'lock.back_door': {
+    state: 'unlocked',
+    attributes: {
+      friendly_name: 'Back Door',
+      changed_by: 'Key',
+      supported_features: 0, // Basic lock/unlock only
+    },
+  },
 }
 
 const ConnectionStatus = () => {
@@ -287,6 +306,20 @@ const Dashboard = () => {
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <FanCard entityId="fan.bedroom_fan" name="Bedroom Fan" />
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h5" component="h2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Lock /> Security
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6} md={4}>
+            <LockCard entityId="lock.front_door" name="Front Door" />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <LockCard entityId="lock.back_door" name="Back Door" />
           </Grid>
         </Grid>
       </Box>

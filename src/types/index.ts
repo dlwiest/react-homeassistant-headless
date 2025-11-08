@@ -173,6 +173,26 @@ export interface FanState extends BaseEntityHook<FanAttributes> {
   setDirection: (direction: 'forward' | 'reverse') => Promise<void>
 }
 
+// Lock types
+export interface LockAttributes {
+  friendly_name?: string
+  supported_features?: number
+  code_format?: string
+  changed_by?: string
+  code_arm_required?: boolean
+}
+
+export interface LockState extends BaseEntityHook<LockAttributes> {
+  isLocked: boolean
+  isUnlocked: boolean
+  isUnknown: boolean
+  changedBy?: string
+  supportsOpen: boolean
+  lock: () => Promise<void>
+  unlock: (code?: string) => Promise<void>
+  open: (code?: string) => Promise<void>
+}
+
 // Feature flags for supported features
 export const LightFeatures = {
   SUPPORT_BRIGHTNESS: 1,
@@ -199,6 +219,10 @@ export const FanFeatures = {
   SUPPORT_OSCILLATE: 2,
   SUPPORT_DIRECTION: 4,
   SUPPORT_PRESET_MODE: 8,
+} as const
+
+export const LockFeatures = {
+  SUPPORT_OPEN: 1,
 } as const
 
 // WebSocket event types

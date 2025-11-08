@@ -118,6 +118,19 @@ Three complete dashboard examples showing different UI approaches:
 </Fan>
 ```
 
+### Locks
+```jsx
+<Lock entityId="lock.front_door">
+  {({ 
+    isLocked, isUnlocked, isUnknown, changedBy,
+    supportsOpen,
+    lock, unlock, open
+  }) => (
+    // Your lock controls
+  )}
+</Lock>
+```
+
 ### Covers
 ```jsx
 <Cover entityId="cover.garage_door">
@@ -135,12 +148,13 @@ Three complete dashboard examples showing different UI approaches:
 If you prefer hooks over render props:
 
 ```jsx
-import { useLight, useClimate, useFan } from '@dlwiest/hass-react'
+import { useLight, useClimate, useFan, useLock } from '@dlwiest/hass-react'
 
 function MyComponent() {
   const light = useLight('light.living_room')
   const thermostat = useClimate('climate.main_floor')
   const fan = useFan('fan.bedroom_ceiling')
+  const lock = useLock('lock.front_door')
   
   return (
     <div>
@@ -153,6 +167,11 @@ function MyComponent() {
       <div>
         <button onClick={fan.toggle}>
           Fan: {fan.isOn ? 'ON' : 'OFF'} ({fan.percentage}%)
+        </button>
+      </div>
+      <div>
+        <button onClick={lock.lock}>
+          Door: {lock.isLocked ? 'LOCKED' : 'UNLOCKED'}
         </button>
       </div>
     </div>
@@ -258,6 +277,7 @@ const { connected, connecting, error, reconnect } = useHAConnection()
 - `<Switch>` - Switch controls
 - `<Sensor>` - Sensor data
 - `<Fan>` - Fan controls with speed, presets, oscillation, direction
+- `<Lock>` - Lock controls with lock, unlock, open
 - `<Cover>` - Cover/blind controls
 - `<Entity>` - Generic entity component
 
@@ -267,6 +287,7 @@ const { connected, connecting, error, reconnect } = useHAConnection()
 - `useSwitch(entityId)` - Switch entity hook
 - `useSensor(entityId)` - Sensor entity hook
 - `useFan(entityId)` - Fan entity hook
+- `useLock(entityId)` - Lock entity hook
 - `useCover(entityId)` - Cover entity hook
 - `useEntity(entityId)` - Generic entity hook
 - `useEntityGroup(entityIds)` - Multiple entities hook
