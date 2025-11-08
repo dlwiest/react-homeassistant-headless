@@ -1,4 +1,4 @@
-import { Light } from 'react-homeassistant-headless'
+import { Light } from 'hass-react'
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'

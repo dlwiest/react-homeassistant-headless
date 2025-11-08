@@ -1,4 +1,4 @@
-import { Switch as HomeAssistantSwitch } from 'react-homeassistant-headless'
+import { Switch as HomeAssistantSwitch } from 'hass-react'
 import {
   Card,
   CardHeader,

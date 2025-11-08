@@ -1,5 +1,5 @@
 import React from 'react'
-import { HAProvider } from 'react-homeassistant-headless'
+import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
 import { LightCard, SwitchCard, SensorCard } from './components/cards'
 import './styles/dashboard.css'
@@ -114,7 +114,7 @@ const Dashboard = () => {
       <div className="dashboard-container">
         <header className="dashboard-header">
           <h1 className="dashboard-title">Smart Home Dashboard</h1>
-          <p className="dashboard-subtitle">Built with react-homeassistant-headless + shadcn/ui</p>
+          <p className="dashboard-subtitle">Built with hass-react + shadcn/ui</p>
         </header>
 
         <ConnectionStatus />
@@ -174,7 +174,7 @@ const Dashboard = () => {
         }}>
           <h3>About This Example</h3>
           <p>
-            This dashboard showcases the <strong>react-homeassistant-headless</strong> library with 
+            This dashboard showcases the <strong>hass-react</strong> library with 
             <strong> shadcn/ui components</strong>. It demonstrates:
           </p>
           <ul style={{ marginTop: '1rem' }}>

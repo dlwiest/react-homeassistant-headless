@@ -1,7 +1,7 @@
 import {
   HAProvider,
   useHAConnection
-} from 'react-homeassistant-headless'
+} from 'hass-react'
 import {
   ThemeProvider,
   createTheme,
@@ -230,7 +230,7 @@ const Dashboard = () => {
           Smart Home Dashboard
         </Typography>
         <Typography variant="h6" color="text.secondary" gutterBottom>
-          Built with react-homeassistant-headless + Material-UI
+          Built with hass-react + Material-UI
         </Typography>
       </Box>
 
@@ -315,7 +315,7 @@ const Dashboard = () => {
             About This Example
           </Typography>
           <Typography variant="body1" paragraph>
-            This dashboard showcases the <strong>react-homeassistant-headless</strong> library with{' '}
+            This dashboard showcases the <strong>hass-react</strong> library with{' '}
             <strong>Material-UI components</strong>. It demonstrates:
           </Typography>
           <List dense>

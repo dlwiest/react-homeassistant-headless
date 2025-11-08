@@ -1,5 +1,5 @@
 import React from 'react'
-import { Sensor } from 'react-homeassistant-headless'
+import { Sensor } from 'hass-react'
 import { Card, CardHeader, CardContent, CardFooter } from '../layout/Card'
 
 interface SensorCardProps {

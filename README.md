@@ -1,31 +1,28 @@
-# react-homeassistant-headless
+# hass-react
 
-[![npm version](https://badge.fury.io/js/@dlwiest%2Freact-homeassistant-headless.svg)](https://badge.fury.io/js/@dlwiest%2Freact-homeassistant-headless)
-[![npm downloads](https://img.shields.io/npm/dm/@dlwiest/react-homeassistant-headless.svg)](https://www.npmjs.com/package/@dlwiest/react-homeassistant-headless)
+[![npm version](https://badge.fury.io/js/@dlwiest%2Fhass-react.svg)](https://badge.fury.io/js/@dlwiest%2Fhass-react)
+[![npm downloads](https://img.shields.io/npm/dm/@dlwiest/hass-react.svg)](https://www.npmjs.com/package/@dlwiest/hass-react)
 
-> Headless React hooks and components for building custom Home Assistant dashboards
-
-This library handles WebSocket connections, entity subscriptions, and state management for Home Assistant so you can focus on building the UI you want. Use any component library, styling approach, or UI framework - build your own custom design without the library getting in your way.
+react-hass is a React library built for people seeking full creative control over the look and feel of their Home Assistant experience. A complete suite of headless components abstracts all the headaches of WebSocket implementation and state management, allowing you to focus on creating your perfect custom dashboards.
 
 ## Features
 
 - **Full TypeScript support** - Complete type definitions for all entities and their properties
 - **Automatic reconnection** - Handles connection drops and network issues transparently
 - **Developer-friendly warnings** - Helpful console messages for common configuration issues
-- **Entity ID shortcuts** - Automatically adds domain prefixes (e.g., `light.` for lights) when missing
 - **Mock mode** - Develop and test without a real Home Assistant instance
 - **No UI constraints** - Works with any React setup, styling, or component library
 
 ## Installation
 
 ```bash
-npm install @dlwiest/react-homeassistant-headless
+npm install @dlwiest/hass-react
 ```
 
 ## Quick Example
 
 ```jsx
-import { HAProvider, Light } from '@dlwiest/react-homeassistant-headless'
+import { HAProvider, Light } from '@dlwiest/hass-react'
 
 function App() {
   return (
@@ -124,7 +121,7 @@ Three complete dashboard examples showing different UI approaches:
 If you prefer hooks over render props:
 
 ```jsx
-import { useLight, useClimate } from '@dlwiest/react-homeassistant-headless'
+import { useLight, useClimate } from '@dlwiest/hass-react'
 
 function MyComponent() {
   const light = useLight('light.living_room')
@@ -148,7 +145,7 @@ function MyComponent() {
 Work with multiple entities:
 
 ```jsx
-import { useEntityGroup } from '@dlwiest/react-homeassistant-headless'
+import { useEntityGroup } from '@dlwiest/hass-react'
 
 function AllLights() {
   const lights = useEntityGroup(['light.living_room', 'light.kitchen', 'light.bedroom'])

@@ -1,4 +1,4 @@
-import { Light } from 'react-homeassistant-headless'
+import { Light } from 'hass-react'
 import {
   Card,
   CardHeader,

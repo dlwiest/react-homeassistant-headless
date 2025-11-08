@@ -1,7 +1,7 @@
 {
-  "name": "@dlwiest/react-homeassistant-headless",
-  "version": "0.1.2",
-  "description": "Headless React framework for Home Assistant dashboards",
+  "name": "@dlwiest/hass-react",
+  "version": "0.2.0",
+  "description": "Headless React hooks for Home Assistant dashboards",
   "main": "./dist/index.cjs.js",
   "module": "./dist/index.es.js",
   "types": "./dist/index.d.ts",
@@ -46,7 +46,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dlwiest/react-homeassistant-headless.git"
+    "url": "git+https://github.com/dlwiest/hass-react.git"
   },
   "keywords": [
     "home-assistant",

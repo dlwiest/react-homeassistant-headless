@@ -1,4 +1,4 @@
-import { Sensor } from 'react-homeassistant-headless'
+import { Sensor } from 'hass-react'
 import {
   Card,
   CardHeader,

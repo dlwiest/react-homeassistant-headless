@@ -1,5 +1,5 @@
 import React from 'react'
-import { Light } from 'react-homeassistant-headless'
+import { Light } from 'hass-react'
 import { Card, CardHeader, CardContent, CardFooter } from '../layout/Card'
 
 interface LightCardProps {

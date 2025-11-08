@@ -1,4 +1,4 @@
-import { useHAConnection } from 'react-homeassistant-headless'
+import { useHAConnection } from 'hass-react'
 
 export const ConnectionStatus = () => {
   const { connected, connecting, error, reconnect, config } = useHAConnection()

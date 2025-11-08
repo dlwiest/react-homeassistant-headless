@@ -1,5 +1,5 @@
 import React from 'react'
-import { Switch } from 'react-homeassistant-headless'
+import { Switch } from 'hass-react'
 import { Card, CardHeader, CardFooter } from '../layout/Card'
 
 interface SwitchCardProps {
