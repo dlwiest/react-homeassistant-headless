@@ -104,6 +104,20 @@ Three complete dashboard examples showing different UI approaches:
 </Sensor>
 ```
 
+### Fans
+```jsx
+<Fan entityId="fan.bedroom_ceiling">
+  {({ 
+    isOn, percentage, presetMode, isOscillating, direction,
+    supportsSetSpeed, supportsPresetMode, supportsOscillate, supportsDirection,
+    availablePresetModes,
+    toggle, setPercentage, setPresetMode, setOscillating, setDirection
+  }) => (
+    // Your fan controls
+  )}
+</Fan>
+```
+
 ### Covers
 ```jsx
 <Cover entityId="cover.garage_door">
@@ -121,11 +135,12 @@ Three complete dashboard examples showing different UI approaches:
 If you prefer hooks over render props:
 
 ```jsx
-import { useLight, useClimate } from '@dlwiest/hass-react'
+import { useLight, useClimate, useFan } from '@dlwiest/hass-react'
 
 function MyComponent() {
   const light = useLight('light.living_room')
   const thermostat = useClimate('climate.main_floor')
+  const fan = useFan('fan.bedroom_ceiling')
   
   return (
     <div>
@@ -134,6 +149,11 @@ function MyComponent() {
       </button>
       <div>
         Temperature: {thermostat.currentTemperature}°
+      </div>
+      <div>
+        <button onClick={fan.toggle}>
+          Fan: {fan.isOn ? 'ON' : 'OFF'} ({fan.percentage}%)
+        </button>
       </div>
     </div>
   )
@@ -237,6 +257,7 @@ const { connected, connecting, error, reconnect } = useHAConnection()
 - `<Climate>` - Climate/thermostat controls  
 - `<Switch>` - Switch controls
 - `<Sensor>` - Sensor data
+- `<Fan>` - Fan controls with speed, presets, oscillation, direction
 - `<Cover>` - Cover/blind controls
 - `<Entity>` - Generic entity component
 
@@ -245,6 +266,7 @@ const { connected, connecting, error, reconnect } = useHAConnection()
 - `useClimate(entityId)` - Climate entity hook
 - `useSwitch(entityId)` - Switch entity hook
 - `useSensor(entityId)` - Sensor entity hook
+- `useFan(entityId)` - Fan entity hook
 - `useCover(entityId)` - Cover entity hook
 - `useEntity(entityId)` - Generic entity hook
 - `useEntityGroup(entityIds)` - Multiple entities hook
@@ -256,6 +278,18 @@ Mock mode for development without Home Assistant:
 ```jsx
 <HAProvider url="mock" mockMode={true} mockData={yourMockEntities} />
 ```
+
+## 🚧 Early Development
+
+This library is in active development and testing. While it's functional and being used in production (my house), the API may evolve as I add more entity types and refine the developer experience.
+
+**I'd welcome your help!**
+- 🐛 **Bug reports** - Found an issue? Let me know!
+- 🧪 **Testing feedback** - Try it with your setup and share your experience
+- 💡 **Feature requests** - Missing an entity type or feature you need?
+- 🤝 **Contributions** - PRs welcome for new entities, improvements, or documentation
+
+[Open an issue](https://github.com/dlwiest/hass-react/issues) or [start a discussion](https://github.com/dlwiest/hass-react/discussions) - I'd love to hear from you!
 
 ## License
 
