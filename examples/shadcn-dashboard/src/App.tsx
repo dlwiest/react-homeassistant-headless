@@ -1,7 +1,7 @@
 import React from 'react'
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
-import { LightCard, SwitchCard, SensorCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, FanCard } from './components/cards'
 import './styles/dashboard.css'
 
 // Mock data for demo - simulating a typical smart home setup
@@ -106,6 +106,31 @@ const mockData = {
       state_class: 'measurement'
     },
   },
+
+  // Fans
+  'fan.living_room_ceiling': {
+    state: 'on',
+    attributes: {
+      friendly_name: 'Living Room Ceiling Fan',
+      percentage: 66,
+      preset_modes: ['Auto', 'Sleep', 'Low', 'Medium', 'High'],
+      preset_mode: 'Medium',
+      oscillating: false,
+      direction: 'forward',
+      supported_features: 15, // Speed + Oscillate + Direction + Preset
+    },
+  },
+  'fan.bedroom_fan': {
+    state: 'off',
+    attributes: {
+      friendly_name: 'Bedroom Fan',
+      percentage: 0,
+      preset_modes: ['Low', 'Medium', 'High'],
+      preset_mode: null,
+      oscillating: false,
+      supported_features: 9, // Speed + Preset
+    },
+  },
 }
 
 const Dashboard = () => {
@@ -126,6 +151,14 @@ const Dashboard = () => {
             <LightCard entityId="living_room_accent" name="Living Room Accent" />
             <LightCard entityId="bedroom_ceiling" name="Bedroom Ceiling" />
             <LightCard entityId="bedside_lamp" name="Bedside Lamp" />
+          </div>
+        </section>
+
+        <section className="dashboard-section">
+          <h2 className="section-title">🌪️ Fans</h2>
+          <div className="dashboard-grid">
+            <FanCard entityId="fan.living_room_ceiling" name="Living Room Ceiling Fan" />
+            <FanCard entityId="fan.bedroom_fan" name="Bedroom Fan" />
           </div>
         </section>
 

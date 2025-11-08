@@ -32,7 +32,7 @@ import {
   Speed,
   Smartphone
 } from '@mui/icons-material'
-import { LightCard, SwitchCard, SensorCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, FanCard } from './components/cards'
 
 // Create MUI theme
 const theme = createTheme({
@@ -61,10 +61,6 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          '&:hover': {
-            boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
-          },
-          transition: 'box-shadow 0.3s ease',
         },
       },
     },
@@ -173,6 +169,31 @@ const mockData = {
       state_class: 'measurement'
     },
   },
+
+  // Fans
+  'fan.living_room_ceiling': {
+    state: 'on',
+    attributes: {
+      friendly_name: 'Living Room Ceiling Fan',
+      percentage: 66,
+      preset_modes: ['Auto', 'Sleep', 'Low', 'Medium', 'High'],
+      preset_mode: 'Medium',
+      oscillating: false,
+      direction: 'forward',
+      supported_features: 15, // Speed + Oscillate + Direction + Preset
+    },
+  },
+  'fan.bedroom_fan': {
+    state: 'off',
+    attributes: {
+      friendly_name: 'Bedroom Fan',
+      percentage: 0,
+      preset_modes: ['Low', 'Medium', 'High'],
+      preset_mode: null,
+      oscillating: false,
+      supported_features: 9, // Speed + Preset
+    },
+  },
 }
 
 const ConnectionStatus = () => {
@@ -252,6 +273,20 @@ const Dashboard = () => {
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <LightCard entityId="bedside_lamp" name="Bedside Lamp" />
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h5" component="h2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Speed /> Fans
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6} md={4}>
+            <FanCard entityId="fan.living_room_ceiling" name="Living Room Ceiling Fan" />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <FanCard entityId="fan.bedroom_fan" name="Bedroom Fan" />
           </Grid>
         </Grid>
       </Box>

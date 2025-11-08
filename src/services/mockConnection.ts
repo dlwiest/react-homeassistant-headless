@@ -50,6 +50,51 @@ export function createMockConnection(): Partial<Connection> {
               newAttributes.target_temp_high = service_data.target_temp_high
             }
           }
+        } else if (domain === 'fan') {
+          if (service === 'toggle') {
+            newState = currentEntity.state === 'on' ? 'off' : 'on'
+            // Reset percentage when turning off
+            if (newState === 'off') {
+              newAttributes.percentage = 0
+            } else {
+              // Set to a default percentage when turning on if it was 0
+              if (newAttributes.percentage === 0) {
+                newAttributes.percentage = 50
+              }
+            }
+          } else if (service === 'turn_on') {
+            newState = 'on'
+            // Apply any additional data (percentage, preset_mode, etc)
+            const { entity_id, ...serviceData } = service_data
+            Object.assign(newAttributes, serviceData)
+            // Set default percentage if not specified
+            if (newAttributes.percentage === 0 && !serviceData.percentage) {
+              newAttributes.percentage = 50
+            }
+          } else if (service === 'turn_off') {
+            newState = 'off'
+            newAttributes.percentage = 0
+          } else if (service === 'set_percentage') {
+            if (service_data.percentage !== undefined) {
+              newAttributes.percentage = service_data.percentage
+              // Turn on if percentage > 0, off if 0
+              newState = service_data.percentage > 0 ? 'on' : 'off'
+            }
+          } else if (service === 'set_preset_mode') {
+            if (service_data.preset_mode !== undefined) {
+              newAttributes.preset_mode = service_data.preset_mode
+              // Turn on when setting preset mode
+              newState = 'on'
+            }
+          } else if (service === 'oscillate') {
+            if (service_data.oscillating !== undefined) {
+              newAttributes.oscillating = service_data.oscillating
+            }
+          } else if (service === 'set_direction') {
+            if (service_data.direction !== undefined) {
+              newAttributes.direction = service_data.direction
+            }
+          }
         }
 
         // Update the entity in the store

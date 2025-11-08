@@ -94,10 +94,6 @@ body, html {
   transition: all 0.3s ease;
 }
 
-.card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-}
 
 .card-header {
   display: flex;
