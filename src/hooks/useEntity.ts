@@ -3,10 +3,21 @@ import { useStore } from '../services/entityStore'
 import { useHAConnection } from '../providers/HAProvider'
 import type { BaseEntityHook, EntityState } from '../types'
 
-export function useEntity<T = Record<string, any>>(entityId: string): BaseEntityHook<T> {
+export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEntityHook<T> {
   const { connection, connected } = useHAConnection()
   const registerEntity = useStore((state) => state.registerEntity)
   const unregisterEntity = useStore((state) => state.unregisterEntity)
+
+  // Validate entity ID format
+  useEffect(() => {
+    if (!entityId) {
+      console.warn('useEntity: entityId is required')
+      return
+    }
+    if (!entityId.includes('.')) {
+      console.warn(`useEntity: Invalid entity ID format "${entityId}". Entity IDs should be in format "domain.entity_name" (e.g., "light.living_room")`)
+    }
+  }, [entityId])
 
   // Register entity and subscribe to updates
   useEffect(() => {

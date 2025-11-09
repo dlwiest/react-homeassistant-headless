@@ -53,7 +53,7 @@ export function useCover(entityId: string): CoverState {
     isClosed,
     isOpening,
     isClosing,
-    position: attributes.current_position,
+    position: typeof attributes.current_position === 'number' ? attributes.current_position : undefined,
     open,
     close,
     stop,

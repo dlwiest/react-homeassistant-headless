@@ -18,7 +18,7 @@ export interface ConnectionStatus {
   reconnect: () => void
 }
 
-export interface EntityState<T = Record<string, any>> {
+export interface EntityState<T = Record<string, unknown>> {
   entity_id: string
   state: string
   attributes: T
@@ -31,7 +31,7 @@ export interface EntityState<T = Record<string, any>> {
   }
 }
 
-export interface BaseEntityHook<T = Record<string, any>> {
+export interface BaseEntityHook<T = Record<string, unknown>> {
   entityId: string
   state: string
   attributes: T

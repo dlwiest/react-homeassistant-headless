@@ -135,7 +135,7 @@ describe('useLock', () => {
   })
 
   it('should call open service without code', async () => {
-    const mockEntity = createMockLockEntity()
+    const mockEntity = createMockLockEntity('locked', { supported_features: LockFeatures.SUPPORT_OPEN })
     mockUseEntity.mockReturnValue(mockEntity)
     
     const { result } = renderHook(() => useLock('test'))
@@ -148,7 +148,7 @@ describe('useLock', () => {
   })
 
   it('should call open service with code', async () => {
-    const mockEntity = createMockLockEntity()
+    const mockEntity = createMockLockEntity('locked', { supported_features: LockFeatures.SUPPORT_OPEN })
     mockUseEntity.mockReturnValue(mockEntity)
     
     const { result } = renderHook(() => useLock('test'))
@@ -176,5 +176,65 @@ describe('useLock', () => {
     renderHook(() => useLock('lock.front_door'))
     
     expect(useEntity).toHaveBeenCalledWith('lock.front_door')
+  })
+
+  describe('Warning Behavior', () => {
+    let consoleMock: any
+
+    beforeEach(() => {
+      consoleMock = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    })
+
+    afterEach(() => {
+      consoleMock.mockRestore()
+    })
+
+    it('should warn when trying to open unsupported lock', async () => {
+      const mockCallService = vi.fn()
+      mockUseEntity.mockReturnValue({
+        ...createMockLockEntity('locked', { supported_features: 0 }), // No features supported
+        callService: mockCallService
+      })
+
+      const { result } = renderHook(() => useLock('lock.test'))
+
+      await act(async () => {
+        await result.current.open()
+      })
+
+      expect(consoleMock).toHaveBeenCalledWith(
+        'Lock "lock.test" does not support open operation. Check the lock\'s supported_features.'
+      )
+      expect(mockCallService).not.toHaveBeenCalled()
+    })
+
+    it('should warn when trying to open unsupported lock with code', async () => {
+      const mockCallService = vi.fn()
+      mockUseEntity.mockReturnValue({
+        ...createMockLockEntity('locked', { supported_features: 0 }),
+        callService: mockCallService
+      })
+
+      const { result } = renderHook(() => useLock('lock.test'))
+
+      await act(async () => {
+        await result.current.open('1234')
+      })
+
+      expect(consoleMock).toHaveBeenCalledWith(
+        'Lock "lock.test" does not support open operation. Check the lock\'s supported_features.'
+      )
+      expect(mockCallService).not.toHaveBeenCalled()
+    })
+
+    it('should warn when using wrong domain', () => {
+      mockUseEntity.mockReturnValue(createMockLockEntity('locked'))
+
+      renderHook(() => useLock('switch.door_lock'))
+
+      expect(consoleMock).toHaveBeenCalledWith(
+        'useLock: Entity "switch.door_lock" has domain "switch" but useLock expects "lock" domain. This may not work as expected. Use useEntity() or the appropriate domain-specific hook instead.'
+      )
+    })
   })
 })

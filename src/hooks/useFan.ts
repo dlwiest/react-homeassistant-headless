@@ -4,6 +4,10 @@ import type { FanState, FanAttributes } from '../types'
 import { FanFeatures } from '../types'
 
 function ensureFanEntityId(entityId: string): string {
+  if (entityId.includes('.') && !entityId.startsWith('fan.')) {
+    const [domain] = entityId.split('.')
+    console.warn(`useFan: Entity "${entityId}" has domain "${domain}" but useFan expects "fan" domain. This may not work as expected. Use useEntity() or the appropriate domain-specific hook instead.`)
+  }
   return entityId.includes('.') ? entityId : `fan.${entityId}`
 }
 
@@ -18,6 +22,9 @@ export function useFan(entityId: string): FanState {
   const supportsOscillate = (supportedFeatures & FanFeatures.SUPPORT_OSCILLATE) !== 0
   const supportsDirection = (supportedFeatures & FanFeatures.SUPPORT_DIRECTION) !== 0
   const supportsPresetMode = (supportedFeatures & FanFeatures.SUPPORT_PRESET_MODE) !== 0
+
+  // Available options
+  const availablePresetModes = attributes.preset_modes || []
 
   // State helpers
   const isOn = state === 'on'
@@ -44,34 +51,53 @@ export function useFan(entityId: string): FanState {
 
   const setPercentage = useCallback(
     async (newPercentage: number) => {
+      if (!supportsSetSpeed) {
+        console.warn(`Fan "${normalizedEntityId}" does not support speed control. Check the fan's supported_features.`)
+        return
+      }
       const clampedPercentage = Math.max(0, Math.min(100, newPercentage))
       await callService('fan', 'set_percentage', { percentage: clampedPercentage })
     },
-    [callService]
+    [callService, supportsSetSpeed, normalizedEntityId]
   )
 
   const setPresetMode = useCallback(
     async (preset: string) => {
+      if (!supportsPresetMode) {
+        console.warn(`Fan "${normalizedEntityId}" does not support preset modes. Check the fan's supported_features.`)
+        return
+      }
+      if (preset && preset !== '' && !availablePresetModes.includes(preset)) {
+        console.warn(`Preset "${preset}" is not available for fan "${normalizedEntityId}". Available presets: ${availablePresetModes.join(', ')}`)
+      }
       // Only set preset mode if a valid preset is provided
       if (preset && preset !== '') {
         await callService('fan', 'set_preset_mode', { preset_mode: preset })
       }
     },
-    [callService]
+    [callService, supportsPresetMode, normalizedEntityId, availablePresetModes]
   )
 
   const setOscillating = useCallback(
     async (oscillating: boolean) => {
+      if (!supportsOscillate) {
+        console.warn(`Fan "${normalizedEntityId}" does not support oscillation control. Check the fan's supported_features.`)
+        return
+      }
       await callService('fan', 'oscillate', { oscillating })
     },
-    [callService]
+    [callService, supportsOscillate, normalizedEntityId]
   )
 
   const setDirection = useCallback(
     async (newDirection: 'forward' | 'reverse') => {
+      if (!supportsDirection) {
+        console.warn(`Fan "${normalizedEntityId}" does not support direction control. Check the fan's supported_features.`)
+        return
+      }
       await callService('fan', 'set_direction', { direction: newDirection })
     },
-    [callService]
+    [callService, supportsDirection, normalizedEntityId]
   )
 
   return {

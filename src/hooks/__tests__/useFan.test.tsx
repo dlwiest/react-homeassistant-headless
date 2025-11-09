@@ -137,7 +137,7 @@ describe('useFan', () => {
   })
 
   it('should set percentage with clamping', async () => {
-    const mockEntity = createMockFanEntity()
+    const mockEntity = createMockFanEntity('on', { supported_features: FanFeatures.SUPPORT_SET_SPEED })
     mockUseEntity.mockReturnValue(mockEntity)
     
     const { result } = renderHook(() => useFan('test'))
@@ -162,7 +162,7 @@ describe('useFan', () => {
   })
 
   it('should set preset mode', async () => {
-    const mockEntity = createMockFanEntity()
+    const mockEntity = createMockFanEntity('on', { supported_features: FanFeatures.SUPPORT_PRESET_MODE })
     mockUseEntity.mockReturnValue(mockEntity)
     
     const { result } = renderHook(() => useFan('test'))
@@ -177,7 +177,7 @@ describe('useFan', () => {
   })
 
   it('should set oscillating', async () => {
-    const mockEntity = createMockFanEntity()
+    const mockEntity = createMockFanEntity('on', { supported_features: FanFeatures.SUPPORT_OSCILLATE })
     mockUseEntity.mockReturnValue(mockEntity)
     
     const { result } = renderHook(() => useFan('test'))
@@ -192,7 +192,7 @@ describe('useFan', () => {
   })
 
   it('should set direction', async () => {
-    const mockEntity = createMockFanEntity()
+    const mockEntity = createMockFanEntity('on', { supported_features: FanFeatures.SUPPORT_DIRECTION })
     mockUseEntity.mockReturnValue(mockEntity)
     
     const { result } = renderHook(() => useFan('test'))
@@ -222,5 +222,126 @@ describe('useFan', () => {
     renderHook(() => useFan('fan.test_fan'))
     
     expect(useEntity).toHaveBeenCalledWith('fan.test_fan')
+  })
+
+  describe('Warning Behavior', () => {
+    let consoleMock: any
+
+    beforeEach(() => {
+      consoleMock = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    })
+
+    afterEach(() => {
+      consoleMock.mockRestore()
+    })
+
+    it('should warn when trying to set percentage on unsupported fan', async () => {
+      const mockCallService = vi.fn()
+      mockUseEntity.mockReturnValue({
+        ...createMockFanEntity('on', { supported_features: 0 }), // No features supported
+        callService: mockCallService
+      })
+
+      const { result } = renderHook(() => useFan('fan.test'))
+
+      await act(async () => {
+        await result.current.setPercentage(50)
+      })
+
+      expect(consoleMock).toHaveBeenCalledWith(
+        'Fan "fan.test" does not support speed control. Check the fan\'s supported_features.'
+      )
+      expect(mockCallService).not.toHaveBeenCalled()
+    })
+
+    it('should warn when trying to set preset mode on unsupported fan', async () => {
+      const mockCallService = vi.fn()
+      mockUseEntity.mockReturnValue({
+        ...createMockFanEntity('on', { supported_features: 0 }),
+        callService: mockCallService
+      })
+
+      const { result } = renderHook(() => useFan('fan.test'))
+
+      await act(async () => {
+        await result.current.setPresetMode('high')
+      })
+
+      expect(consoleMock).toHaveBeenCalledWith(
+        'Fan "fan.test" does not support preset modes. Check the fan\'s supported_features.'
+      )
+      expect(mockCallService).not.toHaveBeenCalled()
+    })
+
+    it('should warn when trying to set oscillating on unsupported fan', async () => {
+      const mockCallService = vi.fn()
+      mockUseEntity.mockReturnValue({
+        ...createMockFanEntity('on', { supported_features: 0 }),
+        callService: mockCallService
+      })
+
+      const { result } = renderHook(() => useFan('fan.test'))
+
+      await act(async () => {
+        await result.current.setOscillating(true)
+      })
+
+      expect(consoleMock).toHaveBeenCalledWith(
+        'Fan "fan.test" does not support oscillation control. Check the fan\'s supported_features.'
+      )
+      expect(mockCallService).not.toHaveBeenCalled()
+    })
+
+    it('should warn when trying to set direction on unsupported fan', async () => {
+      const mockCallService = vi.fn()
+      mockUseEntity.mockReturnValue({
+        ...createMockFanEntity('on', { supported_features: 0 }),
+        callService: mockCallService
+      })
+
+      const { result } = renderHook(() => useFan('fan.test'))
+
+      await act(async () => {
+        await result.current.setDirection('reverse')
+      })
+
+      expect(consoleMock).toHaveBeenCalledWith(
+        'Fan "fan.test" does not support direction control. Check the fan\'s supported_features.'
+      )
+      expect(mockCallService).not.toHaveBeenCalled()
+    })
+
+    it('should warn when trying to use unavailable preset mode', async () => {
+      const mockCallService = vi.fn()
+      mockUseEntity.mockReturnValue({
+        ...createMockFanEntity('on', {
+          supported_features: FanFeatures.SUPPORT_PRESET_MODE,
+          preset_modes: ['low', 'medium']
+        }),
+        callService: mockCallService
+      })
+
+      const { result } = renderHook(() => useFan('fan.test'))
+
+      await act(async () => {
+        await result.current.setPresetMode('turbo')
+      })
+
+      expect(consoleMock).toHaveBeenCalledWith(
+        'Preset "turbo" is not available for fan "fan.test". Available presets: low, medium'
+      )
+      // Should still call service even with warning
+      expect(mockCallService).toHaveBeenCalledWith('fan', 'set_preset_mode', { preset_mode: 'turbo' })
+    })
+
+    it('should warn when using wrong domain', () => {
+      mockUseEntity.mockReturnValue(createMockFanEntity('on'))
+
+      renderHook(() => useFan('light.ceiling_light'))
+
+      expect(consoleMock).toHaveBeenCalledWith(
+        'useFan: Entity "light.ceiling_light" has domain "light" but useFan expects "fan" domain. This may not work as expected. Use useEntity() or the appropriate domain-specific hook instead.'
+      )
+    })
   })
 })

@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useReducer, useCallback, useRef, 
 import { createConnection, createLongLivedTokenAuth, Connection } from 'home-assistant-js-websocket'
 import { useStore } from '../services/entityStore'
 import { createMockConnection } from '../services/mockConnection'
-import type { HAConfig, ConnectionStatus } from '../types'
+import type { HAConfig, ConnectionStatus, EntityState } from '../types'
 
 // Valid conneciton states
 type ConnectionState =
@@ -113,7 +113,7 @@ interface HAProviderProps {
   url: string
   token?: string
   mockMode?: boolean
-  mockData?: Record<string, any>
+  mockData?: Record<string, EntityState>
   options?: HAConfig['options']
 }
 
@@ -135,6 +135,23 @@ const HAProvider = ({ children, url, token, mockMode = false, mockData, options 
       return () => {} // Fallback no-op function
     }
   })()
+
+  // Development warnings for configuration issues
+  useEffect(() => {
+    if (!mockMode) {
+      if (!url) {
+        console.warn('HAProvider: url prop is required when not in mock mode')
+      } else if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('ws://') && !url.startsWith('wss://')) {
+        console.warn(`HAProvider: url "${url}" should start with http://, https://, ws://, or wss://`)
+      }
+      
+      if (!token) {
+        console.warn('HAProvider: token prop is required when not in mock mode. Create a long-lived access token in Home Assistant.')
+      }
+    } else if (!mockData) {
+      console.warn('HAProvider: mockMode is enabled but no mockData provided. Entities will have empty state.')
+    }
+  }, [url, token, mockMode, mockData])
 
   // Async connection function
   const attemptConnection = useCallback(async () => {
@@ -207,7 +224,20 @@ const HAProvider = ({ children, url, token, mockMode = false, mockData, options 
         console.warn('Failed to set store connection:', error)
       }
     } catch (err) {
-      dispatch({ type: 'CONNECTION_ERROR', error: err as Error })
+      const error = err as Error
+      let helpfulMessage = `Connection failed: ${error.message}`
+      
+      // Provide helpful debugging information
+      if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+        helpfulMessage += '\n\nPossible causes:\n• Home Assistant is not running\n• URL is incorrect\n• Network connectivity issues\n• CORS issues (try using ws:// instead of http://)'
+      } else if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+        helpfulMessage += '\n\nPossible causes:\n• Invalid or expired access token\n• Token lacks necessary permissions\n• Check your long-lived access token in Home Assistant'
+      } else if (error.message.includes('WebSocket connection') || error.message.includes('ws://')) {
+        helpfulMessage += '\n\nWebSocket connection issues:\n• Check if WebSocket is enabled in Home Assistant\n• Verify the WebSocket URL format\n• Check firewall/proxy settings'
+      }
+      
+      console.error(helpfulMessage)
+      dispatch({ type: 'CONNECTION_ERROR', error })
     }
   }, [url, token, mockMode, mockData, setStoreConnection])
 

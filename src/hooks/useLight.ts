@@ -4,6 +4,10 @@ import type { LightState, LightAttributes } from '../types'
 import { LightFeatures } from '../types'
 
 function ensureLightEntityId(entityId: string): string {
+  if (entityId.includes('.') && !entityId.startsWith('light.')) {
+    const [domain] = entityId.split('.')
+    console.warn(`useLight: Entity "${entityId}" has domain "${domain}" but useLight expects "light" domain. This may not work as expected. Use useEntity() or the appropriate domain-specific hook instead.`)
+  }
   return entityId.includes('.') ? entityId : `light.${entityId}`
 }
 
@@ -18,6 +22,9 @@ export function useLight(entityId: string): LightState {
   const supportsColorTemp = (supportedFeatures & LightFeatures.SUPPORT_COLOR_TEMP) !== 0
   const supportsRgb = (supportedFeatures & LightFeatures.SUPPORT_COLOR) !== 0
   const supportsEffects = (supportedFeatures & LightFeatures.SUPPORT_EFFECT) !== 0
+
+  // Available options
+  const availableEffects = attributes.effect_list || []
 
   // State helpers
   const isOn = state === 'on'
@@ -42,27 +49,46 @@ export function useLight(entityId: string): LightState {
 
   const setBrightness = useCallback(
     async (newBrightness: number) => {
+      if (!supportsBrightness) {
+        console.warn(`Light "${normalizedEntityId}" does not support brightness control. Check the light's supported_features.`)
+        return
+      }
       await turnOn({ brightness: Math.max(0, Math.min(255, newBrightness)) })
     },
-    [turnOn]
+    [turnOn, supportsBrightness, normalizedEntityId]
   )
 
   const setColorTemp = useCallback(
     async (temp: number) => {
+      if (!supportsColorTemp) {
+        console.warn(`Light "${normalizedEntityId}" does not support color temperature control. Check the light's supported_features.`)
+        return
+      }
       await turnOn({ color_temp: temp })
     },
-    [turnOn]
+    [turnOn, supportsColorTemp, normalizedEntityId]
   )
 
   const setRgbColor = useCallback(
     async (rgb: [number, number, number]) => {
+      if (!supportsRgb) {
+        console.warn(`Light "${normalizedEntityId}" does not support RGB color control. Check the light's supported_features.`)
+        return
+      }
       await turnOn({ rgb_color: rgb })
     },
-    [turnOn]
+    [turnOn, supportsRgb, normalizedEntityId]
   )
 
   const setEffect = useCallback(
     async (effect: string | null) => {
+      if (!supportsEffects) {
+        console.warn(`Light "${normalizedEntityId}" does not support effects. Check the light's supported_features.`)
+        return
+      }
+      if (effect && effect !== '' && !availableEffects.includes(effect)) {
+        console.warn(`Effect "${effect}" is not available for light "${normalizedEntityId}". Available effects: ${availableEffects.join(', ')}`)
+      }
       if (effect === null || effect === '') {
         // To clear effect, use "off" (standard for Hue lights in newer HA versions)
         await turnOn({ effect: 'off' })
@@ -70,7 +96,7 @@ export function useLight(entityId: string): LightState {
         await turnOn({ effect })
       }
     },
-    [turnOn]
+    [turnOn, supportsEffects, normalizedEntityId, availableEffects]
   )
 
   return {

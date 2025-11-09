@@ -4,6 +4,10 @@ import type { LockState, LockAttributes } from '../types'
 import { LockFeatures } from '../types'
 
 function ensureLockEntityId(entityId: string): string {
+  if (entityId.includes('.') && !entityId.startsWith('lock.')) {
+    const [domain] = entityId.split('.')
+    console.warn(`useLock: Entity "${entityId}" has domain "${domain}" but useLock expects "lock" domain. This may not work as expected. Use useEntity() or the appropriate domain-specific hook instead.`)
+  }
   return entityId.includes('.') ? entityId : `lock.${entityId}`
 }
 
@@ -33,9 +37,13 @@ export function useLock(entityId: string): LockState {
   }, [callService])
 
   const open = useCallback(async (code?: string) => {
+    if (!supportsOpen) {
+      console.warn(`Lock "${normalizedEntityId}" does not support open operation. Check the lock's supported_features.`)
+      return
+    }
     const params = code ? { code } : undefined
     await callService('lock', 'open', params)
-  }, [callService])
+  }, [callService, supportsOpen, normalizedEntityId])
 
   return {
     ...entity,

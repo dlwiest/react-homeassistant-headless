@@ -1,13 +1,31 @@
 import { useStore } from './entityStore'
 import type { Connection } from 'home-assistant-js-websocket'
 
+interface ServiceData {
+  entity_id: string
+  [key: string]: string | number | boolean | undefined
+}
+
+interface ServiceCallMessage {
+  type: 'call_service'
+  domain: string
+  service: string
+  service_data: ServiceData
+}
+
+interface GetStatesMessage {
+  type: 'get_states'
+}
+
+type MockMessage = ServiceCallMessage | GetStatesMessage | { type: string }
+
 export function createMockConnection(): Partial<Connection> {
   return {
-    sendMessagePromise: async (message: any) => {
+    sendMessagePromise: async (message: MockMessage) => {
       const { type } = message
 
       if (type === 'call_service') {
-        const { domain, service, service_data } = message
+        const { domain, service, service_data } = message as ServiceCallMessage
         const entityId = service_data.entity_id
 
         const currentEntity = useStore.getState().entities.get(entityId)
@@ -23,7 +41,7 @@ export function createMockConnection(): Partial<Connection> {
           } else if (service === 'turn_on') {
             newState = 'on'
             // Apply any additional data (brightness, color, etc)
-            const { entity_id, ...serviceData } = service_data
+            const { entity_id: _entityId, ...serviceData } = service_data
             Object.assign(newAttributes, serviceData)
           } else if (service === 'turn_off') {
             newState = 'off'
@@ -65,7 +83,7 @@ export function createMockConnection(): Partial<Connection> {
           } else if (service === 'turn_on') {
             newState = 'on'
             // Apply any additional data (percentage, preset_mode, etc)
-            const { entity_id, ...serviceData } = service_data
+            const { entity_id: _entityId, ...serviceData } = service_data
             Object.assign(newAttributes, serviceData)
             // Set default percentage if not specified
             if (newAttributes.percentage === 0 && !serviceData.percentage) {
@@ -75,7 +93,7 @@ export function createMockConnection(): Partial<Connection> {
             newState = 'off'
             newAttributes.percentage = 0
           } else if (service === 'set_percentage') {
-            if (service_data.percentage !== undefined) {
+            if (service_data.percentage !== undefined && typeof service_data.percentage === 'number') {
               newAttributes.percentage = service_data.percentage
               // Turn on if percentage > 0, off if 0
               newState = service_data.percentage > 0 ? 'on' : 'off'
