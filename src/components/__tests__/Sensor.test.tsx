@@ -302,8 +302,8 @@ describe('Sensor', () => {
 
   describe('Children Function Patterns', () => {
     it('should support conditional rendering based on sensor value', () => {
-      const mockSensorEntity = createMockSensorEntity('sensor.temperature', '25.0', {
-        unit_of_measurement: '°C',
+      const mockSensorEntity = createMockSensorEntity('sensor.temperature', '77.0', {
+        unit_of_measurement: '°F',
         device_class: 'temperature'
       })
       mockUseSensor.mockReturnValue(mockSensorEntity)
@@ -312,7 +312,7 @@ describe('Sensor', () => {
         <Sensor entityId="sensor.temperature">
           {(sensor) => (
             <div data-testid="temp-display">
-              {sensor.numericValue !== undefined && sensor.numericValue > 20 
+              {sensor.numericValue != null && sensor.numericValue > 70 
                 ? `Warm: ${sensor.value}${sensor.unitOfMeasurement}` 
                 : `Cool: ${sensor.value}${sensor.unitOfMeasurement}`
               }
@@ -321,7 +321,7 @@ describe('Sensor', () => {
         </Sensor>
       )
 
-      expect(container.textContent).toBe('Warm: 25°C')
+      expect(container.textContent).toBe('Warm: 77°F')
     })
 
     it('should support displaying sensor attributes', () => {
@@ -337,7 +337,7 @@ describe('Sensor', () => {
         <Sensor entityId="sensor.weather">
           {(sensor) => (
             <div data-testid="sensor-info">
-              {sensor.attributes.friendly_name}: {sensor.value} (Class: {sensor.deviceClass})
+              {sensor.attributes.friendly_name as string}: {sensor.value} (Class: {sensor.deviceClass})
             </div>
           )}
         </Sensor>
@@ -357,7 +357,7 @@ describe('Sensor', () => {
         <Sensor entityId="sensor.humidity">
           {(sensor) => (
             <div data-testid="formatted-value">
-              {sensor.numericValue !== undefined 
+              {sensor.numericValue != null 
                 ? `${sensor.numericValue.toFixed(1)}${sensor.unitOfMeasurement}` 
                 : sensor.value
               }
@@ -403,9 +403,9 @@ describe('Sensor', () => {
         <Sensor entityId="sensor.energy">
           {(sensor) => (
             <div>
-              <div data-testid="title">{sensor.attributes.friendly_name}</div>
+              <div data-testid="title">{sensor.attributes.friendly_name as string}</div>
               <div data-testid="value">
-                {sensor.numericValue !== undefined ? sensor.numericValue.toLocaleString() : 'N/A'}{sensor.unitOfMeasurement}
+                {sensor.numericValue != null ? sensor.numericValue.toLocaleString() : 'N/A'}{sensor.unitOfMeasurement}
               </div>
               <div data-testid="class">Device Class: {sensor.deviceClass}</div>
               <div data-testid="state-class">State Class: {sensor.stateClass}</div>

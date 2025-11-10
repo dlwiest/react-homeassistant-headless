@@ -1,10 +1,9 @@
 import { useCallback } from 'react'
 import { useEntity } from './useEntity'
 import type { BaseEntityHook } from '../types'
+import { createDomainValidator } from '../utils/entityId'
 
-function ensureCoverEntityId(entityId: string): string {
-  return entityId.includes('.') ? entityId : `cover.${entityId}`
-}
+const validateCoverEntityId = createDomainValidator('cover', 'useCover')
 
 export interface CoverState extends BaseEntityHook {
   isOpen: boolean
@@ -19,7 +18,7 @@ export interface CoverState extends BaseEntityHook {
 }
 
 export function useCover(entityId: string): CoverState {
-  const normalizedEntityId = ensureCoverEntityId(entityId)
+  const normalizedEntityId = validateCoverEntityId(entityId)
   const entity = useEntity(normalizedEntityId)
   const { state, attributes, callService } = entity
 

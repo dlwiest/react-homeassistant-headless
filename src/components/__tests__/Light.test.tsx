@@ -463,7 +463,7 @@ describe('Light', () => {
         <Light entityId="light.rgb_light">
           {(light) => (
             <div data-testid="light-info">
-              {light.attributes.friendly_name} - 
+              {light.attributes.friendly_name as string} - 
               Brightness: {light.brightness} - 
               Color: {light.rgbColor ? 'RGB' : 'Default'}
             </div>

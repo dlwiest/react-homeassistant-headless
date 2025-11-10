@@ -1,10 +1,10 @@
 import { useCallback } from 'react'
 import { useEntity } from './useEntity'
 import type { BaseEntityHook } from '../types'
+import { createDomainValidator } from '../utils/entityId'
+import { createBasicControlDefs } from '../utils/serviceHelpers'
 
-function ensureSwitchEntityId(entityId: string): string {
-  return entityId.includes('.') ? entityId : `switch.${entityId}`
-}
+const validateSwitchEntityId = createDomainValidator('switch', 'useSwitch')
 
 export interface SwitchState extends BaseEntityHook {
   isOn: boolean
@@ -14,23 +14,18 @@ export interface SwitchState extends BaseEntityHook {
 }
 
 export function useSwitch(entityId: string): SwitchState {
-  const normalizedEntityId = ensureSwitchEntityId(entityId)
+  const normalizedEntityId = validateSwitchEntityId(entityId)
   const entity = useEntity(normalizedEntityId)
   const { state, callService } = entity
 
   const isOn = state === 'on'
 
-  const toggle = useCallback(async () => {
-    await callService('switch', 'toggle')
-  }, [callService])
-
-  const turnOn = useCallback(async () => {
-    await callService('switch', 'turn_on')
-  }, [callService])
-
-  const turnOff = useCallback(async () => {
-    await callService('switch', 'turn_off')
-  }, [callService])
+  // Actions using service helpers
+  const basicControls = createBasicControlDefs(callService, 'switch')
+  
+  const toggle = useCallback(basicControls.toggle, [callService])
+  const turnOn = useCallback(basicControls.turnOnSimple, [callService])
+  const turnOff = useCallback(basicControls.turnOff, [callService])
 
   return {
     ...entity,

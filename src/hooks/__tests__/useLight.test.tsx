@@ -3,25 +3,10 @@ import { renderHook, act } from '@testing-library/react'
 import { useLight } from '../useLight'
 import { useEntity } from '../useEntity'
 import { LightFeatures } from '../../types'
+import { createMockLightEntity } from '../../test/utils'
 
 // Mock useEntity since useLight depends on it
 vi.mock('../useEntity')
-
-// Mock light entity response
-const createMockLightEntity = (
-  state: string = 'on',
-  attributes: Record<string, any> = {}
-) => ({
-  entityId: 'light.test',
-  state,
-  attributes,
-  lastChanged: new Date(),
-  lastUpdated: new Date(),
-  isUnavailable: state === 'unavailable',
-  isConnected: true,
-  callService: vi.fn(),
-  refresh: vi.fn()
-})
 
 describe('useLight', () => {
   const mockUseEntity = useEntity as any
@@ -30,7 +15,7 @@ describe('useLight', () => {
     vi.clearAllMocks()
     
     // Default mock for useEntity
-    mockUseEntity.mockReturnValue(createMockLightEntity())
+    mockUseEntity.mockReturnValue(createMockLightEntity('test'))
   })
 
   afterEach(() => {
@@ -42,7 +27,7 @@ describe('useLight', () => {
       const attributes = {
         supported_features: LightFeatures.SUPPORT_BRIGHTNESS
       }
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
 
       const { result } = renderHook(() => useLight('light.test'))
 
@@ -56,7 +41,7 @@ describe('useLight', () => {
       const attributes = {
         supported_features: LightFeatures.SUPPORT_COLOR_TEMP
       }
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
 
       const { result } = renderHook(() => useLight('light.test'))
 
@@ -70,7 +55,7 @@ describe('useLight', () => {
       const attributes = {
         supported_features: LightFeatures.SUPPORT_COLOR
       }
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
 
       const { result } = renderHook(() => useLight('light.test'))
 
@@ -84,7 +69,7 @@ describe('useLight', () => {
       const attributes = {
         supported_features: LightFeatures.SUPPORT_EFFECT
       }
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
 
       const { result } = renderHook(() => useLight('light.test'))
 
@@ -98,7 +83,7 @@ describe('useLight', () => {
       const attributes = {
         supported_features: LightFeatures.SUPPORT_BRIGHTNESS | LightFeatures.SUPPORT_COLOR | LightFeatures.SUPPORT_EFFECT
       }
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
 
       const { result } = renderHook(() => useLight('light.test'))
 
@@ -110,7 +95,7 @@ describe('useLight', () => {
 
     it('should handle missing supported_features attribute', () => {
       const attributes = {} // No supported_features
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
 
       const { result } = renderHook(() => useLight('light.test'))
 
@@ -125,7 +110,7 @@ describe('useLight', () => {
         effect_list: ['rainbow', 'colorloop', 'fire'],
         supported_features: LightFeatures.SUPPORT_EFFECT
       }
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
 
       const { result } = renderHook(() => useLight('light.test'))
 
@@ -135,7 +120,7 @@ describe('useLight', () => {
 
     it('should return empty array when no effect list available', () => {
       const attributes = {}
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
 
       const { result } = renderHook(() => useLight('light.test'))
 
@@ -149,7 +134,7 @@ describe('useLight', () => {
         brightness: 128,
         supported_features: LightFeatures.SUPPORT_BRIGHTNESS
       }
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
 
       const { result } = renderHook(() => useLight('light.test'))
 
@@ -159,7 +144,7 @@ describe('useLight', () => {
 
     it('should return 0 brightness when attribute is missing', () => {
       const attributes = {}
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
 
       const { result } = renderHook(() => useLight('light.test'))
 
@@ -170,14 +155,14 @@ describe('useLight', () => {
     it('should calculate brightness percentage correctly for edge cases', () => {
       // Test maximum brightness
       let attributes = { brightness: 255 }
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
       
       let { result } = renderHook(() => useLight('light.test'))
       expect(result.current.brightnessPercent).toBe(100)
 
       // Test minimum brightness
       attributes = { brightness: 1 }
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
       
       result = renderHook(() => useLight('light.test')).result
       expect(result.current.brightnessPercent).toBe(0) // Math.round(1/255 * 100) = 0
@@ -185,7 +170,7 @@ describe('useLight', () => {
 
     it('should handle fractional brightness values', () => {
       const attributes = { brightness: 63.75 } // Should be 25%
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
 
       const { result } = renderHook(() => useLight('light.test'))
 
@@ -200,7 +185,7 @@ describe('useLight', () => {
         color_temp: 300,
         supported_features: LightFeatures.SUPPORT_COLOR_TEMP
       }
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
 
       const { result } = renderHook(() => useLight('light.test'))
 
@@ -212,7 +197,7 @@ describe('useLight', () => {
         rgb_color: [255, 128, 0] as [number, number, number],
         supported_features: LightFeatures.SUPPORT_COLOR
       }
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
 
       const { result } = renderHook(() => useLight('light.test'))
 
@@ -225,7 +210,7 @@ describe('useLight', () => {
         effect_list: ['rainbow', 'colorloop'],
         supported_features: LightFeatures.SUPPORT_EFFECT
       }
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
 
       const { result } = renderHook(() => useLight('light.test'))
 
@@ -234,7 +219,7 @@ describe('useLight', () => {
 
     it('should handle undefined color attributes', () => {
       const attributes = {}
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', attributes))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
 
       const { result } = renderHook(() => useLight('light.test'))
 
@@ -258,7 +243,7 @@ describe('useLight', () => {
     it('should warn when trying to set brightness on unsupported light', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('on', { supported_features: 0 }), // No features supported
+        ...createMockLightEntity('test', 'on', { supported_features: 0 }), // No features supported
         callService: mockCallService
       })
 
@@ -277,7 +262,7 @@ describe('useLight', () => {
     it('should warn when trying to set color temperature on unsupported light', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('on', { supported_features: 0 }),
+        ...createMockLightEntity('test', 'on', { supported_features: 0 }),
         callService: mockCallService
       })
 
@@ -296,7 +281,7 @@ describe('useLight', () => {
     it('should warn when trying to set RGB color on unsupported light', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('on', { supported_features: 0 }),
+        ...createMockLightEntity('test', 'on', { supported_features: 0 }),
         callService: mockCallService
       })
 
@@ -315,7 +300,7 @@ describe('useLight', () => {
     it('should warn when trying to set effects on unsupported light', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('on', { supported_features: 0 }),
+        ...createMockLightEntity('test', 'on', { supported_features: 0 }),
         callService: mockCallService
       })
 
@@ -334,7 +319,7 @@ describe('useLight', () => {
     it('should warn when trying to use unavailable effect', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('on', {
+        ...createMockLightEntity('test', 'on', {
           supported_features: LightFeatures.SUPPORT_EFFECT,
           effect_list: ['colorloop', 'pulse']
         }),
@@ -355,12 +340,12 @@ describe('useLight', () => {
     })
 
     it('should warn when using wrong domain', () => {
-      mockUseEntity.mockReturnValue(createMockLightEntity('on'))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on'))
 
       renderHook(() => useLight('fan.bedroom_fan'))
 
       expect(consoleMock).toHaveBeenCalledWith(
-        'useLight: Entity "fan.bedroom_fan" has domain "fan" but useLight expects "light" domain. This may not work as expected. Use useEntity() or the appropriate domain-specific hook instead.'
+        'useLight: Entity "fan.bedroom_fan" has domain "fan" but expects "light" domain. This may not work as expected. Use useEntity() or the appropriate domain-specific hook instead.'
       )
     })
   })
@@ -369,7 +354,7 @@ describe('useLight', () => {
     it('should call light.toggle service on toggle()', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
-        ...createMockLightEntity(),
+        ...createMockLightEntity('test'),
         callService: mockCallService
       })
 
@@ -385,7 +370,7 @@ describe('useLight', () => {
     it('should call light.turn_on service on turnOn() without parameters', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('off'),
+        ...createMockLightEntity('test', 'off'),
         callService: mockCallService
       })
 
@@ -401,7 +386,7 @@ describe('useLight', () => {
     it('should call light.turn_on service with brightness parameter', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('off'),
+        ...createMockLightEntity('test', 'off'),
         callService: mockCallService
       })
 
@@ -417,7 +402,7 @@ describe('useLight', () => {
     it('should call light.turn_on service with multiple parameters', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('off'),
+        ...createMockLightEntity('test', 'off'),
         callService: mockCallService
       })
 
@@ -441,7 +426,7 @@ describe('useLight', () => {
     it('should call light.turn_off service on turnOff()', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('on'),
+        ...createMockLightEntity('test', 'on'),
         callService: mockCallService
       })
 
@@ -457,7 +442,7 @@ describe('useLight', () => {
     it('should call setBrightness with clamped values', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('on', { supported_features: 1 }), // SUPPORT_BRIGHTNESS
+        ...createMockLightEntity('test', 'on', { supported_features: 1 }), // SUPPORT_BRIGHTNESS
         callService: mockCallService
       })
 
@@ -485,7 +470,7 @@ describe('useLight', () => {
     it('should call setColorTemp correctly', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('on', { supported_features: 2 }), // SUPPORT_COLOR_TEMP
+        ...createMockLightEntity('test', 'on', { supported_features: 2 }), // SUPPORT_COLOR_TEMP
         callService: mockCallService
       })
 
@@ -501,7 +486,7 @@ describe('useLight', () => {
     it('should call setRgbColor correctly', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('on', { supported_features: 16 }), // SUPPORT_COLOR
+        ...createMockLightEntity('test', 'on', { supported_features: 16 }), // SUPPORT_COLOR
         callService: mockCallService
       })
 
@@ -517,7 +502,7 @@ describe('useLight', () => {
     it('should call setEffect correctly', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('on', { 
+        ...createMockLightEntity('test', 'on', { 
           supported_features: 4, // SUPPORT_EFFECT
           effect_list: ['colorloop', 'rainbow', 'pulse']
         }),
@@ -536,7 +521,7 @@ describe('useLight', () => {
     it('should handle service call errors', async () => {
       const mockCallService = vi.fn().mockRejectedValue(new Error('Service call failed'))
       mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('on', {
+        ...createMockLightEntity('test', 'on', {
           supported_features: LightFeatures.SUPPORT_BRIGHTNESS | LightFeatures.SUPPORT_COLOR_TEMP
         }),
         callService: mockCallService
@@ -553,23 +538,23 @@ describe('useLight', () => {
   describe('Integration and State Management', () => {
     it('should return isOn correctly based on state', () => {
       // Test on state
-      mockUseEntity.mockReturnValue(createMockLightEntity('on'))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on'))
       let { result } = renderHook(() => useLight('light.test'))
       expect(result.current.isOn).toBe(true)
 
       // Test off state
-      mockUseEntity.mockReturnValue(createMockLightEntity('off'))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'off'))
       result = renderHook(() => useLight('light.test')).result
       expect(result.current.isOn).toBe(false)
 
       // Test unavailable state
-      mockUseEntity.mockReturnValue(createMockLightEntity('unavailable'))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'unavailable'))
       result = renderHook(() => useLight('light.test')).result
       expect(result.current.isOn).toBe(false)
     })
 
     it('should inherit all base entity properties', () => {
-      const mockEntity = createMockLightEntity('on', { test: 'value' })
+      const mockEntity = createMockLightEntity('test', 'on', { test: 'value' })
       mockUseEntity.mockReturnValue(mockEntity)
 
       const { result } = renderHook(() => useLight('light.test'))
@@ -597,7 +582,7 @@ describe('useLight', () => {
 
     it('should update when useEntity data changes', () => {
       // Start with light off, no brightness
-      mockUseEntity.mockReturnValue(createMockLightEntity('off', {}))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'off', {}))
 
       const { result, rerender } = renderHook(() => useLight('light.test'))
 
@@ -605,7 +590,7 @@ describe('useLight', () => {
       expect(result.current.brightness).toBe(0)
 
       // Update to light on with brightness
-      mockUseEntity.mockReturnValue(createMockLightEntity('on', { brightness: 200 }))
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', { brightness: 200 }))
       rerender()
 
       expect(result.current.isOn).toBe(true)
@@ -614,7 +599,7 @@ describe('useLight', () => {
     })
 
     it('should maintain callback references for performance', () => {
-      const mockEntityWithEffects = createMockLightEntity('on', {
+      const mockEntityWithEffects = createMockLightEntity('test', 'on', {
         supported_features: LightFeatures.SUPPORT_EFFECT,
         effect_list: ['rainbow', 'colorloop']
       })

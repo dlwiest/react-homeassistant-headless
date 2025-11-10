@@ -2,22 +2,15 @@ import { useEffect, useCallback } from 'react'
 import { useStore } from '../services/entityStore'
 import { useHAConnection } from '../providers/HAProvider'
 import type { BaseEntityHook, EntityState } from '../types'
+import { useEntityIdValidation, useEntityExistenceWarning } from '../utils/entityValidation'
 
 export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEntityHook<T> {
   const { connection, connected } = useHAConnection()
   const registerEntity = useStore((state) => state.registerEntity)
   const unregisterEntity = useStore((state) => state.unregisterEntity)
 
-  // Validate entity ID format
-  useEffect(() => {
-    if (!entityId) {
-      console.warn('useEntity: entityId is required')
-      return
-    }
-    if (!entityId.includes('.')) {
-      console.warn(`useEntity: Invalid entity ID format "${entityId}". Entity IDs should be in format "domain.entity_name" (e.g., "light.living_room")`)
-    }
-  }, [entityId])
+  // Validate entity ID format using utility
+  useEntityIdValidation(entityId)
 
   // Register entity and subscribe to updates
   useEffect(() => {
@@ -32,25 +25,8 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEn
   // Get current entity state
   const entity = useStore((state) => state.entities.get(entityId))
 
-  // Warn if entity doesn't exist after connection is established
-  useEffect(() => {
-    if (connected && !entity && entityId) {
-      // Wait for entities to populate
-      const timer = setTimeout(() => {
-        const stillMissing = !useStore.getState().entities.get(entityId)
-        if (stillMissing) {
-          console.warn(
-            `Entity "${entityId}" not found in Home Assistant. ` +
-            `Check that the entity exists and is available.`
-          )
-        }
-      }, 2000)
-
-      return () => clearTimeout(timer)
-    }
-    // Return undefined for other code paths
-    return undefined
-  }, [connected, entity, entityId])
+  // Warn if entity doesn't exist using utility
+  useEntityExistenceWarning(entityId, connected, !!entity)
 
   const callService = useCallback(
     async (domain: string, service: string, data?: object) => {

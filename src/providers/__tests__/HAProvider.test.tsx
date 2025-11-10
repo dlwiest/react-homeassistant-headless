@@ -917,12 +917,20 @@ describe('HAProvider Clean Implementation', () => {
     it('should populate entity store with mock data', async () => {
       const mockData = {
         'switch.test_switch': {
+          entity_id: 'switch.test_switch',
           state: 'on',
-          attributes: { friendly_name: 'Test Switch' }
+          attributes: { friendly_name: 'Test Switch' },
+          last_changed: new Date().toISOString(),
+          last_updated: new Date().toISOString(),
+          context: { id: '', parent_id: null, user_id: null }
         },
         'light.test_light': {
+          entity_id: 'light.test_light',
           state: 'off', 
-          attributes: { friendly_name: 'Test Light', brightness: 100 }
+          attributes: { friendly_name: 'Test Light', brightness: 100 },
+          last_changed: new Date().toISOString(),
+          last_updated: new Date().toISOString(),
+          context: { id: '', parent_id: null, user_id: null }
         }
       }
 
@@ -1196,8 +1204,22 @@ describe('HAProvider Clean Implementation', () => {
 
     it('should clear entity store on unmount', async () => {
       const mockData = {
-        'switch.test': { state: 'on', attributes: {} },
-        'light.test': { state: 'off', attributes: {} }
+        'switch.test': {
+          entity_id: 'switch.test',
+          state: 'on',
+          attributes: {},
+          last_changed: new Date().toISOString(),
+          last_updated: new Date().toISOString(),
+          context: { id: '', parent_id: null, user_id: null }
+        },
+        'light.test': {
+          entity_id: 'light.test',
+          state: 'off',
+          attributes: {},
+          last_changed: new Date().toISOString(),
+          last_updated: new Date().toISOString(),
+          context: { id: '', parent_id: null, user_id: null }
+        }
       }
 
       const { unmount } = render(
@@ -1712,13 +1734,21 @@ describe('HAProvider Clean Implementation', () => {
 
     it('should populate entity store with mock data in mock mode', async () => {
       const mockData = {
-        'switch.test': { 
+        'switch.test': {
+          entity_id: 'switch.test',
           state: 'on', 
-          attributes: { friendly_name: 'Test Switch' } 
+          attributes: { friendly_name: 'Test Switch' },
+          last_changed: new Date().toISOString(),
+          last_updated: new Date().toISOString(),
+          context: { id: '', parent_id: null, user_id: null }
         },
-        'light.test': { 
+        'light.test': {
+          entity_id: 'light.test', 
           state: 'off', 
-          attributes: { brightness: 128, friendly_name: 'Test Light' } 
+          attributes: { brightness: 128, friendly_name: 'Test Light' },
+          last_changed: new Date().toISOString(),
+          last_updated: new Date().toISOString(),
+          context: { id: '', parent_id: null, user_id: null }
         }
       }
 
@@ -1814,7 +1844,14 @@ describe('HAProvider Clean Implementation', () => {
 
     it('should clear entity store on unmount', async () => {
       const mockData = {
-        'switch.test': { state: 'on', attributes: {} }
+        'switch.test': {
+          entity_id: 'switch.test',
+          state: 'on',
+          attributes: {},
+          last_changed: new Date().toISOString(),
+          last_updated: new Date().toISOString(),
+          context: { id: '', parent_id: null, user_id: null }
+        }
       }
 
       // Mock the entity store

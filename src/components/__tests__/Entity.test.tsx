@@ -180,7 +180,7 @@ describe('Entity', () => {
         <Entity entityId="sensor.temperature">
           {(entity) => (
             <div data-testid="sensor-display">
-              {entity.attributes.friendly_name}: {entity.state}{entity.attributes.unit_of_measurement}
+              {entity.attributes.friendly_name as string}: {entity.state}{entity.attributes.unit_of_measurement as string}
             </div>
           )}
         </Entity>

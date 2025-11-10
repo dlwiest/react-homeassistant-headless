@@ -2,22 +2,25 @@ import { useCallback } from 'react'
 import { useEntity } from './useEntity'
 import type { ClimateState, ClimateAttributes } from '../types'
 import { ClimateFeatures } from '../types'
+import { createDomainValidator } from '../utils/entityId'
+import { checkFeatures } from '../utils/features'
 
-function ensureClimateEntityId(entityId: string): string {
-  return entityId.includes('.') ? entityId : `climate.${entityId}`
-}
+const validateClimateEntityId = createDomainValidator('climate', 'useClimate')
 
 export function useClimate(entityId: string): ClimateState {
-  const normalizedEntityId = ensureClimateEntityId(entityId)
+  const normalizedEntityId = validateClimateEntityId(entityId)
   const entity = useEntity<ClimateAttributes>(normalizedEntityId)
   const { attributes, state, callService } = entity
 
   // Extract feature support
-  const supportedFeatures = attributes.supported_features || 0
-  const supportsTargetTemperature = (supportedFeatures & ClimateFeatures.SUPPORT_TARGET_TEMPERATURE) !== 0
-  const supportsTargetTemperatureRange = (supportedFeatures & ClimateFeatures.SUPPORT_TARGET_TEMPERATURE_RANGE) !== 0
-  const supportsFanMode = (supportedFeatures & ClimateFeatures.SUPPORT_FAN_MODE) !== 0
-  const supportsPresetMode = (supportedFeatures & ClimateFeatures.SUPPORT_PRESET_MODE) !== 0
+  const features = checkFeatures(attributes.supported_features, {
+    targetTemperature: ClimateFeatures.SUPPORT_TARGET_TEMPERATURE,
+    targetTemperatureRange: ClimateFeatures.SUPPORT_TARGET_TEMPERATURE_RANGE,
+    fanMode: ClimateFeatures.SUPPORT_FAN_MODE,
+    presetMode: ClimateFeatures.SUPPORT_PRESET_MODE
+  })
+  
+  const { targetTemperature: supportsTargetTemperature, targetTemperatureRange: supportsTargetTemperatureRange, fanMode: supportsFanMode, presetMode: supportsPresetMode } = features
 
   // Actions
   const setMode = useCallback(

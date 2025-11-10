@@ -2,26 +2,26 @@ import { useCallback } from 'react'
 import { useEntity } from './useEntity'
 import type { LightState, LightAttributes } from '../types'
 import { LightFeatures } from '../types'
+import { createDomainValidator } from '../utils/entityId'
+import { checkFeatures } from '../utils/features'
+import { createBasicControlDefs, createFeatureBasedControlDef } from '../utils/serviceHelpers'
 
-function ensureLightEntityId(entityId: string): string {
-  if (entityId.includes('.') && !entityId.startsWith('light.')) {
-    const [domain] = entityId.split('.')
-    console.warn(`useLight: Entity "${entityId}" has domain "${domain}" but useLight expects "light" domain. This may not work as expected. Use useEntity() or the appropriate domain-specific hook instead.`)
-  }
-  return entityId.includes('.') ? entityId : `light.${entityId}`
-}
+const validateLightEntityId = createDomainValidator('light', 'useLight')
 
 export function useLight(entityId: string): LightState {
-  const normalizedEntityId = ensureLightEntityId(entityId)
+  const normalizedEntityId = validateLightEntityId(entityId)
   const entity = useEntity<LightAttributes>(normalizedEntityId)
   const { attributes, state, callService } = entity
 
   // Extract feature support
-  const supportedFeatures = attributes.supported_features || 0
-  const supportsBrightness = (supportedFeatures & LightFeatures.SUPPORT_BRIGHTNESS) !== 0
-  const supportsColorTemp = (supportedFeatures & LightFeatures.SUPPORT_COLOR_TEMP) !== 0
-  const supportsRgb = (supportedFeatures & LightFeatures.SUPPORT_COLOR) !== 0
-  const supportsEffects = (supportedFeatures & LightFeatures.SUPPORT_EFFECT) !== 0
+  const features = checkFeatures(attributes.supported_features, {
+    brightness: LightFeatures.SUPPORT_BRIGHTNESS,
+    colorTemp: LightFeatures.SUPPORT_COLOR_TEMP,
+    rgb: LightFeatures.SUPPORT_COLOR,
+    effects: LightFeatures.SUPPORT_EFFECT
+  })
+  
+  const { brightness: supportsBrightness, colorTemp: supportsColorTemp, rgb: supportsRgb, effects: supportsEffects } = features
 
   // Available options
   const availableEffects = attributes.effect_list || []
@@ -31,10 +31,11 @@ export function useLight(entityId: string): LightState {
   const brightness = attributes.brightness || 0
   const brightnessPercent = Math.round((brightness / 255) * 100)
 
-  // Actions
-  const toggle = useCallback(async () => {
-    await callService('light', 'toggle')
-  }, [callService])
+  // Actions using service helpers
+  const basicControls = createBasicControlDefs(callService, 'light')
+  
+  const toggle = useCallback(basicControls.toggle, [callService])
+  const turnOff = useCallback(basicControls.turnOff, [callService])
 
   const turnOn = useCallback(
     async (params?: { brightness?: number; rgb_color?: [number, number, number]; color_temp?: number; effect?: string }) => {
@@ -43,41 +44,49 @@ export function useLight(entityId: string): LightState {
     [callService]
   )
 
-  const turnOff = useCallback(async () => {
-    await callService('light', 'turn_off')
-  }, [callService])
-
   const setBrightness = useCallback(
-    async (newBrightness: number) => {
-      if (!supportsBrightness) {
-        console.warn(`Light "${normalizedEntityId}" does not support brightness control. Check the light's supported_features.`)
-        return
-      }
-      await turnOn({ brightness: Math.max(0, Math.min(255, newBrightness)) })
-    },
-    [turnOn, supportsBrightness, normalizedEntityId]
+    createFeatureBasedControlDef(
+      callService,
+      'light',
+      {
+        entityId: normalizedEntityId,
+        isSupported: supportsBrightness,
+        featureName: 'brightness control',
+        serviceName: 'turn_on'
+      },
+      (brightness: number) => ({ brightness: Math.max(0, Math.min(255, brightness)) })
+    ),
+    [callService, normalizedEntityId, supportsBrightness]
   )
 
   const setColorTemp = useCallback(
-    async (temp: number) => {
-      if (!supportsColorTemp) {
-        console.warn(`Light "${normalizedEntityId}" does not support color temperature control. Check the light's supported_features.`)
-        return
-      }
-      await turnOn({ color_temp: temp })
-    },
-    [turnOn, supportsColorTemp, normalizedEntityId]
+    createFeatureBasedControlDef(
+      callService,
+      'light',
+      {
+        entityId: normalizedEntityId,
+        isSupported: supportsColorTemp,
+        featureName: 'color temperature control',
+        serviceName: 'turn_on'
+      },
+      (temp: number) => ({ color_temp: temp })
+    ),
+    [callService, normalizedEntityId, supportsColorTemp]
   )
 
   const setRgbColor = useCallback(
-    async (rgb: [number, number, number]) => {
-      if (!supportsRgb) {
-        console.warn(`Light "${normalizedEntityId}" does not support RGB color control. Check the light's supported_features.`)
-        return
-      }
-      await turnOn({ rgb_color: rgb })
-    },
-    [turnOn, supportsRgb, normalizedEntityId]
+    createFeatureBasedControlDef(
+      callService,
+      'light',
+      {
+        entityId: normalizedEntityId,
+        isSupported: supportsRgb,
+        featureName: 'RGB color control',
+        serviceName: 'turn_on'
+      },
+      (rgb: [number, number, number]) => ({ rgb_color: rgb })
+    ),
+    [callService, normalizedEntityId, supportsRgb]
   )
 
   const setEffect = useCallback(

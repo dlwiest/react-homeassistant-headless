@@ -3,25 +3,12 @@ import { renderHook, act } from '@testing-library/react'
 import { useLock } from '../useLock'
 import { useEntity } from '../useEntity'
 import { LockFeatures } from '../../types'
+import { createMockLockEntity } from '../../test/utils'
 
 // Mock useEntity since useLock depends on it
 vi.mock('../useEntity')
 
-// Mock lock entity response
-const createMockLockEntity = (
-  state: string = 'locked',
-  attributes: Record<string, any> = {}
-) => ({
-  entityId: 'lock.test',
-  state,
-  attributes,
-  lastChanged: new Date(),
-  lastUpdated: new Date(),
-  isUnavailable: state === 'unavailable',
-  isConnected: true,
-  callService: vi.fn(),
-  refresh: vi.fn()
-})
+// Using mock utilities from test utils
 
 describe('useLock', () => {
   const mockUseEntity = useEntity as any
@@ -35,7 +22,7 @@ describe('useLock', () => {
   })
 
   it('should handle locked state correctly', () => {
-    const mockEntity = createMockLockEntity('locked', {
+    const mockEntity = createMockLockEntity('test', 'locked', {
       friendly_name: 'Test Lock',
       changed_by: 'User',
       supported_features: 0,
@@ -53,7 +40,7 @@ describe('useLock', () => {
   })
 
   it('should handle unlocked state correctly', () => {
-    const mockEntity = createMockLockEntity('unlocked', {
+    const mockEntity = createMockLockEntity('test', 'unlocked', {
       friendly_name: 'Test Lock',
       changed_by: 'Key',
     })
@@ -69,7 +56,7 @@ describe('useLock', () => {
   })
 
   it('should handle unknown state correctly', () => {
-    const mockEntity = createMockLockEntity('unknown', {
+    const mockEntity = createMockLockEntity('test', 'unknown', {
       friendly_name: 'Test Lock',
     })
     
@@ -83,7 +70,7 @@ describe('useLock', () => {
   })
 
   it('should handle supported features correctly', () => {
-    const mockEntity = createMockLockEntity('locked', {
+    const mockEntity = createMockLockEntity('test', 'locked', {
       friendly_name: 'Smart Lock',
       supported_features: LockFeatures.SUPPORT_OPEN,
     })
@@ -96,7 +83,7 @@ describe('useLock', () => {
   })
 
   it('should call lock service', async () => {
-    const mockEntity = createMockLockEntity()
+    const mockEntity = createMockLockEntity('test')
     mockUseEntity.mockReturnValue(mockEntity)
     
     const { result } = renderHook(() => useLock('test'))
@@ -109,7 +96,7 @@ describe('useLock', () => {
   })
 
   it('should call unlock service without code', async () => {
-    const mockEntity = createMockLockEntity()
+    const mockEntity = createMockLockEntity('test')
     mockUseEntity.mockReturnValue(mockEntity)
     
     const { result } = renderHook(() => useLock('test'))
@@ -122,7 +109,7 @@ describe('useLock', () => {
   })
 
   it('should call unlock service with code', async () => {
-    const mockEntity = createMockLockEntity()
+    const mockEntity = createMockLockEntity('test')
     mockUseEntity.mockReturnValue(mockEntity)
     
     const { result } = renderHook(() => useLock('test'))
@@ -135,7 +122,7 @@ describe('useLock', () => {
   })
 
   it('should call open service without code', async () => {
-    const mockEntity = createMockLockEntity('locked', { supported_features: LockFeatures.SUPPORT_OPEN })
+    const mockEntity = createMockLockEntity('test', 'locked', { supported_features: LockFeatures.SUPPORT_OPEN })
     mockUseEntity.mockReturnValue(mockEntity)
     
     const { result } = renderHook(() => useLock('test'))
@@ -148,7 +135,7 @@ describe('useLock', () => {
   })
 
   it('should call open service with code', async () => {
-    const mockEntity = createMockLockEntity('locked', { supported_features: LockFeatures.SUPPORT_OPEN })
+    const mockEntity = createMockLockEntity('test', 'locked', { supported_features: LockFeatures.SUPPORT_OPEN })
     mockUseEntity.mockReturnValue(mockEntity)
     
     const { result } = renderHook(() => useLock('test'))
@@ -161,7 +148,7 @@ describe('useLock', () => {
   })
 
   it('should normalize entity ID', () => {
-    const mockEntity = createMockLockEntity()
+    const mockEntity = createMockLockEntity('test')
     mockUseEntity.mockReturnValue(mockEntity)
     
     renderHook(() => useLock('front_door'))
@@ -170,7 +157,7 @@ describe('useLock', () => {
   })
 
   it('should not normalize full entity ID', () => {
-    const mockEntity = createMockLockEntity()
+    const mockEntity = createMockLockEntity('test')
     mockUseEntity.mockReturnValue(mockEntity)
     
     renderHook(() => useLock('lock.front_door'))
@@ -192,7 +179,7 @@ describe('useLock', () => {
     it('should warn when trying to open unsupported lock', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
-        ...createMockLockEntity('locked', { supported_features: 0 }), // No features supported
+        ...createMockLockEntity('test', 'locked', { supported_features: 0 }), // No features supported
         callService: mockCallService
       })
 
@@ -211,7 +198,7 @@ describe('useLock', () => {
     it('should warn when trying to open unsupported lock with code', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
-        ...createMockLockEntity('locked', { supported_features: 0 }),
+        ...createMockLockEntity('test', 'locked', { supported_features: 0 }),
         callService: mockCallService
       })
 
@@ -228,12 +215,12 @@ describe('useLock', () => {
     })
 
     it('should warn when using wrong domain', () => {
-      mockUseEntity.mockReturnValue(createMockLockEntity('locked'))
+      mockUseEntity.mockReturnValue(createMockLockEntity('test', 'locked'))
 
       renderHook(() => useLock('switch.door_lock'))
 
       expect(consoleMock).toHaveBeenCalledWith(
-        'useLock: Entity "switch.door_lock" has domain "switch" but useLock expects "lock" domain. This may not work as expected. Use useEntity() or the appropriate domain-specific hook instead.'
+        'useLock: Entity "switch.door_lock" has domain "switch" but expects "lock" domain. This may not work as expected. Use useEntity() or the appropriate domain-specific hook instead.'
       )
     })
   })

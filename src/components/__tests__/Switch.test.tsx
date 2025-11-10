@@ -256,7 +256,7 @@ describe('Switch', () => {
         <Switch entityId="switch.smart_plug">
           {(switchEntity) => (
             <div data-testid="switch-info">
-              {switchEntity.attributes.friendly_name}: {switchEntity.attributes.current_power_w}W
+              {switchEntity.attributes.friendly_name as string}: {switchEntity.attributes.current_power_w as number}W
             </div>
           )}
         </Switch>

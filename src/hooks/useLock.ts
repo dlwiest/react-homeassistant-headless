@@ -2,23 +2,19 @@ import { useCallback } from 'react'
 import { useEntity } from './useEntity'
 import type { LockState, LockAttributes } from '../types'
 import { LockFeatures } from '../types'
+import { createDomainValidator } from '../utils/entityId'
+import { hasFeature } from '../utils/features'
+import { createFeatureBasedControlDef } from '../utils/serviceHelpers'
 
-function ensureLockEntityId(entityId: string): string {
-  if (entityId.includes('.') && !entityId.startsWith('lock.')) {
-    const [domain] = entityId.split('.')
-    console.warn(`useLock: Entity "${entityId}" has domain "${domain}" but useLock expects "lock" domain. This may not work as expected. Use useEntity() or the appropriate domain-specific hook instead.`)
-  }
-  return entityId.includes('.') ? entityId : `lock.${entityId}`
-}
+const validateLockEntityId = createDomainValidator('lock', 'useLock')
 
 export function useLock(entityId: string): LockState {
-  const normalizedEntityId = ensureLockEntityId(entityId)
+  const normalizedEntityId = validateLockEntityId(entityId)
   const entity = useEntity<LockAttributes>(normalizedEntityId)
   const { attributes, state, callService } = entity
 
   // Extract feature support
-  const supportedFeatures = attributes.supported_features || 0
-  const supportsOpen = (supportedFeatures & LockFeatures.SUPPORT_OPEN) !== 0
+  const supportsOpen = hasFeature(attributes.supported_features, LockFeatures.SUPPORT_OPEN)
 
   // State helpers
   const isLocked = state === 'locked'
@@ -36,14 +32,20 @@ export function useLock(entityId: string): LockState {
     await callService('lock', 'unlock', params)
   }, [callService])
 
-  const open = useCallback(async (code?: string) => {
-    if (!supportsOpen) {
-      console.warn(`Lock "${normalizedEntityId}" does not support open operation. Check the lock's supported_features.`)
-      return
-    }
-    const params = code ? { code } : undefined
-    await callService('lock', 'open', params)
-  }, [callService, supportsOpen, normalizedEntityId])
+  const open = useCallback(
+    createFeatureBasedControlDef(
+      callService,
+      'lock',
+      {
+        entityId: normalizedEntityId,
+        isSupported: supportsOpen,
+        featureName: 'open operation',
+        serviceName: 'open'
+      },
+      (code?: string) => code ? { code } : undefined
+    ),
+    [callService, normalizedEntityId, supportsOpen]
+  )
 
   return {
     ...entity,
