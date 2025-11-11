@@ -259,12 +259,13 @@ function mockCoverService(
         attributes
       }
     
-    case 'set_cover_position':
+    case 'set_cover_position': {
       const position = params.position
       return { 
         state: position === 0 ? 'closed' : position === 100 ? 'open' : 'stopped',
         attributes: { ...attributes, current_position: position }
       }
+    }
     
     default:
       return { state: currentState, attributes }
