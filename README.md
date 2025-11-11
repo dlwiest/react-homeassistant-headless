@@ -226,6 +226,111 @@ Connection options and status monitoring:
 const { connected, connecting, error, reconnect } = useHAConnection()
 ```
 
+## Error Handling & Reliability
+
+hass-react includes robust error handling and automatic retry logic to ensure reliable smart home control even with network issues or temporary service interruptions.
+
+### Automatic Service Call Retries
+
+Service calls (like turning lights on/off, setting brightness) automatically retry on failure with smart error filtering:
+
+**What gets retried:**
+- Network timeouts and connection errors
+- Temporary Home Assistant service unavailability
+- WebSocket communication failures
+
+**What doesn't get retried (immediate user feedback):**
+- Entity not found or unavailable
+- Unsupported features (e.g., setting brightness on a basic switch)
+- Invalid parameters (e.g., bad color values)
+- Authentication errors
+
+### Default Retry Behavior
+
+```jsx
+// Default configuration (applied automatically)
+{
+  maxAttempts: 3,           // Retry up to 3 times
+  baseDelay: 1000,         // Start with 1 second delay
+  exponentialBackoff: true, // Delays: 1s, 2s, 4s
+  maxDelay: 10000          // Cap delays at 10 seconds
+}
+```
+
+### Customizing Retry Configuration
+
+Configure retry behavior for your entire application:
+
+```jsx
+<HAProvider
+  url="ws://homeassistant.local:8123"
+  token="your-token"
+  options={{
+    // Connection retry (for initial connection)
+    reconnectInterval: 5000,
+    reconnectAttempts: 10,
+    autoReconnect: true,
+    
+    // Service call retry (for actions like toggle, setBrightness)
+    serviceRetry: {
+      maxAttempts: 5,           // More retries for critical systems
+      baseDelay: 2000,          // Longer initial delay
+      exponentialBackoff: true,
+      maxDelay: 15000          // Higher cap for persistent issues
+    }
+  }}
+/>
+```
+
+### Error Types and User Experience
+
+The library provides standardized error types to help you build appropriate UI feedback:
+
+```jsx
+try {
+  await light.toggle()
+} catch (error) {
+  if (error.name === 'EntityNotAvailableError') {
+    // Show "Light is offline" message
+  } else if (error.name === 'FeatureNotSupportedError') {
+    // Show "This light doesn't support that feature"
+  } else if (error.name === 'ServiceCallError') {
+    // Show "Failed to control light, please try again"
+    // (This has already been retried automatically)
+  }
+}
+```
+
+### Connection Status Monitoring
+
+Monitor connection health and retry states:
+
+```jsx
+function ConnectionIndicator() {
+  const { connected, connecting, error, reconnect } = useHAConnection()
+  
+  if (connecting) return <span>🔄 Connecting to Home Assistant...</span>
+  if (!connected && error) return (
+    <div>
+      ⚠️ Connection failed: {error.message}
+      <button onClick={reconnect}>Retry</button>
+    </div>
+  )
+  if (!connected) return <span>🔴 Disconnected</span>
+  return <span>🟢 Connected</span>
+}
+```
+
+### Best Practices
+
+1. **Let retries handle transient failures** - Don't show error messages immediately
+2. **Provide clear feedback for non-retryable errors** - Entity unavailable, unsupported features
+3. **Use connection status for overall app health** - Show connectivity indicators
+4. **Configure retries based on your use case**:
+   - **Critical systems** (security, safety): More retries, longer delays
+   - **Ambient controls** (mood lighting): Fewer retries, faster feedback
+   - **Development/testing**: Disable retries for immediate feedback
+
 
 ## API Reference
 

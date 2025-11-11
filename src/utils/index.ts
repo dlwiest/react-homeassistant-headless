@@ -31,3 +31,11 @@ export {
   useEntityIdValidation,
   useEntityValidation
 } from './entityValidation'
+
+// Retry utilities
+export {
+  withRetry,
+  createRetryableFunction,
+  delay,
+  type RetryOptions
+} from './retry'

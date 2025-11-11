@@ -8,6 +8,12 @@ export interface HAConfig {
     reconnectAttempts?: number
     cacheTimeout?: number
     autoReconnect?: boolean
+    serviceRetry?: {
+      maxAttempts?: number
+      baseDelay?: number
+      exponentialBackoff?: boolean
+      maxDelay?: number
+    }
   }
 }
 

@@ -4,9 +4,10 @@ import { useHAConnection } from '../providers/HAProvider'
 import type { BaseEntityHook, EntityState } from '../types'
 import { useEntityIdValidation } from '../utils/entityValidation'
 import { EntityNotAvailableError, ConnectionError, ServiceCallError } from '../utils/errors'
+import { withRetry, type RetryOptions } from '../utils/retry'
 
 export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEntityHook<T> {
-  const { connection, connected } = useHAConnection()
+  const { connection, connected, config } = useHAConnection()
   const registerEntity = useStore((state) => state.registerEntity)
   const unregisterEntity = useStore((state) => state.unregisterEntity)
   const [error, setError] = useState<Error | null>(null)
@@ -58,26 +59,39 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEn
         throw new ConnectionError(`call ${domain}.${service}`)
       }
 
-      try {
-        await connection.sendMessagePromise({
-          type: 'call_service',
-          domain,
-          service,
-          service_data: {
-            entity_id: entityId,
-            ...data,
-          },
-        })
-      } catch (originalError) {
-        throw new ServiceCallError(
-          domain, 
-          service, 
-          originalError instanceof Error ? originalError : new Error(String(originalError)),
-          entityId
-        )
+      // Get retry configuration from provider options
+      const retryOptions: RetryOptions = {
+        maxAttempts: config.options?.serviceRetry?.maxAttempts ?? 3,
+        baseDelay: config.options?.serviceRetry?.baseDelay ?? 1000,
+        exponentialBackoff: config.options?.serviceRetry?.exponentialBackoff ?? true,
+        maxDelay: config.options?.serviceRetry?.maxDelay ?? 10000,
       }
+
+      const executeServiceCall = async () => {
+        try {
+          await connection.sendMessagePromise({
+            type: 'call_service',
+            domain,
+            service,
+            service_data: {
+              entity_id: entityId,
+              ...data,
+            },
+          })
+        } catch (originalError) {
+          throw new ServiceCallError(
+            domain, 
+            service, 
+            originalError instanceof Error ? originalError : new Error(String(originalError)),
+            entityId
+          )
+        }
+      }
+
+      // Execute with retry logic
+      await withRetry(executeServiceCall, retryOptions)
     },
-    [connection, entityId]
+    [connection, entityId, config.options?.serviceRetry]
   )
 
   const refresh = useCallback(async () => {
