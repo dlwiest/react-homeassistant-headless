@@ -1,44 +1,23 @@
-/**
- * Mock state transitions for testing Home Assistant entity behavior.
- * These functions simulate how Home Assistant would respond to service calls
- * in a test environment.
- */
+// Mock state transitions for testing Home Assistant entity behavior
 
-/**
- * State transition result for mock service calls.
- */
+// State transition result for mock service calls
 export interface MockStateTransition {
   state: string
-  attributes: Record<string, any>
+  attributes: Record<string, unknown>
 }
 
-/**
- * Simulates a toggle operation on any toggleable entity for testing.
- * 
- * @param currentState - Current entity state
- * @returns New state after toggle
- */
+// Simulates a toggle operation on any toggleable entity
 export function mockToggle(currentState: string): string {
   return currentState === 'on' ? 'off' : 'on'
 }
 
-/**
- * Simulates a service call for testing and returns the resulting state and attributes.
- * This is used by the mock connection to simulate realistic entity behavior.
- * 
- * @param domain - Entity domain (e.g., "light", "fan")
- * @param service - Service name (e.g., "turn_on", "toggle")
- * @param currentState - Current entity state
- * @param currentAttributes - Current entity attributes
- * @param serviceData - Service call data (includes entity_id and parameters)
- * @returns New state and attributes after mock service call
- */
+// Simulates a service call and returns the resulting state and attributes
 export function mockServiceCall(
   domain: string,
   service: string,
   currentState: string,
-  currentAttributes: Record<string, any>,
-  serviceData: Record<string, any>
+  currentAttributes: Record<string, unknown>,
+  serviceData: Record<string, unknown>
 ): MockStateTransition {
   let newAttributes = { ...currentAttributes }
   let newState = currentState
@@ -99,8 +78,8 @@ export function mockServiceCall(
 function mockLightService(
   service: string,
   currentState: string,
-  attributes: Record<string, any>,
-  params: Record<string, any>
+  attributes: Record<string, unknown>,
+  params: Record<string, unknown>
 ): MockStateTransition {
   switch (service) {
     case 'toggle':
@@ -120,14 +99,12 @@ function mockLightService(
   }
 }
 
-/**
- * Mock fan-specific services for testing.
- */
+// Mock fan-specific services
 function mockFanService(
   service: string,
   currentState: string,
-  attributes: Record<string, any>,
-  params: Record<string, any>
+  attributes: Record<string, unknown>,
+  params: Record<string, unknown>
 ): MockStateTransition {
   switch (service) {
     case 'toggle':
@@ -145,11 +122,13 @@ function mockFanService(
         attributes: { ...attributes, percentage: 0 } 
       }
     
-    case 'set_percentage':
+    case 'set_percentage': {
+      const percentage = params.percentage as number
       return { 
-        state: params.percentage > 0 ? 'on' : 'off',
-        attributes: { ...attributes, percentage: params.percentage }
+        state: percentage > 0 ? 'on' : 'off',
+        attributes: { ...attributes, percentage }
       }
+    }
     
     case 'oscillate':
       return { 
@@ -166,7 +145,7 @@ function mockFanService(
     case 'set_preset_mode':
       return { 
         state: 'on',
-        attributes: { ...attributes, preset_mode: params.preset_mode }
+        attributes: { ...attributes, preset_mode: params.preset_mode as string }
       }
     
     default:
@@ -174,14 +153,12 @@ function mockFanService(
   }
 }
 
-/**
- * Mock switch-specific services for testing.
- */
+// Mock switch-specific services
 function mockSwitchService(
   service: string,
   currentState: string,
-  attributes: Record<string, any>,
-  _params: Record<string, any>
+  attributes: Record<string, unknown>,
+  _params?: Record<string, unknown>
 ): MockStateTransition {
   switch (service) {
     case 'toggle':
@@ -198,14 +175,12 @@ function mockSwitchService(
   }
 }
 
-/**
- * Mock lock-specific services for testing.
- */
+// Mock lock-specific services
 function mockLockService(
   service: string,
   currentState: string,
-  attributes: Record<string, any>,
-  _params: Record<string, any>
+  attributes: Record<string, unknown>,
+  _params?: Record<string, unknown>
 ): MockStateTransition {
   switch (service) {
     case 'lock':
@@ -231,14 +206,12 @@ function mockLockService(
   }
 }
 
-/**
- * Mock cover-specific services for testing.
- */
+// Mock cover-specific services
 function mockCoverService(
   service: string,
   currentState: string,
-  attributes: Record<string, any>,
-  params: Record<string, any>
+  attributes: Record<string, unknown>,
+  params: Record<string, unknown>
 ): MockStateTransition {
   switch (service) {
     case 'open_cover':
@@ -272,31 +245,31 @@ function mockCoverService(
   }
 }
 
-/**
- * Mock climate-specific services for testing.
- */
+// Mock climate-specific services
 function mockClimateService(
   service: string,
   currentState: string,
-  attributes: Record<string, any>,
-  params: Record<string, any>
+  attributes: Record<string, unknown>,
+  params: Record<string, unknown>
 ): MockStateTransition {
   switch (service) {
-    case 'set_hvac_mode':
+    case 'set_hvac_mode': {
+      const hvacMode = params.hvac_mode as string
       return { 
-        state: params.hvac_mode,
-        attributes: { ...attributes, hvac_mode: params.hvac_mode }
+        state: hvacMode,
+        attributes: { ...attributes, hvac_mode: hvacMode }
       }
+    }
     
     case 'set_temperature':
       return { 
         state: currentState,
-        attributes: { ...attributes, temperature: params.temperature }
+        attributes: { ...attributes, temperature: params.temperature as number }
       }
     
     case 'turn_on':
       return { 
-        state: attributes.hvac_mode || 'heat',
+        state: (attributes.hvac_mode as string) || 'heat',
         attributes
       }
     
@@ -317,8 +290,8 @@ function mockClimateService(
 function mockBasicService(
   service: string,
   currentState: string,
-  attributes: Record<string, any>,
-  params: Record<string, any>
+  attributes: Record<string, unknown>,
+  params: Record<string, unknown>
 ): MockStateTransition {
   switch (service) {
     case 'toggle':

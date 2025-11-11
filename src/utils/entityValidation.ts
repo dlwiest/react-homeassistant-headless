@@ -1,13 +1,7 @@
 import { useEffect } from 'react'
 import { useStore } from '../services/entityStore'
 
-/**
- * Validates that an entity ID is in the correct format.
- * 
- * @param entityId - The entity ID to validate
- * @param hookName - Optional hook name for better error messages
- * @returns true if valid, false otherwise
- */
+// Validates that an entity ID is in the correct format
 export function validateEntityIdFormat(entityId: string, hookName?: string): boolean {
   if (!entityId) {
     const prefix = hookName ? `${hookName}: ` : ''
@@ -27,19 +21,11 @@ export function validateEntityIdFormat(entityId: string, hookName?: string): boo
   return true
 }
 
-/**
- * Custom hook that warns if an entity doesn't exist after connection is established.
- * This hook handles the timing of when to check for entity existence.
- * 
- * @param entityId - Entity ID to check for existence
- * @param connected - Whether we're connected to Home Assistant
- * @param entity - The entity object (undefined if not found)
- * @param delay - How long to wait before warning (default 2000ms)
- */
+// Warns if an entity doesn't exist after connection is established
 export function useEntityExistenceWarning(
   entityId: string,
   connected: boolean,
-  entity: any,
+  entity: unknown,
   delay: number = 2000
 ) {
   useEffect(() => {
@@ -61,33 +47,18 @@ export function useEntityExistenceWarning(
   }, [connected, entity, entityId, delay])
 }
 
-/**
- * Validates entity ID format using useEffect hook.
- * This is a convenience hook that combines format validation with React lifecycle.
- * 
- * @param entityId - Entity ID to validate
- * @param hookName - Hook name for better error messages
- */
+// Validates entity ID format using useEffect hook
 export function useEntityIdValidation(entityId: string, hookName?: string) {
   useEffect(() => {
     validateEntityIdFormat(entityId, hookName)
   }, [entityId, hookName])
 }
 
-/**
- * Comprehensive entity validation that includes both format and existence checks.
- * This is a convenience function that combines multiple validation types.
- * 
- * @param entityId - Entity ID to validate
- * @param connected - Whether we're connected to Home Assistant
- * @param entity - The entity object (undefined if not found)
- * @param hookName - Hook name for better error messages
- * @param existenceCheckDelay - How long to wait before checking existence
- */
+// Comprehensive entity validation that includes both format and existence checks
 export function useEntityValidation(
   entityId: string,
   connected: boolean,
-  entity: any,
+  entity: unknown,
   hookName?: string,
   existenceCheckDelay: number = 2000
 ) {

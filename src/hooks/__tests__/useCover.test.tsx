@@ -252,9 +252,9 @@ describe('useCover', () => {
       expect(mockCallService).toHaveBeenCalledWith('cover', 'set_cover_position', { position: 100 })
 
       await act(async () => {
-        await result.current.setPosition(33.5)
+        await result.current.setPosition(33)
       })
-      expect(mockCallService).toHaveBeenCalledWith('cover', 'set_cover_position', { position: 33.5 })
+      expect(mockCallService).toHaveBeenCalledWith('cover', 'set_cover_position', { position: 33 })
     })
 
     it('should handle service call errors', async () => {

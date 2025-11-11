@@ -6,7 +6,6 @@ import { createDomainValidator } from '../utils/entityId'
 
 const validateCoverEntityId = createDomainValidator('cover', 'useCover')
 
-// Service validations
 const positionSchema = z.number().int().min(0).max(100)
 
 export interface CoverState extends BaseEntityHook {

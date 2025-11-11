@@ -1,13 +1,17 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useLight } from '../useLight'
-import { useEntity } from '../useEntity'
 import { LightFeatures } from '../../types'
 import { createMockLightEntity } from '../../test/utils'
 import { FeatureNotSupportedError } from '../../utils/errors'
 
-// Mock useEntity since useLight depends on it
-vi.mock('../useEntity')
+// Mock useEntity before any imports
+vi.mock('../useEntity', () => ({
+  useEntity: vi.fn()
+}))
+
+// Import after mocking
+import { useLight } from '../useLight'
+import { useEntity } from '../useEntity'
 
 describe('useLight', () => {
   const mockUseEntity = useEntity as any
@@ -439,7 +443,7 @@ describe('useLight', () => {
       expect(mockCallService).toHaveBeenCalledWith('light', 'turn_off')
     })
 
-    it('should call setBrightness with clamped values', async () => {
+    it('should validate brightness range', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
         ...createMockLightEntity('test', 'on', { supported_features: 1 }), // SUPPORT_BRIGHTNESS
@@ -454,17 +458,15 @@ describe('useLight', () => {
       })
       expect(mockCallService).toHaveBeenCalledWith('light', 'turn_on', { brightness: 128 })
 
-      // Test value above maximum (should clamp to 255)
+      // Test value above maximum (should throw validation error)
       await act(async () => {
-        await result.current.setBrightness(300)
+        await expect(result.current.setBrightness(300)).rejects.toThrow('Number must be less than or equal to 255')
       })
-      expect(mockCallService).toHaveBeenCalledWith('light', 'turn_on', { brightness: 255 })
 
-      // Test negative value (should clamp to 0)
+      // Test negative value (should throw validation error)  
       await act(async () => {
-        await result.current.setBrightness(-10)
+        await expect(result.current.setBrightness(-10)).rejects.toThrow('Number must be greater than or equal to 0')
       })
-      expect(mockCallService).toHaveBeenCalledWith('light', 'turn_on', { brightness: 0 })
     })
 
     it('should call setColorTemp correctly', async () => {

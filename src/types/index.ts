@@ -68,6 +68,14 @@ export interface LightAttributes {
   color_mode?: string
 }
 
+export interface LightTurnOnParams {
+  brightness?: number
+  color_temp?: number
+  rgb_color?: [number, number, number]
+  effect?: string
+  transition?: number
+}
+
 export interface LightState extends BaseEntityHook<LightAttributes> {
   isOn: boolean
   brightness: number
@@ -81,7 +89,7 @@ export interface LightState extends BaseEntityHook<LightAttributes> {
   supportsEffects: boolean
   availableEffects: string[]
   toggle: () => Promise<void>
-  turnOn: (params?: { brightness?: number; rgb_color?: [number, number, number]; color_temp?: number; effect?: string }) => Promise<void>
+  turnOn: (params?: LightTurnOnParams) => Promise<void>
   turnOff: () => Promise<void>
   setBrightness: (brightness: number) => Promise<void>
   setColorTemp: (temp: number) => Promise<void>
@@ -164,24 +172,31 @@ export interface FanAttributes {
   percentage_step?: number
 }
 
+export type FanDirection = 'forward' | 'reverse'
+
+export interface FanTurnOnParams {
+  percentage?: number
+  preset_mode?: string
+}
+
 export interface FanState extends BaseEntityHook<FanAttributes> {
   isOn: boolean
   percentage: number
   presetMode?: string
   isOscillating?: boolean
-  direction?: 'forward' | 'reverse'
+  direction?: FanDirection
   supportsSetSpeed: boolean
   supportsOscillate: boolean
   supportsDirection: boolean
   supportsPresetMode: boolean
   availablePresetModes: string[]
   toggle: () => Promise<void>
-  turnOn: (params?: { percentage?: number; preset_mode?: string }) => Promise<void>
+  turnOn: (params?: FanTurnOnParams) => Promise<void>
   turnOff: () => Promise<void>
   setPercentage: (percentage: number) => Promise<void>
   setPresetMode: (preset: string) => Promise<void>
   setOscillating: (oscillating: boolean) => Promise<void>
-  setDirection: (direction: 'forward' | 'reverse') => Promise<void>
+  setDirection: (direction: FanDirection) => Promise<void>
 }
 
 // Lock types

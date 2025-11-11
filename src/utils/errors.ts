@@ -1,19 +1,13 @@
-/**
- * Standardized error types for Home Assistant React hooks.
- * 
- * Two main categories:
- * 1. State/Connectivity errors - stored in hook state for entity availability
- * 2. Action errors - thrown by service calls for component handling
- */
+// Standardized error types for Home Assistant React hooks.
+// State/Connectivity errors - stored in hook state for entity availability
+// Action errors - thrown by service calls for component handling
 
-/**
- * Base class for all Home Assistant related errors.
- */
+// Base class for all Home Assistant related errors
 export class HomeAssistantError extends Error {
   constructor(
     message: string,
     public readonly code: string,
-    public readonly context?: Record<string, any>
+    public readonly context?: Record<string, unknown>
   ) {
     super(message)
     this.name = 'HomeAssistantError'
@@ -22,9 +16,7 @@ export class HomeAssistantError extends Error {
 
 // State/connectivity errors (stored in hook state)
 
-/**
- * Error thrown when trying to use a feature that the entity doesn't support.
- */
+// Error thrown when trying to use a feature that the entity doesn't support
 export class FeatureNotSupportedError extends HomeAssistantError {
   constructor(entityId: string, featureName: string, supportedFeatures?: number) {
     super(
@@ -36,11 +28,9 @@ export class FeatureNotSupportedError extends HomeAssistantError {
   }
 }
 
-/**
- * Error thrown when service call parameters are invalid.
- */
+// Error thrown when service call parameters are invalid
 export class InvalidParameterError extends HomeAssistantError {
-  constructor(parameterName: string, value: any, expectedType?: string, allowedValues?: any[]) {
+  constructor(parameterName: string, value: unknown, expectedType?: string, allowedValues?: unknown[]) {
     const valueInfo = allowedValues 
       ? `Expected one of: ${allowedValues.join(', ')}`
       : expectedType 
@@ -56,9 +46,7 @@ export class InvalidParameterError extends HomeAssistantError {
   }
 }
 
-/**
- * Error thrown when an entity is not found or unavailable.
- */
+// Error thrown when an entity is not found or unavailable
 export class EntityNotAvailableError extends HomeAssistantError {
   constructor(entityId: string, reason?: string) {
     const reasonText = reason ? ` Reason: ${reason}` : ''
@@ -71,9 +59,7 @@ export class EntityNotAvailableError extends HomeAssistantError {
   }
 }
 
-/**
- * Error thrown when there's no connection to Home Assistant.
- */
+// Error thrown when there's no connection to Home Assistant
 export class ConnectionError extends HomeAssistantError {
   constructor(operation: string) {
     super(
@@ -85,9 +71,7 @@ export class ConnectionError extends HomeAssistantError {
   }
 }
 
-/**
- * Error thrown when a service call fails.
- */
+// Error thrown when a service call fails
 export class ServiceCallError extends HomeAssistantError {
   constructor(
     domain: string, 
@@ -105,9 +89,7 @@ export class ServiceCallError extends HomeAssistantError {
   }
 }
 
-/**
- * Error thrown when entity domain doesn't match expected type.
- */
+// Error thrown when entity domain doesn't match expected type
 export class DomainMismatchError extends HomeAssistantError {
   constructor(entityId: string, expectedDomain: string, actualDomain: string, hookName: string) {
     super(
@@ -119,9 +101,7 @@ export class DomainMismatchError extends HomeAssistantError {
   }
 }
 
-/**
- * Utility function to determine if an error is retryable.
- */
+// Determines if an error is retryable
 export function isRetryableError(error: Error): boolean {
   // Network errors, timeout errors, and temporary service unavailability are retryable
   return (
@@ -134,9 +114,7 @@ export function isRetryableError(error: Error): boolean {
   )
 }
 
-/**
- * Utility function to get user-friendly error messages.
- */
+// Gets user-friendly error messages
 export function getUserFriendlyErrorMessage(error: Error): string {
   if (error instanceof HomeAssistantError) {
     return error.message
@@ -159,9 +137,7 @@ export function getUserFriendlyErrorMessage(error: Error): string {
   return 'An unexpected error occurred. Please try again.'
 }
 
-/**
- * Categories of errors for different handling strategies.
- */
+// Error categories for different handling strategies
 export enum ErrorCategory {
   CONNECTION = 'connection',      // Network/connection issues - retryable
   VALIDATION = 'validation',      // Input validation - not retryable
@@ -171,9 +147,7 @@ export enum ErrorCategory {
   UNKNOWN = 'unknown'            // Unknown errors - might be retryable
 }
 
-/**
- * Categorize an error for appropriate handling.
- */
+// Categorizes an error for appropriate handling
 export function categorizeError(error: Error): ErrorCategory {
   if (error instanceof ConnectionError) return ErrorCategory.CONNECTION
   if (error instanceof FeatureNotSupportedError) return ErrorCategory.FEATURE

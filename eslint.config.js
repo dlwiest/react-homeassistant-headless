@@ -19,6 +19,9 @@ export default [
         console: 'readonly',
         setTimeout: 'readonly',
         clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        window: 'readonly',
         WebSocket: 'readonly',
         document: 'readonly',
         MutationObserver: 'readonly',
@@ -31,7 +34,10 @@ export default [
     rules: {
       ...tseslint.configs.recommended.rules,
       'no-unused-vars': 'off',
-      '@typescript-eslint/no-unused-vars': ['warn', { 'varsIgnorePattern': '^_' }],
+      '@typescript-eslint/no-unused-vars': ['warn', { 
+        'varsIgnorePattern': '^_',
+        'argsIgnorePattern': '^_'
+      }],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unsafe-function-type': 'warn',
       '@typescript-eslint/explicit-function-return-type': 'off'

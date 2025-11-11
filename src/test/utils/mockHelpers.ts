@@ -1,15 +1,8 @@
 import { vi, expect } from 'vitest'
 import type { BaseEntityHook } from '../../types'
 
-/**
- * Creates a mock entity for testing purposes.
- * 
- * @param entityId - Full entity ID (e.g., "light.living_room")
- * @param state - Entity state (e.g., "on", "off", "unavailable")
- * @param attributes - Entity attributes object
- * @returns Mock entity that matches BaseEntityHook interface
- */
-export function createMockEntity<T = Record<string, any>>(
+// Creates a mock entity for testing purposes
+export function createMockEntity<T = Record<string, unknown>>(
   entityId: string,
   state: string = 'on',
   attributes: T = {} as T
@@ -27,21 +20,15 @@ export function createMockEntity<T = Record<string, any>>(
   }
 }
 
-/**
- * Creates a domain-specific mock entity factory function.
- * 
- * @param domain - The domain for entities created by this factory
- * @returns Function that creates mock entities for the specified domain
- */
+// Creates a domain-specific mock entity factory function
 export function createMockEntityFactory(domain: string) {
-  return <T = Record<string, any>>(
+  return <T = Record<string, unknown>>(
     entityName: string = 'test',
     state: string = 'on',
     attributes: T = {} as T
   ) => createMockEntity<T>(`${domain}.${entityName}`, state, attributes)
 }
 
-// Pre-built domain-specific factories for convenience
 export const createMockLightEntity = createMockEntityFactory('light')
 export const createMockFanEntity = createMockEntityFactory('fan')
 export const createMockSwitchEntity = createMockEntityFactory('switch')
@@ -50,10 +37,7 @@ export const createMockClimateEntity = createMockEntityFactory('climate')
 export const createMockSensorEntity = createMockEntityFactory('sensor')
 export const createMockCoverEntity = createMockEntityFactory('cover')
 
-/**
- * Creates a mock entity with default attributes for specific domains.
- * This includes typical attributes that are commonly tested.
- */
+// Creates mock entities with typical default attributes for each domain
 export const createMockEntityWithDefaults = {
   light: (entityName: string = 'test', state: string = 'on') =>
     createMockLightEntity(entityName, state, {
@@ -103,17 +87,8 @@ export const createMockEntityWithDefaults = {
     })
 }
 
-/**
- * Creates a mock entity with specific features enabled for testing.
- * 
- * @param domain - Entity domain
- * @param entityName - Entity name (will be prefixed with domain)
- * @param features - Array of feature flag values to enable
- * @param state - Entity state
- * @param additionalAttributes - Any additional attributes
- * @returns Mock entity with specified features enabled
- */
-export function createMockEntityWithFeatures<T = Record<string, any>>(
+// Creates a mock entity with specific features enabled for testing
+export function createMockEntityWithFeatures<T = Record<string, unknown>>(
   domain: string,
   entityName: string,
   features: number[],
@@ -133,26 +108,12 @@ export function createMockEntityWithFeatures<T = Record<string, any>>(
   )
 }
 
-/**
- * Utility to extract the mock function from a service call for testing.
- * 
- * @param mockEntity - Mock entity created by createMockEntity
- * @returns The vi.fn() mock for callService
- */
-export function getMockServiceCall(mockEntity: BaseEntityHook): any {
-  return mockEntity.callService
+// Extracts the mock callService function for assertions
+export function getMockServiceCall(mockEntity: BaseEntityHook) {
+  return mockEntity.callService as ReturnType<typeof vi.fn>
 }
 
-/**
- * Helper to verify that a service was called with specific parameters.
- * This is a convenience function for test assertions.
- * 
- * @param mockEntity - Mock entity created by createMockEntity
- * @param domain - Expected domain
- * @param service - Expected service name
- * @param data - Expected service data (optional)
- * @returns The mock call for use in expect() statements
- */
+// Helper to verify service calls with specific parameters
 export function expectServiceCalled(
   mockEntity: BaseEntityHook,
   domain: string,

@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { z } from 'zod'
 import { useEntity } from './useEntity'
-import type { LightState, LightAttributes } from '../types'
+import type { LightState, LightAttributes, LightTurnOnParams } from '../types'
 import { LightFeatures } from '../types'
 import { createDomainValidator } from '../utils/entityId'
 import { checkFeatures } from '../utils/features'
@@ -9,7 +9,6 @@ import { FeatureNotSupportedError } from '../utils/errors'
 
 const validateLightEntityId = createDomainValidator('light', 'useLight')
 
-// Service validations
 const brightnessSchema = z.number().int().min(0).max(255)
 const colorTempSchema = z.number().int().min(153).max(500)
 const rgbColorSchema = z.array(z.number().int().min(0).max(255)).length(3)
@@ -28,7 +27,6 @@ export function useLight(entityId: string): LightState {
   const entity = useEntity<LightAttributes>(normalizedEntityId)
   const { attributes, state, callService } = entity
 
-  // Extract feature support
   const features = checkFeatures(attributes.supported_features, {
     brightness: LightFeatures.SUPPORT_BRIGHTNESS,
     colorTemp: LightFeatures.SUPPORT_COLOR_TEMP,
@@ -39,12 +37,9 @@ export function useLight(entityId: string): LightState {
   const { brightness: supportsBrightness, colorTemp: supportsColorTemp, rgb: supportsRgb, effects: supportsEffects } = features
 
 
-  // State helpers
   const isOn = state === 'on'
   const brightness = attributes.brightness || 0
   const brightnessPercent = Math.round((brightness / 255) * 100)
-
-  // Actions with validation
   const toggle = useCallback(async () => {
     await callService('light', 'toggle')
   }, [callService])
@@ -54,7 +49,7 @@ export function useLight(entityId: string): LightState {
   }, [callService])
 
   const turnOn = useCallback(
-    async (params?: { brightness?: number; rgb_color?: [number, number, number]; color_temp?: number; effect?: string; transition?: number }) => {
+    async (params?: LightTurnOnParams) => {
       if (params) {
         turnOnParamsSchema.parse(params)
       }
@@ -106,12 +101,12 @@ export function useLight(entityId: string): LightState {
       }
       
       if (effect === null || effect === '') {
-        // To clear effect, use "off" (standard for Hue lights in newer HA versions)
+        // Clear effect using "off"
         await callService('light', 'turn_on', { effect: 'off' })
         return
       }
       
-      // Validate effect is in available list
+      effectSchema.parse(effect)
       const availableEffects = attributes.effect_list || []
       if (availableEffects.length > 0 && !availableEffects.includes(effect)) {
         console.warn(`Effect "${effect}" is not available for light "${normalizedEntityId}". Available effects: ${availableEffects.join(', ')}`)
