@@ -14,15 +14,6 @@ export {
   createFeatureChecker
 } from './features'
 
-// Service call helper utilities
-export {
-  createBasicControlDefs,
-  createFeatureBasedControlDef,
-  createOptionBasedControlDef,
-  createNumericControlDef,
-  createTurnOnControlDef,
-  type CallServiceFunction
-} from './serviceHelpers'
 
 // Entity validation utilities
 export {

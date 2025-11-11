@@ -1,12 +1,22 @@
 import { useCallback } from 'react'
+import { z } from 'zod'
 import { useEntity } from './useEntity'
 import type { FanState, FanAttributes } from '../types'
 import { FanFeatures } from '../types'
 import { createDomainValidator } from '../utils/entityId'
 import { checkFeatures } from '../utils/features'
-import { createBasicControlDefs, createFeatureBasedControlDef } from '../utils/serviceHelpers'
 
 const validateFanEntityId = createDomainValidator('fan', 'useFan')
+
+// Service validations
+const percentageSchema = z.number().int().min(0).max(100)
+const presetModeSchema = z.string().min(1)
+const directionSchema = z.enum(['forward', 'reverse'])
+const oscillatingSchema = z.boolean()
+const turnOnParamsSchema = z.object({
+  percentage: percentageSchema.optional(),
+  preset_mode: presetModeSchema.optional()
+}).strict().optional()
 
 export function useFan(entityId: string): FanState {
   const normalizedEntityId = validateFanEntityId(entityId)
@@ -33,78 +43,75 @@ export function useFan(entityId: string): FanState {
   const isOscillating = attributes.oscillating
   const direction = attributes.direction
 
-  // Actions using service helpers
-  const basicControls = createBasicControlDefs(callService, 'fan')
+  // Actions with validation
+  const toggle = useCallback(async () => {
+    await callService('fan', 'toggle')
+  }, [callService])
   
-  const toggle = useCallback(basicControls.toggle, [callService])
-  const turnOff = useCallback(basicControls.turnOff, [callService])
+  const turnOff = useCallback(async () => {
+    await callService('fan', 'turn_off')
+  }, [callService])
 
   const turnOn = useCallback(
     async (params?: { percentage?: number; preset_mode?: string }) => {
+      if (params) {
+        turnOnParamsSchema.parse(params)
+      }
       await callService('fan', 'turn_on', params)
     },
     [callService]
   )
 
   const setPercentage = useCallback(
-    createFeatureBasedControlDef(
-      callService,
-      'fan',
-      {
-        entityId: normalizedEntityId,
-        isSupported: supportsSetSpeed,
-        featureName: 'speed control',
-        serviceName: 'set_percentage'
-      },
-      (percentage: number) => ({ percentage: Math.max(0, Math.min(100, percentage)) })
-    ),
+    async (percentage: number) => {
+      if (!supportsSetSpeed) {
+        throw new Error(`Fan "${normalizedEntityId}" does not support speed control. Check the fan's supported_features.`)
+      }
+      
+      percentageSchema.parse(percentage)
+      await callService('fan', 'set_percentage', { percentage })
+    },
     [callService, normalizedEntityId, supportsSetSpeed]
   )
 
   const setPresetMode = useCallback(
     async (preset: string) => {
       if (!supportsPresetMode) {
-        console.warn(`Fan "${normalizedEntityId}" does not support preset modes. Check the fan's supported_features.`)
-        return
+        throw new Error(`Fan "${normalizedEntityId}" does not support preset modes. Check the fan's supported_features.`)
       }
-      if (preset && preset !== '' && !availablePresetModes.includes(preset)) {
-        console.warn(`Preset "${preset}" is not available for fan "${normalizedEntityId}". Available presets: ${availablePresetModes.join(', ')}`)
+      
+      presetModeSchema.parse(preset)
+      
+      if (!availablePresetModes.includes(preset)) {
+        throw new Error(`Preset "${preset}" is not available for fan "${normalizedEntityId}". Available presets: ${availablePresetModes.join(', ')}`)
       }
-      // Only set preset mode if a valid preset is provided
-      if (preset && preset !== '') {
-        await callService('fan', 'set_preset_mode', { preset_mode: preset })
-      }
+      
+      await callService('fan', 'set_preset_mode', { preset_mode: preset })
     },
     [callService, supportsPresetMode, normalizedEntityId, availablePresetModes]
   )
 
   const setOscillating = useCallback(
-    createFeatureBasedControlDef(
-      callService,
-      'fan',
-      {
-        entityId: normalizedEntityId,
-        isSupported: supportsOscillate,
-        featureName: 'oscillation control',
-        serviceName: 'oscillate'
-      },
-      (oscillating: boolean) => ({ oscillating })
-    ),
+    async (oscillating: boolean) => {
+      if (!supportsOscillate) {
+        throw new Error(`Fan "${normalizedEntityId}" does not support oscillation control. Check the fan's supported_features.`)
+      }
+      
+      oscillatingSchema.parse(oscillating)
+      await callService('fan', 'oscillate', { oscillating })
+    },
     [callService, normalizedEntityId, supportsOscillate]
   )
 
   const setDirection = useCallback(
-    createFeatureBasedControlDef(
-      callService,
-      'fan',
-      {
-        entityId: normalizedEntityId,
-        isSupported: supportsDirection,
-        featureName: 'direction control',
-        serviceName: 'set_direction'
-      },
-      (direction: 'forward' | 'reverse') => ({ direction })
-    ),
+    async (direction: 'forward' | 'reverse') => {
+      if (!supportsDirection) {
+        throw new Error(`Fan "${normalizedEntityId}" does not support direction control. Check the fan's supported_features.`)
+      }
+      
+      directionSchema.parse(direction)
+      await callService('fan', 'set_direction', { direction })
+    },
     [callService, normalizedEntityId, supportsDirection]
   )
 

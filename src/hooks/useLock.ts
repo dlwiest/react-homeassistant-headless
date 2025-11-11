@@ -1,12 +1,15 @@
 import { useCallback } from 'react'
+import { z } from 'zod'
 import { useEntity } from './useEntity'
 import type { LockState, LockAttributes } from '../types'
 import { LockFeatures } from '../types'
 import { createDomainValidator } from '../utils/entityId'
 import { hasFeature } from '../utils/features'
-import { createFeatureBasedControlDef } from '../utils/serviceHelpers'
 
 const validateLockEntityId = createDomainValidator('lock', 'useLock')
+
+// Service validations
+const codeSchema = z.string().optional()
 
 export function useLock(entityId: string): LockState {
   const normalizedEntityId = validateLockEntityId(entityId)
@@ -28,24 +31,24 @@ export function useLock(entityId: string): LockState {
   }, [callService])
 
   const unlock = useCallback(async (code?: string) => {
+    if (code !== undefined) {
+      codeSchema.parse(code)
+    }
     const params = code ? { code } : undefined
     await callService('lock', 'unlock', params)
   }, [callService])
 
-  const open = useCallback(
-    createFeatureBasedControlDef(
-      callService,
-      'lock',
-      {
-        entityId: normalizedEntityId,
-        isSupported: supportsOpen,
-        featureName: 'open operation',
-        serviceName: 'open'
-      },
-      (code?: string) => code ? { code } : undefined
-    ),
-    [callService, normalizedEntityId, supportsOpen]
-  )
+  const open = useCallback(async (code?: string) => {
+    if (!supportsOpen) {
+      throw new Error(`Lock "${normalizedEntityId}" does not support open operation. Check the lock's supported_features.`)
+    }
+    
+    if (code !== undefined) {
+      codeSchema.parse(code)
+    }
+    const params = code ? { code } : undefined
+    await callService('lock', 'open', params)
+  }, [callService, normalizedEntityId, supportsOpen])
 
   return {
     ...entity,

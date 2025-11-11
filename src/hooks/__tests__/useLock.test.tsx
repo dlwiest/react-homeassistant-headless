@@ -189,7 +189,7 @@ describe('useLock', () => {
         act(async () => {
           await result.current.open()
         })
-      ).rejects.toThrow('Feature "open operation" is not supported by entity "lock.test"')
+      ).rejects.toThrow('Lock "lock.test" does not support open operation. Check the lock\'s supported_features.')
 
       expect(mockCallService).not.toHaveBeenCalled()
     })
@@ -207,7 +207,7 @@ describe('useLock', () => {
         act(async () => {
           await result.current.open('1234')
         })
-      ).rejects.toThrow('Feature "open operation" is not supported by entity "lock.test"')
+      ).rejects.toThrow('Lock "lock.test" does not support open operation. Check the lock\'s supported_features.')
 
       expect(mockCallService).not.toHaveBeenCalled()
     })

@@ -235,7 +235,7 @@ describe('useFan', () => {
         act(async () => {
           await result.current.setPercentage(50)
         })
-      ).rejects.toThrow('Feature "speed control" is not supported by entity "fan.test"')
+      ).rejects.toThrow('Fan "fan.test" does not support speed control. Check the fan\'s supported_features.')
 
       expect(mockCallService).not.toHaveBeenCalled()
     })
@@ -272,7 +272,7 @@ describe('useFan', () => {
         act(async () => {
           await result.current.setOscillating(true)
         })
-      ).rejects.toThrow('Feature "oscillation control" is not supported by entity "fan.test"')
+      ).rejects.toThrow('Fan "fan.test" does not support oscillation control. Check the fan\'s supported_features.')
 
       expect(mockCallService).not.toHaveBeenCalled()
     })
@@ -290,7 +290,7 @@ describe('useFan', () => {
         act(async () => {
           await result.current.setDirection('reverse')
         })
-      ).rejects.toThrow('Feature "direction control" is not supported by entity "fan.test"')
+      ).rejects.toThrow('Fan "fan.test" does not support direction control. Check the fan\'s supported_features.')
 
       expect(mockCallService).not.toHaveBeenCalled()
     })

@@ -3,15 +3,27 @@ import { subscribeWithSelector } from 'zustand/middleware'
 import type { EntityState, StateChangedEvent } from '../types'
 import type { Connection } from 'home-assistant-js-websocket'
 
+// Central store for managing Home Assistant entity states and WebSocket subscriptions
+// Handles automatic subscription/unsubscription as React components mount/unmount
+
 interface WebSocketSubscription {
   unsubscribe: () => void
 }
 
 interface EntityStore {
+  // Current entity states indexed by entity_id
   entities: Map<string, EntityState>
+  
+  // Component callbacks that want updates for each entity
   componentSubscriptions: Map<string, Set<() => void>>
+  
+  // Active WebSocket subscriptions for each entity
   websocketSubscriptions: Map<string, WebSocketSubscription>
+  
+  // All entities that any component has requested
   registeredEntities: Set<string>
+  
+  // Current Home Assistant WebSocket connection
   connection: Connection | null
 
   // Actions
@@ -31,6 +43,7 @@ export const useStore = create<EntityStore>()(
     registeredEntities: new Set(),
     connection: null,
 
+    // Update the WebSocket connection and resubscribe to all registered entities
     setConnection: async (connection) => {
       const oldConnection = get().connection
       
@@ -50,12 +63,12 @@ export const useStore = create<EntityStore>()(
         const registeredEntities = get().registeredEntities
         
         if (registeredEntities.size > 0) {
-          // Fetch all states once
+          // Fetch current states for all registered entities
           const states = await connection.sendMessagePromise<EntityState[]>({
             type: 'get_states',
           })
           
-          // Update all registered entities
+          // Update store with current entity states
           const entityMap = new Map(states.map(s => [s.entity_id, s]))
           registeredEntities.forEach(entityId => {
             const entity = entityMap.get(entityId)
@@ -64,7 +77,7 @@ export const useStore = create<EntityStore>()(
             }
           })
           
-          // Subscribe to all entities
+          // Subscribe to real-time updates for all registered entities
           await Promise.all(
             Array.from(registeredEntities).map(entityId => 
               subscribeToEntityUpdates(connection, entityId, get, set)
@@ -74,6 +87,7 @@ export const useStore = create<EntityStore>()(
       }
     },
 
+    // Update entity state and notify all subscribed components
     updateEntity: (entityId, state) => {
       set((store) => {
         const newEntities = new Map(store.entities)
@@ -81,16 +95,17 @@ export const useStore = create<EntityStore>()(
         return { entities: newEntities }
       })
 
-      // Notify component subscribers
+      // Notify component subscribers to trigger re-renders
       const subs = get().componentSubscriptions.get(entityId)
       if (subs) {
         subs.forEach((callback) => callback())
       }
     },
 
+    // Register a component's interest in an entity (called on component mount)
     registerEntity: async (entityId, callback) => {
       
-      // Add to registered entities and component subscriptions
+      // Add entity to global registry and add component callback
       set((store) => {
         const newRegistered = new Set(store.registeredEntities)
         newRegistered.add(entityId)
@@ -106,13 +121,14 @@ export const useStore = create<EntityStore>()(
         }
       })
       
-      // If connected and not already subscribed, subscribe now
+      // Subscribe to WebSocket updates if connected and not already subscribed
       const { connection, websocketSubscriptions } = get()
       if (connection && !websocketSubscriptions.has(entityId)) {
         await subscribeToEntity(connection, entityId, get, set)
       }
     },
 
+    // Unregister a component's interest in an entity (called on component unmount)
     unregisterEntity: (entityId, callback) => {
       
       set((store) => {
@@ -122,14 +138,14 @@ export const useStore = create<EntityStore>()(
         if (entitySubs) {
           entitySubs.delete(callback)
           
-          // If no more subscribers, clean up everything
+          // If no components are watching this entity, clean up completely
           if (entitySubs.size === 0) {
             newSubs.delete(entityId)
             
             const newRegistered = new Set(store.registeredEntities)
             newRegistered.delete(entityId)
             
-            // Unsubscribe WebSocket if it exists
+            // Unsubscribe from WebSocket to avoid unnecessary updates
             const wsSub = store.websocketSubscriptions.get(entityId)
             if (wsSub) {
               wsSub.unsubscribe()
@@ -155,6 +171,7 @@ export const useStore = create<EntityStore>()(
       })
     },
 
+    // Update multiple entities at once (more efficient than individual updates)
     batchUpdate: (updates) => {
       set((store) => {
         const newEntities = new Map(store.entities)
@@ -174,6 +191,7 @@ export const useStore = create<EntityStore>()(
       })
     },
 
+    // Clean up all subscriptions and reset store to initial state
     clear: () => {
       // Unsubscribe all WebSocket subscriptions
       get().websocketSubscriptions.forEach(sub => sub.unsubscribe())
@@ -189,7 +207,8 @@ export const useStore = create<EntityStore>()(
   }))
 )
 
-// Helper function to subscribe to a single entity (used when entity is registered after connection)
+// Subscribe to a single entity: fetch current state + set up real-time updates
+// Used when an entity is registered after the connection is already established
 async function subscribeToEntity(
   connection: Connection,
   entityId: string,
@@ -197,7 +216,7 @@ async function subscribeToEntity(
   set: (partial: Partial<EntityStore> | ((state: EntityStore) => Partial<EntityStore>)) => void
 ) {
   try {
-    // Get initial state
+    // Get current state from Home Assistant
     const states = await connection.sendMessagePromise<EntityState[]>({
       type: 'get_states',
     })
@@ -207,7 +226,7 @@ async function subscribeToEntity(
       get().updateEntity(entityId, entity)
     }
 
-    // Subscribe to updates
+    // Set up WebSocket subscription for real-time updates
     await subscribeToEntityUpdates(connection, entityId, get, set)
     
   } catch (error) {
@@ -215,7 +234,8 @@ async function subscribeToEntity(
   }
 }
 
-// Helper function to subscribe to entity updates only
+// Subscribe to real-time WebSocket updates for an entity
+// Used when we already have the entity state and just need the subscription
 async function subscribeToEntityUpdates(
   connection: Connection,
   entityId: string,
@@ -223,7 +243,7 @@ async function subscribeToEntityUpdates(
   set: (partial: Partial<EntityStore> | ((state: EntityStore) => Partial<EntityStore>)) => void
 ) {
   try {
-    // Subscribe to state changes
+    // Subscribe to state_changed events for this entity
     const unsubscribe = await connection.subscribeEvents(
       (event: StateChangedEvent) => {
         if (event.data.entity_id === entityId) {
@@ -233,7 +253,7 @@ async function subscribeToEntityUpdates(
       'state_changed'
     )
     
-    // Store the subscription
+    // Store the subscription so we can clean it up later
     set((store) => {
       const newWsSubs = new Map(store.websocketSubscriptions)
       newWsSubs.set(entityId, { unsubscribe })
@@ -245,6 +265,6 @@ async function subscribeToEntityUpdates(
   }
 }
 
-// Selector to get entity state
+// Zustand selector to get a specific entity's state
 export const selectEntity = (entityId: string) => (state: EntityStore) =>
   state.entities.get(entityId)

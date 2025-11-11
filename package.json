@@ -27,7 +27,8 @@
   },
   "dependencies": {
     "home-assistant-js-websocket": "^9.0.0",
-    "zustand": "^4.5.0"
+    "zustand": "^4.5.0",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",

@@ -228,7 +228,7 @@ const { connected, connecting, error, reconnect } = useHAConnection()
 
 ## Error Handling & Reliability
 
-hass-react includes robust error handling and automatic retry logic to ensure reliable smart home control even with network issues or temporary service interruptions.
+hass-react includes robust error handling, parameter validation, and automatic retry logic to ensure reliable smart home control even with network issues or temporary service interruptions.
 
 ### Automatic Service Call Retries
 

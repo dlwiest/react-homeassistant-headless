@@ -1,9 +1,13 @@
 import { useCallback } from 'react'
+import { z } from 'zod'
 import { useEntity } from './useEntity'
 import type { BaseEntityHook } from '../types'
 import { createDomainValidator } from '../utils/entityId'
 
 const validateCoverEntityId = createDomainValidator('cover', 'useCover')
+
+// Service validations
+const positionSchema = z.number().int().min(0).max(100)
 
 export interface CoverState extends BaseEntityHook {
   isOpen: boolean
@@ -41,6 +45,7 @@ export function useCover(entityId: string): CoverState {
 
   const setPosition = useCallback(
     async (position: number) => {
+      positionSchema.parse(position)
       await callService('cover', 'set_cover_position', { position })
     },
     [callService]

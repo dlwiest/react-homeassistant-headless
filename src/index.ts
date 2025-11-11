@@ -28,8 +28,6 @@ export { default as Lock } from './components/Lock'
 export type { EntityState, LightState, ClimateState, SensorState, FanState, LockState, HAConfig, ConnectionStatus, LightAttributes, ClimateAttributes, FanAttributes, LockAttributes, BaseEntityHook } from './types'
 export type { SwitchState } from './hooks/useSwitch'
 
-// Utils
-export { createMockProvider } from './utils/mock'
 
 // Store (for advanced usage)
 export { useStore, selectEntity } from './services/entityStore'

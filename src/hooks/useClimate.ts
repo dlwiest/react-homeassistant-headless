@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { z } from 'zod'
 import { useEntity } from './useEntity'
 import type { ClimateState, ClimateAttributes } from '../types'
 import { ClimateFeatures } from '../types'
@@ -6,6 +7,12 @@ import { createDomainValidator } from '../utils/entityId'
 import { checkFeatures } from '../utils/features'
 
 const validateClimateEntityId = createDomainValidator('climate', 'useClimate')
+
+// Service validations
+const temperatureSchema = z.number()
+const hvacModeSchema = z.string().min(1)
+const fanModeSchema = z.string().min(1)
+const presetModeSchema = z.string().min(1)
 
 export function useClimate(entityId: string): ClimateState {
   const normalizedEntityId = validateClimateEntityId(entityId)
@@ -25,6 +32,7 @@ export function useClimate(entityId: string): ClimateState {
   // Actions
   const setMode = useCallback(
     async (mode: string) => {
+      hvacModeSchema.parse(mode)
       await callService('climate', 'set_hvac_mode', { hvac_mode: mode })
     },
     [callService]
@@ -32,6 +40,7 @@ export function useClimate(entityId: string): ClimateState {
 
   const setTemperature = useCallback(
     async (temp: number) => {
+      temperatureSchema.parse(temp)
       await callService('climate', 'set_temperature', { temperature: temp })
     },
     [callService]
@@ -39,6 +48,8 @@ export function useClimate(entityId: string): ClimateState {
 
   const setTemperatureRange = useCallback(
     async (low: number, high: number) => {
+      temperatureSchema.parse(low)
+      temperatureSchema.parse(high)
       await callService('climate', 'set_temperature', {
         target_temp_low: low,
         target_temp_high: high,
@@ -49,6 +60,7 @@ export function useClimate(entityId: string): ClimateState {
 
   const setFanMode = useCallback(
     async (mode: string) => {
+      fanModeSchema.parse(mode)
       await callService('climate', 'set_fan_mode', { fan_mode: mode })
     },
     [callService]
@@ -56,6 +68,7 @@ export function useClimate(entityId: string): ClimateState {
 
   const setPresetMode = useCallback(
     async (preset: string) => {
+      presetModeSchema.parse(preset)
       await callService('climate', 'set_preset_mode', { preset_mode: preset })
     },
     [callService]

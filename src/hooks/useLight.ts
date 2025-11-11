@@ -1,13 +1,27 @@
 import { useCallback } from 'react'
+import { z } from 'zod'
 import { useEntity } from './useEntity'
 import type { LightState, LightAttributes } from '../types'
 import { LightFeatures } from '../types'
 import { createDomainValidator } from '../utils/entityId'
 import { checkFeatures } from '../utils/features'
-import { createBasicControlDefs, createFeatureBasedControlDef } from '../utils/serviceHelpers'
 import { FeatureNotSupportedError } from '../utils/errors'
 
 const validateLightEntityId = createDomainValidator('light', 'useLight')
+
+// Service validations
+const brightnessSchema = z.number().int().min(0).max(255)
+const colorTempSchema = z.number().int().min(153).max(500)
+const rgbColorSchema = z.array(z.number().int().min(0).max(255)).length(3)
+const effectSchema = z.string().min(1)
+const transitionSchema = z.number().min(0)
+const turnOnParamsSchema = z.object({
+  brightness: brightnessSchema.optional(),
+  color_temp: colorTempSchema.optional(),
+  rgb_color: rgbColorSchema.optional(),
+  effect: effectSchema.optional(),
+  transition: transitionSchema.optional()
+}).strict()
 
 export function useLight(entityId: string): LightState {
   const normalizedEntityId = validateLightEntityId(entityId)
@@ -30,61 +44,58 @@ export function useLight(entityId: string): LightState {
   const brightness = attributes.brightness || 0
   const brightnessPercent = Math.round((brightness / 255) * 100)
 
-  // Actions using service helpers
-  const basicControls = createBasicControlDefs(callService, 'light')
+  // Actions with validation
+  const toggle = useCallback(async () => {
+    await callService('light', 'toggle')
+  }, [callService])
   
-  const toggle = useCallback(basicControls.toggle, [callService])
-  const turnOff = useCallback(basicControls.turnOff, [callService])
+  const turnOff = useCallback(async () => {
+    await callService('light', 'turn_off')
+  }, [callService])
 
   const turnOn = useCallback(
-    async (params?: { brightness?: number; rgb_color?: [number, number, number]; color_temp?: number; effect?: string }) => {
+    async (params?: { brightness?: number; rgb_color?: [number, number, number]; color_temp?: number; effect?: string; transition?: number }) => {
+      if (params) {
+        turnOnParamsSchema.parse(params)
+      }
       await callService('light', 'turn_on', params)
     },
     [callService]
   )
 
   const setBrightness = useCallback(
-    createFeatureBasedControlDef(
-      callService,
-      'light',
-      {
-        entityId: normalizedEntityId,
-        isSupported: supportsBrightness,
-        featureName: 'brightness control',
-        serviceName: 'turn_on'
-      },
-      (brightness: number) => ({ brightness: Math.max(0, Math.min(255, brightness)) })
-    ),
+    async (brightness: number) => {
+      if (!supportsBrightness) {
+        throw new FeatureNotSupportedError(normalizedEntityId, 'brightness control')
+      }
+      
+      brightnessSchema.parse(brightness)
+      await callService('light', 'turn_on', { brightness })
+    },
     [callService, normalizedEntityId, supportsBrightness]
   )
 
   const setColorTemp = useCallback(
-    createFeatureBasedControlDef(
-      callService,
-      'light',
-      {
-        entityId: normalizedEntityId,
-        isSupported: supportsColorTemp,
-        featureName: 'color temperature control',
-        serviceName: 'turn_on'
-      },
-      (temp: number) => ({ color_temp: temp })
-    ),
+    async (temp: number) => {
+      if (!supportsColorTemp) {
+        throw new FeatureNotSupportedError(normalizedEntityId, 'color temperature control')
+      }
+      
+      colorTempSchema.parse(temp)
+      await callService('light', 'turn_on', { color_temp: temp })
+    },
     [callService, normalizedEntityId, supportsColorTemp]
   )
 
   const setRgbColor = useCallback(
-    createFeatureBasedControlDef(
-      callService,
-      'light',
-      {
-        entityId: normalizedEntityId,
-        isSupported: supportsRgb,
-        featureName: 'RGB color control',
-        serviceName: 'turn_on'
-      },
-      (rgb: [number, number, number]) => ({ rgb_color: rgb })
-    ),
+    async (rgb: [number, number, number]) => {
+      if (!supportsRgb) {
+        throw new FeatureNotSupportedError(normalizedEntityId, 'RGB color control')
+      }
+      
+      rgbColorSchema.parse(rgb)
+      await callService('light', 'turn_on', { rgb_color: rgb })
+    },
     [callService, normalizedEntityId, supportsRgb]
   )
 
