@@ -335,8 +335,7 @@ describe('useEntity', () => {
   })
 
   describe('Error Handling for Missing Entities', () => {
-    it('should log warning for missing entities when connected', async () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    it('should set error state for missing entities when connected', async () => {
       const entityId = 'light.nonexistent'
       
       mockUseHAConnection.mockReturnValue({
@@ -348,16 +347,13 @@ describe('useEntity', () => {
         config: {}
       })
 
-      renderHook(() => useEntity(entityId), { wrapper: TestWrapper })
+      const { result } = renderHook(() => useEntity(entityId), { wrapper: TestWrapper })
 
-      // Wait for the warning timeout (2 seconds)
+      // Wait for the error timeout (2 seconds)
       await new Promise(resolve => setTimeout(resolve, 2100))
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        `Entity "light.nonexistent" not found in Home Assistant. Check that the entity exists and is available.`
-      )
-
-      consoleSpy.mockRestore()
+      expect(result.current.error).toBeDefined()
+      expect(result.current.error?.message).toContain('Entity "light.nonexistent" is not available')
     })
 
     it('should not log warning when entity becomes available', async () => {

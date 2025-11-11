@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react'
 import { Light } from 'hass-react'
 import {
   Card,
@@ -14,9 +15,18 @@ import {
   Button,
   Box,
   Stack,
-  Chip
+  Chip,
+  Alert,
+  AlertTitle,
+  Collapse
 } from '@mui/material'
-import { Lightbulb, Palette } from '@mui/icons-material'
+import { 
+  Lightbulb, 
+  Palette, 
+  Warning,
+  WifiOff,
+  Close
+} from '@mui/icons-material'
 
 interface LightCardProps {
   entityId: string
@@ -24,178 +34,276 @@ interface LightCardProps {
 }
 
 export const LightCard = ({ entityId, name }: LightCardProps) => {
+  const [actionError, setActionError] = useState<string | null>(null)
+
+  // Helper to handle errors from actions
+  const handleAction = useCallback(async (action: () => Promise<void>, actionName: string) => {
+    try {
+      setActionError(null)
+      await action()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error occurred'
+      setActionError(`${actionName}: ${message}`)
+      
+      // Auto-clear error after 5 seconds
+      setTimeout(() => setActionError(null), 5000)
+    }
+  }, [])
+
   return (
     <Light entityId={entityId}>
-      {(light) => (
-        <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-          <CardHeader
-            avatar={
-              <Lightbulb 
-                sx={{ 
-                  color: light.isOn ? 'warning.main' : 'text.disabled',
-                  fontSize: 32
-                }} 
+      {(light) => {
+        // Check for entity availability errors
+        if (light.error) {
+          return (
+            <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+              <CardHeader
+                avatar={<Warning sx={{ color: 'error.main', fontSize: 32 }} />}
+                title={
+                  <Typography variant="h6" component="h2">
+                    {name}
+                  </Typography>
+                }
+                subheader="Entity Error"
               />
-            }
-            title={
-              <Typography variant="h6" component="h2">
-                {name}
-              </Typography>
-            }
-            subheader={light.isOn ? 'On' : 'Off'}
-            action={
-              <Switch 
-                checked={light.isOn}
-                onChange={light.toggle}
-                color="primary"
-              />
-            }
-          />
-          
-          {light.isOn && (
-            <CardContent sx={{ flexGrow: 1 }}>
-              <Stack spacing={3}>
-                {light.supportsBrightness && (
-                  <Box>
-                    <Typography variant="body2" color="text.secondary" gutterBottom>
-                      Brightness: {light.brightnessPercent}%
-                    </Typography>
-                    <Slider
-                      value={light.brightness}
-                      onChange={(_, value) => light.setBrightness(value as number)}
-                      min={0}
-                      max={255}
-                      valueLabelDisplay="auto"
-                      valueLabelFormat={(value) => `${Math.round((value / 255) * 100)}%`}
-                    />
-                  </Box>
-                )}
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Alert severity="error">
+                  <AlertTitle>Entity Not Available</AlertTitle>
+                  {light.error.message}
+                </Alert>
+              </CardContent>
+            </Card>
+          )
+        }
 
-                {light.supportsRgb && (
-                  <Box>
-                    <Box display="flex" alignItems="center" gap={1} mb={1}>
-                      <Palette fontSize="small" />
-                      <Typography variant="body2" fontWeight="medium">
-                        Colors
+        return (
+          <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+            <CardHeader
+              avatar={
+                <Lightbulb 
+                  sx={{ 
+                    color: light.isOn ? 'warning.main' : 'text.disabled',
+                    fontSize: 32
+                  }} 
+                />
+              }
+              title={
+                <Typography variant="h6" component="h2">
+                  {name}
+                </Typography>
+              }
+              subheader={
+                <Box display="flex" alignItems="center" gap={1}>
+                  <span>{light.isConnected ? (light.isOn ? 'On' : 'Off') : 'Disconnected'}</span>
+                  {!light.isConnected && <WifiOff fontSize="small" />}
+                </Box>
+              }
+              action={
+                <Switch 
+                  checked={light.isOn}
+                  onChange={() => handleAction(light.toggle, 'Toggle')}
+                  disabled={!light.isConnected}
+                  color="primary"
+                />
+              }
+            />
+
+            {/* Display action errors */}
+            <Collapse in={!!actionError}>
+              {actionError && (
+                <Box sx={{ px: 2, pb: 1 }}>
+                  <Alert 
+                    severity="error" 
+                    action={
+                      <Button 
+                        color="inherit" 
+                        size="small"
+                        onClick={() => setActionError(null)}
+                      >
+                        <Close fontSize="small" />
+                      </Button>
+                    }
+                  >
+                    {actionError}
+                  </Alert>
+                </Box>
+              )}
+            </Collapse>
+            
+            {light.isOn && light.isConnected && (
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Stack spacing={3}>
+                  {light.supportsBrightness && (
+                    <Box>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        Brightness: {light.brightnessPercent}%
                       </Typography>
+                      <Slider
+                        value={light.brightness}
+                        onChange={(_, value) => handleAction(
+                          () => light.setBrightness(value as number),
+                          'Set brightness'
+                        )}
+                        min={0}
+                        max={255}
+                        valueLabelDisplay="auto"
+                        valueLabelFormat={(value) => `${Math.round((value / 255) * 100)}%`}
+                      />
                     </Box>
-                    <Stack direction="row" spacing={1}>
-                      <Button 
-                        size="small" 
-                        variant="contained"
-                        sx={{ 
-                          minWidth: 32, 
-                          height: 32, 
-                          backgroundColor: '#f44336',
-                          '&:hover': { backgroundColor: '#d32f2f' }
-                        }}
-                        onClick={() => light.setRgbColor([255, 0, 0])}
-                      />
-                      <Button 
-                        size="small" 
-                        variant="contained"
-                        sx={{ 
-                          minWidth: 32, 
-                          height: 32, 
-                          backgroundColor: '#4caf50',
-                          '&:hover': { backgroundColor: '#388e3c' }
-                        }}
-                        onClick={() => light.setRgbColor([0, 255, 0])}
-                      />
-                      <Button 
-                        size="small" 
-                        variant="contained"
-                        sx={{ 
-                          minWidth: 32, 
-                          height: 32, 
-                          backgroundColor: '#2196f3',
-                          '&:hover': { backgroundColor: '#1976d2' }
-                        }}
-                        onClick={() => light.setRgbColor([0, 0, 255])}
-                      />
-                      <Button 
-                        size="small" 
-                        variant="contained"
-                        sx={{ 
-                          minWidth: 32, 
-                          height: 32, 
-                          backgroundColor: '#ff9800',
-                          '&:hover': { backgroundColor: '#f57c00' }
-                        }}
-                        onClick={() => light.setRgbColor([255, 165, 0])}
-                      />
-                      <Button 
-                        size="small" 
-                        variant="contained"
-                        sx={{ 
-                          minWidth: 32, 
-                          height: 32, 
-                          backgroundColor: '#9c27b0',
-                          '&:hover': { backgroundColor: '#7b1fa2' }
-                        }}
-                        onClick={() => light.setRgbColor([139, 92, 246])}
-                      />
-                      <Button 
-                        size="small" 
-                        variant="outlined"
-                        sx={{ 
-                          minWidth: 32, 
-                          height: 32, 
-                          backgroundColor: '#ffffff',
-                          borderColor: '#e0e0e0',
-                          '&:hover': { backgroundColor: '#f5f5f5' }
-                        }}
-                        onClick={() => light.setRgbColor([255, 255, 255])}
-                      />
-                    </Stack>
-                  </Box>
-                )}
+                  )}
 
-                {light.supportsEffects && light.availableEffects.length > 0 && (
-                  <FormControl fullWidth size="small">
-                    <InputLabel>Effect</InputLabel>
-                    <Select
-                      value={(!light.effect || light.effect === 'off') ? '__none__' : light.effect}
-                      renderValue={(selected) => {
-                        if (selected === '__none__') return 'None'
-                        return selected
-                      }}
-                      label="Effect"
-                      displayEmpty
-                      onChange={(e) => {
-                        if (e.target.value === '__none__') {
-                          light.setEffect(null)
-                        } else {
-                          light.setEffect(e.target.value)
-                        }
-                      }}
-                    >
-                      <MenuItem value="__none__">None</MenuItem>
-                      {light.availableEffects
-                        .filter(effect => effect.toLowerCase() !== 'none')
-                        .map(effect => (
-                          <MenuItem key={effect} value={effect}>{effect}</MenuItem>
-                        ))}
-                    </Select>
-                  </FormControl>
+                  {light.supportsRgb && (
+                    <Box>
+                      <Box display="flex" alignItems="center" gap={1} mb={1}>
+                        <Palette fontSize="small" />
+                        <Typography variant="body2" fontWeight="medium">
+                          Colors
+                        </Typography>
+                      </Box>
+                      <Stack direction="row" spacing={1}>
+                        <Button 
+                          size="small" 
+                          variant="contained"
+                          sx={{ 
+                            minWidth: 32, 
+                            height: 32, 
+                            backgroundColor: '#f44336',
+                            '&:hover': { backgroundColor: '#d32f2f' }
+                          }}
+                          onClick={() => handleAction(
+                            () => light.setRgbColor([255, 0, 0]),
+                            'Set color to red'
+                          )}
+                        />
+                        <Button 
+                          size="small" 
+                          variant="contained"
+                          sx={{ 
+                            minWidth: 32, 
+                            height: 32, 
+                            backgroundColor: '#4caf50',
+                            '&:hover': { backgroundColor: '#388e3c' }
+                          }}
+                          onClick={() => handleAction(
+                            () => light.setRgbColor([0, 255, 0]),
+                            'Set color to green'
+                          )}
+                        />
+                        <Button 
+                          size="small" 
+                          variant="contained"
+                          sx={{ 
+                            minWidth: 32, 
+                            height: 32, 
+                            backgroundColor: '#2196f3',
+                            '&:hover': { backgroundColor: '#1976d2' }
+                          }}
+                          onClick={() => handleAction(
+                            () => light.setRgbColor([0, 0, 255]),
+                            'Set color to blue'
+                          )}
+                        />
+                        <Button 
+                          size="small" 
+                          variant="contained"
+                          sx={{ 
+                            minWidth: 32, 
+                            height: 32, 
+                            backgroundColor: '#ff9800',
+                            '&:hover': { backgroundColor: '#f57c00' }
+                          }}
+                          onClick={() => handleAction(
+                            () => light.setRgbColor([255, 165, 0]),
+                            'Set color to orange'
+                          )}
+                        />
+                        <Button 
+                          size="small" 
+                          variant="contained"
+                          sx={{ 
+                            minWidth: 32, 
+                            height: 32, 
+                            backgroundColor: '#9c27b0',
+                            '&:hover': { backgroundColor: '#7b1fa2' }
+                          }}
+                          onClick={() => handleAction(
+                            () => light.setRgbColor([139, 92, 246]),
+                            'Set color to purple'
+                          )}
+                        />
+                        <Button 
+                          size="small" 
+                          variant="outlined"
+                          sx={{ 
+                            minWidth: 32, 
+                            height: 32, 
+                            backgroundColor: '#ffffff',
+                            borderColor: '#e0e0e0',
+                            '&:hover': { backgroundColor: '#f5f5f5' }
+                          }}
+                          onClick={() => handleAction(
+                            () => light.setRgbColor([255, 255, 255]),
+                            'Set color to white'
+                          )}
+                        />
+                      </Stack>
+                    </Box>
+                  )}
+
+                  {light.supportsEffects && light.availableEffects.length > 0 && (
+                    <FormControl fullWidth size="small">
+                      <InputLabel>Effect</InputLabel>
+                      <Select
+                        value={(!light.effect || light.effect === 'off') ? '__none__' : light.effect}
+                        renderValue={(selected) => {
+                          if (selected === '__none__') return 'None'
+                          return selected
+                        }}
+                        label="Effect"
+                        displayEmpty
+                        onChange={(e) => {
+                          const effectValue = e.target.value === '__none__' ? null : e.target.value
+                          handleAction(
+                            () => light.setEffect(effectValue),
+                            'Set effect'
+                          )
+                        }}
+                      >
+                        <MenuItem value="__none__">None</MenuItem>
+                        {light.availableEffects
+                          .filter(effect => effect.toLowerCase() !== 'none')
+                          .map(effect => (
+                            <MenuItem key={effect} value={effect}>{effect}</MenuItem>
+                          ))}
+                      </Select>
+                    </FormControl>
+                  )}
+                </Stack>
+              </CardContent>
+            )}
+
+            <CardActions sx={{ p: 2, pt: 0 }}>
+              <Stack spacing={1}>
+                <Stack direction="row" spacing={1} flexWrap="wrap">
+                  {light.supportsBrightness && <Chip label="Brightness" size="small" />}
+                  {light.supportsRgb && <Chip label="RGB" size="small" />}
+                  {light.supportsColorTemp && <Chip label="Color Temp" size="small" />}
+                  {light.supportsEffects && <Chip label="Effects" size="small" />}
+                  {!light.supportsBrightness && !light.supportsRgb && !light.supportsColorTemp && !light.supportsEffects && (
+                    <Chip label="Basic On/Off" size="small" />
+                  )}
+                </Stack>
+                {!light.isConnected && (
+                  <Typography variant="caption" color="error" display="flex" alignItems="center" gap={0.5}>
+                    <Warning fontSize="inherit" />
+                    Not connected to Home Assistant
+                  </Typography>
                 )}
               </Stack>
-            </CardContent>
-          )}
-
-          <CardActions sx={{ p: 2, pt: 0 }}>
-            <Stack direction="row" spacing={1} flexWrap="wrap">
-              {light.supportsBrightness && <Chip label="Brightness" size="small" />}
-              {light.supportsRgb && <Chip label="RGB" size="small" />}
-              {light.supportsColorTemp && <Chip label="Color Temp" size="small" />}
-              {light.supportsEffects && <Chip label="Effects" size="small" />}
-              {!light.supportsBrightness && !light.supportsRgb && !light.supportsColorTemp && !light.supportsEffects && (
-                <Chip label="Basic On/Off" size="small" />
-              )}
-            </Stack>
-          </CardActions>
-        </Card>
-      )}
+            </CardActions>
+          </Card>
+        )
+      }}
     </Light>
   )
 }

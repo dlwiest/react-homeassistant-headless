@@ -4,6 +4,7 @@ import { useLight } from '../useLight'
 import { useEntity } from '../useEntity'
 import { LightFeatures } from '../../types'
 import { createMockLightEntity } from '../../test/utils'
+import { FeatureNotSupportedError } from '../../utils/errors'
 
 // Mock useEntity since useLight depends on it
 vi.mock('../useEntity')
@@ -229,6 +230,81 @@ describe('useLight', () => {
     })
   })
 
+  describe('Error Behavior', () => {
+    it('should throw error when trying to set brightness on unsupported light', async () => {
+      const mockCallService = vi.fn()
+      mockUseEntity.mockReturnValue({
+        ...createMockLightEntity('test', 'on', { supported_features: 0 }), // No features supported
+        callService: mockCallService
+      })
+
+      const { result } = renderHook(() => useLight('light.test'))
+
+      await expect(
+        act(async () => {
+          await result.current.setBrightness(100)
+        })
+      ).rejects.toThrow(FeatureNotSupportedError)
+
+      expect(mockCallService).not.toHaveBeenCalled()
+    })
+
+    it('should throw error when trying to set color temperature on unsupported light', async () => {
+      const mockCallService = vi.fn()
+      mockUseEntity.mockReturnValue({
+        ...createMockLightEntity('test', 'on', { supported_features: 0 }),
+        callService: mockCallService
+      })
+
+      const { result } = renderHook(() => useLight('light.test'))
+
+      await expect(
+        act(async () => {
+          await result.current.setColorTemp(300)
+        })
+      ).rejects.toThrow(FeatureNotSupportedError)
+
+      expect(mockCallService).not.toHaveBeenCalled()
+    })
+
+    it('should throw error when trying to set RGB color on unsupported light', async () => {
+      const mockCallService = vi.fn()
+      mockUseEntity.mockReturnValue({
+        ...createMockLightEntity('test', 'on', { supported_features: 0 }),
+        callService: mockCallService
+      })
+
+      const { result } = renderHook(() => useLight('light.test'))
+
+      await expect(
+        act(async () => {
+          await result.current.setRgbColor([255, 128, 0])
+        })
+      ).rejects.toThrow(FeatureNotSupportedError)
+
+      expect(mockCallService).not.toHaveBeenCalled()
+    })
+
+    it('should throw error when trying to set effects on unsupported light', async () => {
+      const mockCallService = vi.fn()
+      mockUseEntity.mockReturnValue({
+        ...createMockLightEntity('test', 'on', { supported_features: 0 }),
+        callService: mockCallService
+      })
+
+      const { result } = renderHook(() => useLight('light.test'))
+
+      await expect(
+        act(async () => {
+          await result.current.setEffect('rainbow')
+        })
+      ).rejects.toThrow(FeatureNotSupportedError)
+
+      expect(mockCallService).not.toHaveBeenCalled()
+    })
+
+  })
+
   describe('Warning Behavior', () => {
     let consoleMock: any
 
@@ -238,82 +314,6 @@ describe('useLight', () => {
 
     afterEach(() => {
       consoleMock.mockRestore()
-    })
-
-    it('should warn when trying to set brightness on unsupported light', async () => {
-      const mockCallService = vi.fn()
-      mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('test', 'on', { supported_features: 0 }), // No features supported
-        callService: mockCallService
-      })
-
-      const { result } = renderHook(() => useLight('light.test'))
-
-      await act(async () => {
-        await result.current.setBrightness(100)
-      })
-
-      expect(consoleMock).toHaveBeenCalledWith(
-        'Light "light.test" does not support brightness control. Check the light\'s supported_features.'
-      )
-      expect(mockCallService).not.toHaveBeenCalled()
-    })
-
-    it('should warn when trying to set color temperature on unsupported light', async () => {
-      const mockCallService = vi.fn()
-      mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('test', 'on', { supported_features: 0 }),
-        callService: mockCallService
-      })
-
-      const { result } = renderHook(() => useLight('light.test'))
-
-      await act(async () => {
-        await result.current.setColorTemp(300)
-      })
-
-      expect(consoleMock).toHaveBeenCalledWith(
-        'Light "light.test" does not support color temperature control. Check the light\'s supported_features.'
-      )
-      expect(mockCallService).not.toHaveBeenCalled()
-    })
-
-    it('should warn when trying to set RGB color on unsupported light', async () => {
-      const mockCallService = vi.fn()
-      mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('test', 'on', { supported_features: 0 }),
-        callService: mockCallService
-      })
-
-      const { result } = renderHook(() => useLight('light.test'))
-
-      await act(async () => {
-        await result.current.setRgbColor([255, 128, 0])
-      })
-
-      expect(consoleMock).toHaveBeenCalledWith(
-        'Light "light.test" does not support RGB color control. Check the light\'s supported_features.'
-      )
-      expect(mockCallService).not.toHaveBeenCalled()
-    })
-
-    it('should warn when trying to set effects on unsupported light', async () => {
-      const mockCallService = vi.fn()
-      mockUseEntity.mockReturnValue({
-        ...createMockLightEntity('test', 'on', { supported_features: 0 }),
-        callService: mockCallService
-      })
-
-      const { result } = renderHook(() => useLight('light.test'))
-
-      await act(async () => {
-        await result.current.setEffect('rainbow')
-      })
-
-      expect(consoleMock).toHaveBeenCalledWith(
-        'Light "light.test" does not support effects. Check the light\'s supported_features.'
-      )
-      expect(mockCallService).not.toHaveBeenCalled()
     })
 
     it('should warn when trying to use unavailable effect', async () => {

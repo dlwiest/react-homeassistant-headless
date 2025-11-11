@@ -1,3 +1,5 @@
+import { FeatureNotSupportedError, InvalidParameterError } from './errors'
+
 /**
  * Type definition for the callService function used throughout hooks.
  */
@@ -46,8 +48,6 @@ interface FeatureControlOptions {
   featureName: string
   /** The service name to call */
   serviceName: string
-  /** Whether to return early if feature is not supported */
-  preventUnsupportedCalls?: boolean
 }
 
 /**
@@ -66,19 +66,11 @@ export function createFeatureBasedControlDef<T>(
   options: FeatureControlOptions,
   paramBuilder: (value: T) => object | undefined
 ) {
-  const { entityId, isSupported, featureName, serviceName, preventUnsupportedCalls = true } = options
+  const { entityId, isSupported, featureName, serviceName } = options
   
   return async (value: T) => {
     if (!isSupported) {
-      const domainCapitalized = domain.charAt(0).toUpperCase() + domain.slice(1)
-      console.warn(
-        `${domainCapitalized} "${entityId}" does not support ${featureName}. ` +
-        `Check the ${domain}'s supported_features.`
-      )
-      
-      if (preventUnsupportedCalls) {
-        return
-      }
+      throw new FeatureNotSupportedError(entityId, featureName)
     }
     
     const params = paramBuilder(value)
@@ -92,7 +84,6 @@ export function createFeatureBasedControlDef<T>(
  * 
  * @param callService - The service call function from useEntity
  * @param domain - The domain for this entity
- * @param entityId - Entity ID for warning messages
  * @param availableOptions - Array of valid options
  * @param serviceName - Service to call
  * @param paramName - Parameter name in service call
@@ -101,7 +92,6 @@ export function createFeatureBasedControlDef<T>(
 export function createOptionBasedControlDef(
   callService: CallServiceFunction,
   domain: string,
-  entityId: string,
   availableOptions: string[],
   serviceName: string,
   paramName: string
@@ -113,12 +103,9 @@ export function createOptionBasedControlDef(
       return
     }
     
-    // Warn if option is not in available list
+    // Throw error if option is not in available list
     if (availableOptions.length > 0 && !availableOptions.includes(option)) {
-      console.warn(
-        `Option "${option}" is not available for ${domain} "${entityId}". ` +
-        `Available options: ${availableOptions.join(', ')}`
-      )
+      throw new InvalidParameterError(paramName, option, undefined, availableOptions)
     }
     
     await callService(domain, serviceName, { [paramName]: option })

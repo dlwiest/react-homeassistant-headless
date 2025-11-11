@@ -222,7 +222,7 @@ describe('useFan', () => {
       consoleMock.mockRestore()
     })
 
-    it('should warn when trying to set percentage on unsupported fan', async () => {
+    it('should throw error when trying to set percentage on unsupported fan', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
         ...createMockFanEntity('test', 'on', { supported_features: 0 }), // No features supported
@@ -231,13 +231,12 @@ describe('useFan', () => {
 
       const { result } = renderHook(() => useFan('fan.test'))
 
-      await act(async () => {
-        await result.current.setPercentage(50)
-      })
+      await expect(
+        act(async () => {
+          await result.current.setPercentage(50)
+        })
+      ).rejects.toThrow('Feature "speed control" is not supported by entity "fan.test"')
 
-      expect(consoleMock).toHaveBeenCalledWith(
-        'Fan "fan.test" does not support speed control. Check the fan\'s supported_features.'
-      )
       expect(mockCallService).not.toHaveBeenCalled()
     })
 
@@ -260,7 +259,7 @@ describe('useFan', () => {
       expect(mockCallService).not.toHaveBeenCalled()
     })
 
-    it('should warn when trying to set oscillating on unsupported fan', async () => {
+    it('should throw error when trying to set oscillating on unsupported fan', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
         ...createMockFanEntity('test', 'on', { supported_features: 0 }),
@@ -269,17 +268,16 @@ describe('useFan', () => {
 
       const { result } = renderHook(() => useFan('fan.test'))
 
-      await act(async () => {
-        await result.current.setOscillating(true)
-      })
+      await expect(
+        act(async () => {
+          await result.current.setOscillating(true)
+        })
+      ).rejects.toThrow('Feature "oscillation control" is not supported by entity "fan.test"')
 
-      expect(consoleMock).toHaveBeenCalledWith(
-        'Fan "fan.test" does not support oscillation control. Check the fan\'s supported_features.'
-      )
       expect(mockCallService).not.toHaveBeenCalled()
     })
 
-    it('should warn when trying to set direction on unsupported fan', async () => {
+    it('should throw error when trying to set direction on unsupported fan', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
         ...createMockFanEntity('test', 'on', { supported_features: 0 }),
@@ -288,13 +286,12 @@ describe('useFan', () => {
 
       const { result } = renderHook(() => useFan('fan.test'))
 
-      await act(async () => {
-        await result.current.setDirection('reverse')
-      })
+      await expect(
+        act(async () => {
+          await result.current.setDirection('reverse')
+        })
+      ).rejects.toThrow('Feature "direction control" is not supported by entity "fan.test"')
 
-      expect(consoleMock).toHaveBeenCalledWith(
-        'Fan "fan.test" does not support direction control. Check the fan\'s supported_features.'
-      )
       expect(mockCallService).not.toHaveBeenCalled()
     })
 

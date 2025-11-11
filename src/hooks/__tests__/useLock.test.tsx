@@ -176,7 +176,7 @@ describe('useLock', () => {
       consoleMock.mockRestore()
     })
 
-    it('should warn when trying to open unsupported lock', async () => {
+    it('should throw error when trying to open unsupported lock', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
         ...createMockLockEntity('test', 'locked', { supported_features: 0 }), // No features supported
@@ -185,17 +185,16 @@ describe('useLock', () => {
 
       const { result } = renderHook(() => useLock('lock.test'))
 
-      await act(async () => {
-        await result.current.open()
-      })
+      await expect(
+        act(async () => {
+          await result.current.open()
+        })
+      ).rejects.toThrow('Feature "open operation" is not supported by entity "lock.test"')
 
-      expect(consoleMock).toHaveBeenCalledWith(
-        'Lock "lock.test" does not support open operation. Check the lock\'s supported_features.'
-      )
       expect(mockCallService).not.toHaveBeenCalled()
     })
 
-    it('should warn when trying to open unsupported lock with code', async () => {
+    it('should throw error when trying to open unsupported lock with code', async () => {
       const mockCallService = vi.fn()
       mockUseEntity.mockReturnValue({
         ...createMockLockEntity('test', 'locked', { supported_features: 0 }),
@@ -204,13 +203,12 @@ describe('useLock', () => {
 
       const { result } = renderHook(() => useLock('lock.test'))
 
-      await act(async () => {
-        await result.current.open('1234')
-      })
+      await expect(
+        act(async () => {
+          await result.current.open('1234')
+        })
+      ).rejects.toThrow('Feature "open operation" is not supported by entity "lock.test"')
 
-      expect(consoleMock).toHaveBeenCalledWith(
-        'Lock "lock.test" does not support open operation. Check the lock\'s supported_features.'
-      )
       expect(mockCallService).not.toHaveBeenCalled()
     })
 

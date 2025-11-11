@@ -5,6 +5,7 @@ import { LightFeatures } from '../types'
 import { createDomainValidator } from '../utils/entityId'
 import { checkFeatures } from '../utils/features'
 import { createBasicControlDefs, createFeatureBasedControlDef } from '../utils/serviceHelpers'
+import { FeatureNotSupportedError } from '../utils/errors'
 
 const validateLightEntityId = createDomainValidator('light', 'useLight')
 
@@ -23,8 +24,6 @@ export function useLight(entityId: string): LightState {
   
   const { brightness: supportsBrightness, colorTemp: supportsColorTemp, rgb: supportsRgb, effects: supportsEffects } = features
 
-  // Available options
-  const availableEffects = attributes.effect_list || []
 
   // State helpers
   const isOn = state === 'on'
@@ -92,20 +91,24 @@ export function useLight(entityId: string): LightState {
   const setEffect = useCallback(
     async (effect: string | null) => {
       if (!supportsEffects) {
-        console.warn(`Light "${normalizedEntityId}" does not support effects. Check the light's supported_features.`)
-        return
+        throw new FeatureNotSupportedError(normalizedEntityId, 'effects')
       }
-      if (effect && effect !== '' && !availableEffects.includes(effect)) {
-        console.warn(`Effect "${effect}" is not available for light "${normalizedEntityId}". Available effects: ${availableEffects.join(', ')}`)
-      }
+      
       if (effect === null || effect === '') {
         // To clear effect, use "off" (standard for Hue lights in newer HA versions)
-        await turnOn({ effect: 'off' })
-      } else {
-        await turnOn({ effect })
+        await callService('light', 'turn_on', { effect: 'off' })
+        return
       }
+      
+      // Validate effect is in available list
+      const availableEffects = attributes.effect_list || []
+      if (availableEffects.length > 0 && !availableEffects.includes(effect)) {
+        console.warn(`Effect "${effect}" is not available for light "${normalizedEntityId}". Available effects: ${availableEffects.join(', ')}`)
+      }
+      
+      await callService('light', 'turn_on', { effect })
     },
-    [turnOn, supportsEffects, normalizedEntityId, availableEffects]
+    [callService, normalizedEntityId, supportsEffects, attributes.effect_list]
   )
 
   return {

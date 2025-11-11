@@ -1,13 +1,15 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import { useStore } from '../services/entityStore'
 import { useHAConnection } from '../providers/HAProvider'
 import type { BaseEntityHook, EntityState } from '../types'
-import { useEntityIdValidation, useEntityExistenceWarning } from '../utils/entityValidation'
+import { useEntityIdValidation } from '../utils/entityValidation'
+import { EntityNotAvailableError, ConnectionError, ServiceCallError } from '../utils/errors'
 
 export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEntityHook<T> {
   const { connection, connected } = useHAConnection()
   const registerEntity = useStore((state) => state.registerEntity)
   const unregisterEntity = useStore((state) => state.unregisterEntity)
+  const [error, setError] = useState<Error | null>(null)
 
   // Validate entity ID format using utility
   useEntityIdValidation(entityId)
@@ -25,24 +27,55 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEn
   // Get current entity state
   const entity = useStore((state) => state.entities.get(entityId))
 
-  // Warn if entity doesn't exist using utility
-  useEntityExistenceWarning(entityId, connected, !!entity)
+  // Handle entity availability errors
+  useEffect(() => {
+    if (connected && entityId) {
+      if (!entity) {
+        // Wait for entities to populate before marking as error
+        const timer = setTimeout(() => {
+          const stillMissing = !useStore.getState().entities.get(entityId)
+          if (stillMissing) {
+            setError(new EntityNotAvailableError(entityId, 'Entity not found in Home Assistant'))
+          }
+        }, 2000)
+        return () => clearTimeout(timer)
+      } else if (entity.state === 'unavailable') {
+        setError(new EntityNotAvailableError(entityId, 'Entity is unavailable'))
+      } else {
+        // Clear error if entity becomes available
+        setError(null)
+      }
+    } else if (!connected) {
+      // Clear errors when disconnected (connection state is handled by HAProvider)
+      setError(null)
+    }
+    return undefined
+  }, [connected, entity, entityId])
 
   const callService = useCallback(
     async (domain: string, service: string, data?: object) => {
       if (!connection) {
-        throw new Error('Not connected to Home Assistant')
+        throw new ConnectionError(`call ${domain}.${service}`)
       }
 
-      await connection.sendMessagePromise({
-        type: 'call_service',
-        domain,
-        service,
-        service_data: {
-          entity_id: entityId,
-          ...data,
-        },
-      })
+      try {
+        await connection.sendMessagePromise({
+          type: 'call_service',
+          domain,
+          service,
+          service_data: {
+            entity_id: entityId,
+            ...data,
+          },
+        })
+      } catch (originalError) {
+        throw new ServiceCallError(
+          domain, 
+          service, 
+          originalError instanceof Error ? originalError : new Error(String(originalError)),
+          entityId
+        )
+      }
     },
     [connection, entityId]
   )
@@ -81,6 +114,7 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEn
     lastUpdated: new Date(currentEntity.last_updated),
     isUnavailable: currentEntity.state === 'unavailable',
     isConnected: connected,
+    error: error || undefined,
     callService,
     refresh,
   }
