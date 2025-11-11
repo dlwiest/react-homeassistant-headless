@@ -9,6 +9,7 @@ react-hass is a React library built for people seeking full creative control ove
 
 - **Full TypeScript support** - Complete type definitions for all entities and their properties
 - **Automatic reconnection** - Handles connection drops and network issues transparently
+- **Comprehensive error handling** - Standardized error types for entity availability and service call failures
 - **Developer-friendly warnings** - Helpful console messages for common configuration issues
 - **Mock mode** - Develop and test without a real Home Assistant instance
 - **No UI constraints** - Works with any React setup, styling, or component library

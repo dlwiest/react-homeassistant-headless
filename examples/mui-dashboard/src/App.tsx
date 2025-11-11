@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   HAProvider,
   useHAConnection
@@ -72,6 +73,7 @@ const theme = createTheme({
 const mockData = {
   // Living room lights with full RGB support
   'light.living_room_main': {
+    entity_id: 'light.living_room_main',
     state: 'on',
     attributes: {
       friendly_name: 'Living Room Main Light',
@@ -81,8 +83,12 @@ const mockData = {
       effect_list: ['None', 'Colorloop', 'Breath', 'Strobe', 'Police'],
       effect: 'None'
     },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-1', parent_id: null, user_id: null }
   },
   'light.living_room_accent': {
+    entity_id: 'light.living_room_accent',
     state: 'off',
     attributes: {
       friendly_name: 'Living Room Accent',
@@ -92,18 +98,26 @@ const mockData = {
       effect_list: ['None', 'Colorloop', 'Breath', 'Strobe'],
       effect: 'None'
     },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-2', parent_id: null, user_id: null }
   },
   
   // Bedroom lights
   'light.bedroom_ceiling': {
+    entity_id: 'light.bedroom_ceiling',
     state: 'on',
     attributes: {
       friendly_name: 'Bedroom Ceiling',
       brightness: 120,
       supported_features: 1, // Brightness only
     },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-3', parent_id: null, user_id: null }
   },
   'light.bedside_lamp': {
+    entity_id: 'light.bedside_lamp',
     state: 'off',
     attributes: {
       friendly_name: 'Bedside Lamp',
@@ -111,30 +125,46 @@ const mockData = {
       rgb_color: [255, 180, 120],
       supported_features: 31, // Brightness + RGB
     },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-4', parent_id: null, user_id: null }
   },
 
   // Switches for various devices
   'switch.coffee_maker': {
+    entity_id: 'switch.coffee_maker',
     state: 'off',
     attributes: {
       friendly_name: 'Coffee Maker',
     },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-5', parent_id: null, user_id: null }
   },
   'switch.desk_fan': {
+    entity_id: 'switch.desk_fan',
     state: 'on',
     attributes: {
       friendly_name: 'Desk Fan',
     },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-6', parent_id: null, user_id: null }
   },
   'switch.outdoor_lights': {
+    entity_id: 'switch.outdoor_lights',
     state: 'on',
     attributes: {
       friendly_name: 'Outdoor Lights',
     },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-7', parent_id: null, user_id: null }
   },
 
   // Environmental sensors
   'sensor.living_room_temperature': {
+    entity_id: 'sensor.living_room_temperature',
     state: '72.5',
     attributes: {
       friendly_name: 'Living Room Temperature',
@@ -142,8 +172,12 @@ const mockData = {
       device_class: 'temperature',
       state_class: 'measurement'
     },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-8', parent_id: null, user_id: null }
   },
   'sensor.living_room_humidity': {
+    entity_id: 'sensor.living_room_humidity',
     state: '45.2',
     attributes: {
       friendly_name: 'Living Room Humidity',
@@ -151,8 +185,12 @@ const mockData = {
       device_class: 'humidity',
       state_class: 'measurement'
     },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-9', parent_id: null, user_id: null }
   },
   'sensor.outdoor_temperature': {
+    entity_id: 'sensor.outdoor_temperature',
     state: '68.1',
     attributes: {
       friendly_name: 'Outdoor Temperature',
@@ -160,8 +198,12 @@ const mockData = {
       device_class: 'temperature',
       state_class: 'measurement'
     },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-10', parent_id: null, user_id: null }
   },
   'sensor.energy_usage': {
+    entity_id: 'sensor.energy_usage',
     state: '2.45',
     attributes: {
       friendly_name: 'Current Energy Usage',
@@ -169,10 +211,14 @@ const mockData = {
       device_class: 'power',
       state_class: 'measurement'
     },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-11', parent_id: null, user_id: null }
   },
 
   // Fans
   'fan.living_room_ceiling': {
+    entity_id: 'fan.living_room_ceiling',
     state: 'on',
     attributes: {
       friendly_name: 'Living Room Ceiling Fan',
@@ -183,8 +229,12 @@ const mockData = {
       direction: 'forward',
       supported_features: 15, // Speed + Oscillate + Direction + Preset
     },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-12', parent_id: null, user_id: null }
   },
   'fan.bedroom_fan': {
+    entity_id: 'fan.bedroom_fan',
     state: 'off',
     attributes: {
       friendly_name: 'Bedroom Fan',
@@ -194,24 +244,35 @@ const mockData = {
       oscillating: false,
       supported_features: 9, // Speed + Preset
     },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-13', parent_id: null, user_id: null }
   },
 
   // Locks
   'lock.front_door': {
+    entity_id: 'lock.front_door',
     state: 'locked',
     attributes: {
       friendly_name: 'Front Door',
       changed_by: 'Manual',
       supported_features: 1, // Open support
     },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-14', parent_id: null, user_id: null }
   },
   'lock.back_door': {
+    entity_id: 'lock.back_door',
     state: 'unlocked',
     attributes: {
       friendly_name: 'Back Door',
       changed_by: 'Key',
       supported_features: 0, // Basic lock/unlock only
     },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-15', parent_id: null, user_id: null }
   },
 }
 
