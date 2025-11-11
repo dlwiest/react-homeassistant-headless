@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useReducer, useCallback, useRef, ReactNode } from 'react'
+import { createContext, useContext, useEffect, useReducer, useCallback, useRef, useState, ReactNode } from 'react'
 import { createConnection, createLongLivedTokenAuth, Connection } from 'home-assistant-js-websocket'
 import { useStore } from '../services/entityStore'
 import { createMockConnection } from '../services/mockConnection'
@@ -127,6 +127,8 @@ const HAProvider = ({ children, url, token, mockMode = false, mockData, options 
 
   const retryTimeoutRef = useRef<NodeJS.Timeout>()
   const currentConnectionRef = useRef<Connection | null>(null)
+  const [lastConnectedAt, setLastConnectedAt] = useState<Date>()
+  const [nextRetryIn, setNextRetryIn] = useState<number>()
   const setStoreConnection = (() => {
     try {
       return useStore((state) => state.setConnection)
@@ -175,6 +177,7 @@ const HAProvider = ({ children, url, token, mockMode = false, mockData, options 
 
       const mockConn = createMockConnection() as Connection
       currentConnectionRef.current = mockConn
+      setLastConnectedAt(new Date())
       dispatch({ type: 'CONNECTION_SUCCESS', connection: mockConn })
       try {
         setStoreConnection(mockConn)
@@ -208,6 +211,7 @@ const HAProvider = ({ children, url, token, mockMode = false, mockData, options 
       conn.addEventListener('ready', () => {
         // Use READY_EVENT action - reducer will only accept if in valid state
         currentConnectionRef.current = conn
+        setLastConnectedAt(new Date())
         dispatch({ type: 'READY_EVENT', connection: conn })
         try {
         setStoreConnection(conn)
@@ -217,6 +221,7 @@ const HAProvider = ({ children, url, token, mockMode = false, mockData, options 
       })
 
       currentConnectionRef.current = conn
+      setLastConnectedAt(new Date())
       dispatch({ type: 'CONNECTION_SUCCESS', connection: conn })
       try {
         setStoreConnection(conn)
@@ -279,11 +284,25 @@ const HAProvider = ({ children, url, token, mockMode = false, mockData, options 
 
     if (shouldAutoRetry) {
       const delay = Math.min(1000 * Math.pow(2, state.retryCount - 1), 30000)
+      setNextRetryIn(delay)
+
+      // Update countdown every second
+      const countdownInterval = setInterval(() => {
+        setNextRetryIn(prev => prev && prev > 1000 ? prev - 1000 : undefined)
+      }, 1000)
 
       retryTimeoutRef.current = setTimeout(() => {
+        setNextRetryIn(undefined)
         dispatch({ type: 'RETRY_SCHEDULED' })
         attemptConnection()
       }, delay)
+
+      return () => {
+        clearInterval(countdownInterval)
+        setNextRetryIn(undefined)
+      }
+    } else {
+      setNextRetryIn(undefined)
     }
 
     return () => {
@@ -321,6 +340,14 @@ const HAProvider = ({ children, url, token, mockMode = false, mockData, options 
     connecting: state.type === 'connecting',
     error: state.type === 'error' ? state.error : null,
     reconnect,
+    connectionState: state.type,
+    retryCount: state.retryCount,
+    nextRetryIn,
+    isAutoRetrying: (state.type === 'disconnected' || state.type === 'error') && 
+                   !mockMode && 
+                   options.autoReconnect !== false && 
+                   !!nextRetryIn,
+    lastConnectedAt,
     config: { url, token, mockMode, mockData, options },
   }
 

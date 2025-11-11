@@ -22,6 +22,11 @@ export interface ConnectionStatus {
   connecting: boolean
   error: Error | null
   reconnect: () => void
+  connectionState: 'idle' | 'connecting' | 'connected' | 'disconnected' | 'error'
+  retryCount: number
+  nextRetryIn?: number
+  isAutoRetrying: boolean
+  lastConnectedAt?: Date
 }
 
 export interface EntityState<T = Record<string, unknown>> {

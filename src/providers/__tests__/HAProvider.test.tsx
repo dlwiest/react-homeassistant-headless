@@ -19,13 +19,17 @@ const mockUseStore = vi.mocked(useStore)
 
 // Test component
 function TestComponent() {
-  const { connected, connecting, error } = useHAConnection()
+  const { connected, connecting, error, connectionState, retryCount, isAutoRetrying, lastConnectedAt } = useHAConnection()
   
   return (
     <div>
       <div data-testid="connected">{connected ? 'true' : 'false'}</div>
       <div data-testid="connecting">{connecting ? 'true' : 'false'}</div>
       <div data-testid="error">{error?.message || 'none'}</div>
+      <div data-testid="connection-state">{connectionState}</div>
+      <div data-testid="retry-count">{retryCount}</div>
+      <div data-testid="is-auto-retrying">{isAutoRetrying ? 'true' : 'false'}</div>
+      <div data-testid="last-connected-at">{lastConnectedAt?.toISOString() || 'none'}</div>
     </div>
   )
 }
