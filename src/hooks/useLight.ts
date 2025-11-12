@@ -27,14 +27,20 @@ export function useLight(entityId: string): LightState {
   const entity = useEntity<LightAttributes>(normalizedEntityId)
   const { attributes, state, callService } = entity
 
-  const features = checkFeatures(attributes.supported_features, {
+  // Check both legacy supported_features and new supported_color_modes
+  const legacyFeatures = checkFeatures(attributes.supported_features, {
     brightness: LightFeatures.SUPPORT_BRIGHTNESS,
     colorTemp: LightFeatures.SUPPORT_COLOR_TEMP,
     rgb: LightFeatures.SUPPORT_COLOR,
     effects: LightFeatures.SUPPORT_EFFECT
   })
   
-  const { brightness: supportsBrightness, colorTemp: supportsColorTemp, rgb: supportsRgb, effects: supportsEffects } = features
+  // Modern color mode detection
+  const colorModes = attributes.supported_color_modes || []
+  const supportsBrightness = legacyFeatures.brightness || attributes.brightness !== undefined
+  const supportsColorTemp = legacyFeatures.colorTemp || colorModes.includes('color_temp')
+  const supportsRgb = legacyFeatures.rgb || colorModes.includes('rgb') || colorModes.includes('xy') || colorModes.includes('hs')
+  const supportsEffects = legacyFeatures.effects
 
 
   const isOn = state === 'on'
@@ -117,12 +123,19 @@ export function useLight(entityId: string): LightState {
     [callService, normalizedEntityId, supportsEffects, attributes.effect_list]
   )
 
+  // Validate color temperature to avoid infinity/invalid values
+  const colorTemp = attributes.color_temp && 
+    Number.isFinite(attributes.color_temp) && 
+    attributes.color_temp > 0 
+    ? attributes.color_temp 
+    : undefined
+
   return {
     ...entity,
     isOn,
     brightness,
     brightnessPercent,
-    colorTemp: attributes.color_temp,
+    colorTemp,
     rgbColor: attributes.rgb_color,
     effect: attributes.effect,
     supportsBrightness,

@@ -25,8 +25,11 @@ import {
   Palette, 
   Warning,
   WifiOff,
-  Close
+  Close,
+  Thermostat
 } from '@mui/icons-material'
+import { ColorPicker } from '../controls/ColorPicker'
+import { ColorTempSlider } from '../controls/ColorTempSlider'
 
 interface LightCardProps {
   entityId: string
@@ -154,99 +157,49 @@ export const LightCard = ({ entityId, name }: LightCardProps) => {
 
                   {light.supportsRgb && (
                     <Box>
-                      <Box display="flex" alignItems="center" gap={1} mb={1}>
-                        <Palette fontSize="small" />
-                        <Typography variant="body2" fontWeight="medium">
-                          Colors
+                      <ColorPicker
+                        color={light.rgbColor}
+                        onChange={(color) => handleAction(
+                          () => light.setRgbColor(color),
+                          'Set color'
+                        )}
+                      />
+                      {light.effect && light.effect !== 'off' && (
+                        <Typography 
+                          variant="caption" 
+                          color="text.secondary"
+                          fontStyle="italic"
+                          display="block"
+                          mt={1}
+                        >
+                          Color may be controlled by effect "{light.effect}"
                         </Typography>
-                      </Box>
-                      <Stack direction="row" spacing={1}>
-                        <Button 
-                          size="small" 
-                          variant="contained"
-                          sx={{ 
-                            minWidth: 32, 
-                            height: 32, 
-                            backgroundColor: '#f44336',
-                            '&:hover': { backgroundColor: '#d32f2f' }
-                          }}
-                          onClick={() => handleAction(
-                            () => light.setRgbColor([255, 0, 0]),
-                            'Set color to red'
-                          )}
-                        />
-                        <Button 
-                          size="small" 
-                          variant="contained"
-                          sx={{ 
-                            minWidth: 32, 
-                            height: 32, 
-                            backgroundColor: '#4caf50',
-                            '&:hover': { backgroundColor: '#388e3c' }
-                          }}
-                          onClick={() => handleAction(
-                            () => light.setRgbColor([0, 255, 0]),
-                            'Set color to green'
-                          )}
-                        />
-                        <Button 
-                          size="small" 
-                          variant="contained"
-                          sx={{ 
-                            minWidth: 32, 
-                            height: 32, 
-                            backgroundColor: '#2196f3',
-                            '&:hover': { backgroundColor: '#1976d2' }
-                          }}
-                          onClick={() => handleAction(
-                            () => light.setRgbColor([0, 0, 255]),
-                            'Set color to blue'
-                          )}
-                        />
-                        <Button 
-                          size="small" 
-                          variant="contained"
-                          sx={{ 
-                            minWidth: 32, 
-                            height: 32, 
-                            backgroundColor: '#ff9800',
-                            '&:hover': { backgroundColor: '#f57c00' }
-                          }}
-                          onClick={() => handleAction(
-                            () => light.setRgbColor([255, 165, 0]),
-                            'Set color to orange'
-                          )}
-                        />
-                        <Button 
-                          size="small" 
-                          variant="contained"
-                          sx={{ 
-                            minWidth: 32, 
-                            height: 32, 
-                            backgroundColor: '#9c27b0',
-                            '&:hover': { backgroundColor: '#7b1fa2' }
-                          }}
-                          onClick={() => handleAction(
-                            () => light.setRgbColor([139, 92, 246]),
-                            'Set color to purple'
-                          )}
-                        />
-                        <Button 
-                          size="small" 
-                          variant="outlined"
-                          sx={{ 
-                            minWidth: 32, 
-                            height: 32, 
-                            backgroundColor: '#ffffff',
-                            borderColor: '#e0e0e0',
-                            '&:hover': { backgroundColor: '#f5f5f5' }
-                          }}
-                          onClick={() => handleAction(
-                            () => light.setRgbColor([255, 255, 255]),
-                            'Set color to white'
-                          )}
-                        />
-                      </Stack>
+                      )}
+                    </Box>
+                  )}
+
+                  {light.supportsColorTemp && (
+                    <Box>
+                      <ColorTempSlider
+                        value={light.colorTemp}
+                        onChange={(temp) => handleAction(
+                          () => light.setColorTemp(temp),
+                          'Set temperature'
+                        )}
+                        min={light.attributes.min_mireds}
+                        max={light.attributes.max_mireds}
+                      />
+                      {light.effect && light.effect !== 'off' && light.colorTemp === undefined && (
+                        <Typography 
+                          variant="caption" 
+                          color="text.secondary"
+                          fontStyle="italic"
+                          display="block"
+                          mt={1}
+                        >
+                          Temperature not available during effect "{light.effect}"
+                        </Typography>
+                      )}
                     </Box>
                   )}
 

@@ -312,7 +312,7 @@ const Dashboard = () => {
   )
 }
 
-export default function App() {
+const App = () => {
   return (
     <HAProvider 
       url="http://homeassistant.local:8123" 
@@ -323,3 +323,5 @@ export default function App() {
     </HAProvider>
   )
 }
+
+export default App

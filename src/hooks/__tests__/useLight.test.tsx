@@ -110,6 +110,95 @@ describe('useLight', () => {
       expect(result.current.supportsEffects).toBe(false)
     })
 
+    it('should detect RGB support via color modes (xy)', () => {
+      const attributes = {
+        supported_color_modes: ['xy', 'color_temp'],
+        supported_features: 0 // No legacy features
+      }
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
+
+      const { result } = renderHook(() => useLight('light.test'))
+
+      expect(result.current.supportsRgb).toBe(true)
+      expect(result.current.supportsColorTemp).toBe(true)
+    })
+
+    it('should detect RGB support via color modes (hs)', () => {
+      const attributes = {
+        supported_color_modes: ['hs'],
+        supported_features: 0
+      }
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
+
+      const { result } = renderHook(() => useLight('light.test'))
+
+      expect(result.current.supportsRgb).toBe(true)
+    })
+
+    it('should detect RGB support via color modes (rgb)', () => {
+      const attributes = {
+        supported_color_modes: ['rgb'],
+        supported_features: 0
+      }
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
+
+      const { result } = renderHook(() => useLight('light.test'))
+
+      expect(result.current.supportsRgb).toBe(true)
+    })
+
+    it('should detect brightness support from attribute presence', () => {
+      const attributes = {
+        brightness: 200,
+        supported_features: 0 // No legacy brightness feature
+      }
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
+
+      const { result } = renderHook(() => useLight('light.test'))
+
+      expect(result.current.supportsBrightness).toBe(true)
+      expect(result.current.brightness).toBe(200)
+    })
+
+    it('should combine legacy and modern feature detection', () => {
+      const attributes = {
+        supported_features: LightFeatures.SUPPORT_EFFECT,
+        supported_color_modes: ['xy'],
+        brightness: 255
+      }
+      mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
+
+      const { result } = renderHook(() => useLight('light.test'))
+
+      expect(result.current.supportsBrightness).toBe(true) // from brightness attribute
+      expect(result.current.supportsRgb).toBe(true) // from color modes
+      expect(result.current.supportsEffects).toBe(true) // from legacy features
+    })
+
+    it('should handle invalid color temperature values', () => {
+      const testCases = [
+        { color_temp: 0, expected: undefined },
+        { color_temp: -1, expected: undefined },
+        { color_temp: Infinity, expected: undefined },
+        { color_temp: NaN, expected: undefined },
+        { color_temp: null, expected: undefined },
+        { color_temp: undefined, expected: undefined },
+        { color_temp: 250, expected: 250 }
+      ]
+
+      testCases.forEach(({ color_temp, expected }) => {
+        const attributes = {
+          supported_features: LightFeatures.SUPPORT_COLOR_TEMP,
+          color_temp
+        }
+        mockUseEntity.mockReturnValue(createMockLightEntity('test', 'on', attributes))
+
+        const { result } = renderHook(() => useLight('light.test'))
+        
+        expect(result.current.colorTemp).toBe(expected)
+      })
+    })
+
     it('should return available effects list', () => {
       const attributes = {
         effect_list: ['rainbow', 'colorloop', 'fire'],

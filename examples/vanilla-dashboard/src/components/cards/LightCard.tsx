@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from 'react'
 import { Light } from 'hass-react'
 import { Card, CardHeader, CardContent, CardFooter } from '../layout/Card'
+import { ColorPicker } from '../controls/ColorPicker'
+import { ColorTempSlider } from '../controls/ColorTempSlider'
 
 interface LightCardProps {
   entityId: string
@@ -90,63 +92,37 @@ export const LightCard = ({ entityId, name }: LightCardProps) => {
 
                   {light.supportsRgb && (
                     <div className="control-row">
-                      <label className="control-label">Colors:</label>
-                      <div className="color-buttons">
-                        <button 
-                          className="color-btn" 
-                          style={{ backgroundColor: '#ef4444' }}
-                          onClick={() => handleAction(
-                            () => light.setRgbColor([255, 0, 0]),
-                            'Set color to red'
-                          )}
-                          aria-label="Set to red"
-                        />
-                        <button 
-                          className="color-btn" 
-                          style={{ backgroundColor: '#10b981' }}
-                          onClick={() => handleAction(
-                            () => light.setRgbColor([0, 255, 0]),
-                            'Set color to green'
-                          )}
-                          aria-label="Set to green"
-                        />
-                        <button 
-                          className="color-btn" 
-                          style={{ backgroundColor: '#3b82f6' }}
-                          onClick={() => handleAction(
-                            () => light.setRgbColor([0, 0, 255]),
-                            'Set color to blue'
-                          )}
-                          aria-label="Set to blue"
-                        />
-                        <button 
-                          className="color-btn" 
-                          style={{ backgroundColor: '#f59e0b' }}
-                          onClick={() => handleAction(
-                            () => light.setRgbColor([255, 165, 0]),
-                            'Set color to orange'
-                          )}
-                          aria-label="Set to orange"
-                        />
-                        <button 
-                          className="color-btn" 
-                          style={{ backgroundColor: '#8b5cf6' }}
-                          onClick={() => handleAction(
-                            () => light.setRgbColor([139, 92, 246]),
-                            'Set color to purple'
-                          )}
-                          aria-label="Set to purple"
-                        />
-                        <button 
-                          className="color-btn" 
-                          style={{ backgroundColor: '#ffffff', border: '2px solid #e5e7eb' }}
-                          onClick={() => handleAction(
-                            () => light.setRgbColor([255, 255, 255]),
-                            'Set color to white'
-                          )}
-                          aria-label="Set to white"
-                        />
-                      </div>
+                      <ColorPicker
+                        color={light.rgbColor}
+                        onChange={(color) => handleAction(
+                          () => light.setRgbColor(color),
+                          'Set color'
+                        )}
+                      />
+                      {light.effect && light.effect !== 'off' && (
+                        <div className="effect-notice">
+                          Color may be controlled by effect "{light.effect}"
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {light.supportsColorTemp && (
+                    <div className="control-row">
+                      <ColorTempSlider
+                        value={light.colorTemp}
+                        onChange={(temp) => handleAction(
+                          () => light.setColorTemp(temp),
+                          'Set temperature'
+                        )}
+                        min={light.attributes.min_mireds}
+                        max={light.attributes.max_mireds}
+                      />
+                      {light.effect && light.effect !== 'off' && light.colorTemp === undefined && (
+                        <div className="effect-notice">
+                          Temperature not available during effect "{light.effect}"
+                        </div>
+                      )}
                     </div>
                   )}
 

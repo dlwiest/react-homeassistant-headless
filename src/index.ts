@@ -25,8 +25,32 @@ export { default as Fan } from './components/Fan'
 export { default as Lock } from './components/Lock'
 
 // Types
-export type { EntityState, LightState, ClimateState, SensorState, FanState, LockState, HAConfig, ConnectionStatus, LightAttributes, ClimateAttributes, FanAttributes, LockAttributes, BaseEntityHook } from './types'
+export type { 
+  EntityState, 
+  LightState, 
+  LightAttributes,
+  LightColorMode,
+  LightCapabilities,
+  LightTurnOnParams,
+  ClimateState, 
+  ClimateAttributes,
+  SensorState, 
+  SensorAttributes,
+  FanState, 
+  FanAttributes,
+  FanTurnOnParams,
+  FanDirection,
+  LockState, 
+  LockAttributes,
+  HAConfig, 
+  ConnectionStatus, 
+  BaseEntityHook
+} from './types'
 export type { SwitchState } from './hooks/useSwitch'
+export type { CoverState } from './hooks/useCover'
+
+// Constants
+export { LightFeatures, FanFeatures, ClimateFeatures } from './types'
 
 
 // Store (for advanced usage)

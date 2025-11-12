@@ -470,7 +470,7 @@ const Dashboard = () => {
   )
 }
 
-export default function App() {
+const App = () => {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -484,3 +484,5 @@ export default function App() {
     </ThemeProvider>
   )
 }
+
+export default App

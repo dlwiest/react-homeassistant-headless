@@ -5,7 +5,9 @@ import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
-import { Lightbulb, Palette, AlertTriangle, WifiOff } from 'lucide-react'
+import { Lightbulb, Palette, AlertTriangle, WifiOff, Thermometer } from 'lucide-react'
+import { ColorPicker } from '../controls/ColorPicker'
+import { ColorTempSlider } from '../controls/ColorTempSlider'
 
 interface LightCardProps {
   entityId: string
@@ -111,61 +113,38 @@ export const LightCard = ({ entityId, name }: LightCardProps) => {
                 )}
 
                 {light.supportsRgb && (
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <Palette className="h-4 w-4" />
-                      <span className="text-sm font-medium">Colors</span>
-                    </div>
-                    <div className="flex space-x-2">
-                      <Button 
-                        size="sm" 
-                        className="h-8 w-8 p-0 bg-red-500 hover:bg-red-600"
-                        onClick={() => handleAction(
-                          () => light.setRgbColor([255, 0, 0]),
-                          'Set color to red'
-                        )}
-                      />
-                      <Button 
-                        size="sm" 
-                        className="h-8 w-8 p-0 bg-green-500 hover:bg-green-600"
-                        onClick={() => handleAction(
-                          () => light.setRgbColor([0, 255, 0]),
-                          'Set color to green'
-                        )}
-                      />
-                      <Button 
-                        size="sm" 
-                        className="h-8 w-8 p-0 bg-blue-500 hover:bg-blue-600"
-                        onClick={() => handleAction(
-                          () => light.setRgbColor([0, 0, 255]),
-                          'Set color to blue'
-                        )}
-                      />
-                      <Button 
-                        size="sm" 
-                        className="h-8 w-8 p-0 bg-orange-500 hover:bg-orange-600"
-                        onClick={() => handleAction(
-                          () => light.setRgbColor([255, 165, 0]),
-                          'Set color to orange'
-                        )}
-                      />
-                      <Button 
-                        size="sm" 
-                        className="h-8 w-8 p-0 bg-purple-500 hover:bg-purple-600"
-                        onClick={() => handleAction(
-                          () => light.setRgbColor([139, 92, 246]),
-                          'Set color to purple'
-                        )}
-                      />
-                      <Button 
-                        size="sm" 
-                        className="h-8 w-8 p-0 bg-white border border-gray-300 hover:bg-gray-50"
-                        onClick={() => handleAction(
-                          () => light.setRgbColor([255, 255, 255]),
-                          'Set color to white'
-                        )}
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <ColorPicker
+                      color={light.rgbColor}
+                      onChange={(color) => handleAction(
+                        () => light.setRgbColor(color),
+                        'Set color'
+                      )}
+                    />
+                    {light.effect && light.effect !== 'off' && (
+                      <p className="text-xs text-muted-foreground italic">
+                        Color may be controlled by effect "{light.effect}"
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {light.supportsColorTemp && (
+                  <div className="space-y-2">
+                    <ColorTempSlider
+                      value={light.colorTemp}
+                      onChange={(temp) => handleAction(
+                        () => light.setColorTemp(temp),
+                        'Set temperature'
+                      )}
+                      min={light.attributes.min_mireds}
+                      max={light.attributes.max_mireds}
+                    />
+                    {light.effect && light.effect !== 'off' && light.colorTemp === undefined && (
+                      <p className="text-xs text-muted-foreground italic">
+                        Temperature not available during effect "{light.effect}"
+                      </p>
+                    )}
                   </div>
                 )}
 

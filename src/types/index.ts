@@ -56,16 +56,25 @@ export interface BaseEntityHook<T = Record<string, unknown>> {
 }
 
 // Light types
+export type LightColorMode = 'onoff' | 'brightness' | 'color_temp' | 'hs' | 'xy' | 'rgb' | 'rgbw' | 'rgbww'
+
 export interface LightAttributes {
   friendly_name?: string
   brightness?: number
   rgb_color?: [number, number, number]
+  xy_color?: [number, number]
+  hs_color?: [number, number]
   color_temp?: number
+  color_temp_kelvin?: number
+  min_mireds?: number
+  max_mireds?: number
+  min_color_temp_kelvin?: number
+  max_color_temp_kelvin?: number
   effect?: string
   effect_list?: string[]
   supported_features?: number
-  supported_color_modes?: string[]
-  color_mode?: string
+  supported_color_modes?: LightColorMode[]
+  color_mode?: LightColorMode
 }
 
 export interface LightTurnOnParams {
@@ -76,17 +85,20 @@ export interface LightTurnOnParams {
   transition?: number
 }
 
-export interface LightState extends BaseEntityHook<LightAttributes> {
+export interface LightCapabilities {
+  supportsBrightness: boolean
+  supportsColorTemp: boolean
+  supportsRgb: boolean
+  supportsEffects: boolean
+}
+
+export interface LightState extends BaseEntityHook<LightAttributes>, LightCapabilities {
   isOn: boolean
   brightness: number
   brightnessPercent: number
   colorTemp?: number
   rgbColor?: [number, number, number]
   effect?: string
-  supportsBrightness: boolean
-  supportsColorTemp: boolean
-  supportsRgb: boolean
-  supportsEffects: boolean
   availableEffects: string[]
   toggle: () => Promise<void>
   turnOn: (params?: LightTurnOnParams) => Promise<void>
