@@ -684,3 +684,160 @@ button:disabled, input:disabled, select:disabled {
 .error-dismiss:hover {
   color: #374151;
 }
+
+/* Binary Sensor Card Specific Styles */
+.binary-sensor-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.binary-sensor-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.status-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.status-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #374151;
+  font-weight: 500;
+}
+
+.status-value {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.status-value.active {
+  background: #dcfce7;
+  color: #16a34a;
+  border: 1px solid #86efac;
+}
+
+.status-value.inactive {
+  background: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+.status-value.alert {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fca5a5;
+  animation: pulse-alert 2s infinite;
+}
+
+@keyframes pulse-alert {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+.context-message {
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: #475569;
+  border-left: 4px solid #3b82f6;
+}
+
+.device-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.device-info strong {
+  color: #374151;
+}
+
+.binary-sensor-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tags {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.tag {
+  padding: 0.25rem 0.5rem;
+  background: #e5e7eb;
+  color: #374151;
+  font-size: 0.75rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.tag.secondary {
+  background: #ddd6fe;
+  color: #7c3aed;
+}
+
+.tag.active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.tag.alert {
+  background: #fecaca;
+  color: #991b1b;
+  animation: pulse-tag 2s infinite;
+}
+
+@keyframes pulse-tag {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.entity-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.entity-details strong {
+  color: #374151;
+}
+
+.connection-warning {
+  margin: 0.5rem 0 0 0;
+  padding: 0.5rem;
+  background: #fef3c7;
+  color: #92400e;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  border: 1px solid #fbbf24;
+}

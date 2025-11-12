@@ -145,18 +145,30 @@ Three complete dashboard examples showing different UI approaches:
 </Cover>
 ```
 
+### Binary Sensors
+```jsx
+<BinarySensor entityId="binary_sensor.front_door">
+  {({ 
+    isOn, isOff, deviceClass, icon
+  }) => (
+    // Your binary sensor display
+  )}
+</BinarySensor>
+```
+
 ## Using Hooks Directly
 
 If you prefer hooks over render props:
 
 ```jsx
-import { useLight, useClimate, useFan, useLock } from '@dlwiest/hass-react'
+import { useLight, useClimate, useFan, useLock, useBinarySensor } from '@dlwiest/hass-react'
 
 function MyComponent() {
   const light = useLight('light.living_room')
   const thermostat = useClimate('climate.main_floor')
   const fan = useFan('fan.bedroom_ceiling')
   const lock = useLock('lock.front_door')
+  const doorSensor = useBinarySensor('binary_sensor.front_door')
   
   return (
     <div>
@@ -175,6 +187,9 @@ function MyComponent() {
         <button onClick={lock.lock}>
           Door: {lock.isLocked ? 'LOCKED' : 'UNLOCKED'}
         </button>
+      </div>
+      <div>
+        Door Sensor: {doorSensor.isOn ? 'OPEN' : 'CLOSED'}
       </div>
     </div>
   )
@@ -383,6 +398,7 @@ function ConnectionIndicator() {
 - `<Climate>` - Climate/thermostat controls  
 - `<Switch>` - Switch controls
 - `<Sensor>` - Sensor data
+- `<BinarySensor>` - Binary sensor data (door/window sensors, motion detectors, etc.)
 - `<Fan>` - Fan controls with speed, presets, oscillation, direction
 - `<Lock>` - Lock controls with lock, unlock, open
 - `<Cover>` - Cover/blind controls
@@ -393,6 +409,7 @@ function ConnectionIndicator() {
 - `useClimate(entityId)` - Climate entity hook
 - `useSwitch(entityId)` - Switch entity hook
 - `useSensor(entityId)` - Sensor entity hook
+- `useBinarySensor(entityId)` - Binary sensor entity hook
 - `useFan(entityId)` - Fan entity hook
 - `useLock(entityId)` - Lock entity hook
 - `useCover(entityId)` - Cover entity hook

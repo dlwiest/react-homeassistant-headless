@@ -1,6 +1,7 @@
 export { LightCard } from './LightCard'
 export { SwitchCard } from './SwitchCard'
 export { SensorCard } from './SensorCard'
+export { BinarySensorCard } from './BinarySensorCard'
 export { FanCard } from './FanCard'
 export { LockCard } from './LockCard'
 export { CoverCard } from './CoverCard'

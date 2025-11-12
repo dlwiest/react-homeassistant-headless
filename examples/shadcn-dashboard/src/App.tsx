@@ -1,7 +1,7 @@
 import React from 'react'
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
-import { LightCard, SwitchCard, SensorCard, FanCard, LockCard, CoverCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, BinarySensorCard, FanCard, LockCard, CoverCard } from './components/cards'
 import { Home } from 'lucide-react'
 import './styles/dashboard.css'
 
@@ -248,6 +248,44 @@ const mockData = {
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-18', parent_id: null, user_id: null }
   },
+
+  // Binary Sensors
+  'binary_sensor.front_door': {
+    entity_id: 'binary_sensor.front_door',
+    state: 'off',
+    attributes: {
+      friendly_name: 'Front Door',
+      device_class: 'door',
+      icon: 'mdi:door'
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-19', parent_id: null, user_id: null }
+  },
+  'binary_sensor.motion_sensor': {
+    entity_id: 'binary_sensor.motion_sensor',
+    state: 'on',
+    attributes: {
+      friendly_name: 'Living Room Motion',
+      device_class: 'motion',
+      icon: 'mdi:motion-sensor'
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-20', parent_id: null, user_id: null }
+  },
+  'binary_sensor.bedroom_window': {
+    entity_id: 'binary_sensor.bedroom_window',
+    state: 'on',
+    attributes: {
+      friendly_name: 'Bedroom Window',
+      device_class: 'opening',
+      icon: 'mdi:window-open'
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-21', parent_id: null, user_id: null }
+  },
 }
 
 const Dashboard = () => {
@@ -330,6 +368,15 @@ const Dashboard = () => {
               name="Current Energy Usage"
               precision={2}
             />
+          </div>
+        </section>
+
+        <section className="dashboard-section">
+          <h2 className="section-title">📱 Binary Sensors</h2>
+          <div className="dashboard-grid">
+            <BinarySensorCard entityId="binary_sensor.front_door" name="Front Door" />
+            <BinarySensorCard entityId="binary_sensor.motion_sensor" name="Living Room Motion" />
+            <BinarySensorCard entityId="binary_sensor.bedroom_window" name="Bedroom Window" />
           </div>
         </section>
 

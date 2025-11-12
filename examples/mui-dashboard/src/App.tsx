@@ -35,7 +35,7 @@ import {
   Smartphone,
   Window
 } from '@mui/icons-material'
-import { LightCard, SwitchCard, SensorCard, FanCard, LockCard, CoverCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, BinarySensorCard, FanCard, LockCard, CoverCard } from './components/cards'
 
 // Create MUI theme
 const theme = createTheme({
@@ -313,6 +313,44 @@ const mockData = {
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-18', parent_id: null, user_id: null }
   },
+
+  // Binary Sensors
+  'binary_sensor.front_door': {
+    entity_id: 'binary_sensor.front_door',
+    state: 'off',
+    attributes: {
+      friendly_name: 'Front Door',
+      device_class: 'door',
+      icon: 'mdi:door'
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-19', parent_id: null, user_id: null }
+  },
+  'binary_sensor.motion_sensor': {
+    entity_id: 'binary_sensor.motion_sensor',
+    state: 'on',
+    attributes: {
+      friendly_name: 'Living Room Motion',
+      device_class: 'motion',
+      icon: 'mdi:motion-sensor'
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-20', parent_id: null, user_id: null }
+  },
+  'binary_sensor.bedroom_window': {
+    entity_id: 'binary_sensor.bedroom_window',
+    state: 'on',
+    attributes: {
+      friendly_name: 'Bedroom Window',
+      device_class: 'opening',
+      icon: 'mdi:window-open'
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-21', parent_id: null, user_id: null }
+  },
 }
 
 const ConnectionStatus = () => {
@@ -490,6 +528,23 @@ const Dashboard = () => {
               name="Current Energy Usage"
               precision={2}
             />
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h5" component="h2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Smartphone /> Binary Sensors
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6} md={4}>
+            <BinarySensorCard entityId="binary_sensor.front_door" name="Front Door" />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <BinarySensorCard entityId="binary_sensor.motion_sensor" name="Living Room Motion" />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <BinarySensorCard entityId="binary_sensor.bedroom_window" name="Bedroom Window" />
           </Grid>
         </Grid>
       </Box>

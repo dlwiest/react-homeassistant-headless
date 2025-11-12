@@ -10,6 +10,7 @@ export { useEntityGroup } from './hooks/useEntityGroup'
 export { useLight } from './hooks/useLight'
 export { useClimate } from './hooks/useClimate'
 export { useSensor } from './hooks/useSensor'
+export { useBinarySensor } from './hooks/useBinarySensor'
 export { useSwitch } from './hooks/useSwitch'
 export { useCover } from './hooks/useCover'
 export { useFan } from './hooks/useFan'
@@ -19,6 +20,7 @@ export { useLock } from './hooks/useLock'
 export { default as Light } from './components/Light'
 export { default as Climate } from './components/Climate'
 export { default as Sensor } from './components/Sensor'
+export { default as BinarySensor } from './components/BinarySensor'
 export { default as Switch } from './components/Switch'
 export { default as Cover } from './components/Cover'
 export { default as Entity } from './components/Entity'
@@ -37,6 +39,8 @@ export type {
   ClimateAttributes,
   SensorState, 
   SensorAttributes,
+  BinarySensorState, 
+  BinarySensorAttributes,
   FanState, 
   FanAttributes,
   FanTurnOnParams,
