@@ -1,6 +1,6 @@
 {
   "name": "@dlwiest/hass-react",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Headless React hooks for Home Assistant dashboards",
   "type": "module",
   "main": "./dist/index.cjs.js",
