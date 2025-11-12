@@ -66,9 +66,10 @@ Three complete dashboard examples showing different UI approaches:
 ```jsx
 <Light entityId="light.living_room">
   {({ 
-    isOn, brightness, rgbColor, effect,
-    supportsBrightness, supportsColor, supportsEffects,
-    toggle, setBrightness, setRgbColor, setEffect
+    isOn, brightness, brightnessPercent, rgbColor, colorTemp, effect,
+    supportsBrightness, supportsRgb, supportsColorTemp, supportsEffects,
+    availableEffects,
+    toggle, turnOn, turnOff, setBrightness, setRgbColor, setColorTemp, setEffect
   }) => (
     // Your light controls
   )}

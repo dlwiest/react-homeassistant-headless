@@ -32,9 +32,10 @@ import {
   Security,
   Lock,
   Speed,
-  Smartphone
+  Smartphone,
+  Window
 } from '@mui/icons-material'
-import { LightCard, SwitchCard, SensorCard, FanCard, LockCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, FanCard, LockCard, CoverCard } from './components/cards'
 
 // Create MUI theme
 const theme = createTheme({
@@ -274,6 +275,44 @@ const mockData = {
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-15', parent_id: null, user_id: null }
   },
+
+  // Covers
+  'cover.garage_door': {
+    entity_id: 'cover.garage_door',
+    state: 'closed',
+    attributes: {
+      friendly_name: 'Garage Door',
+      current_position: 0,
+      device_class: 'garage',
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-16', parent_id: null, user_id: null }
+  },
+  'cover.living_room_blinds': {
+    entity_id: 'cover.living_room_blinds',
+    state: 'open',
+    attributes: {
+      friendly_name: 'Living Room Blinds',
+      current_position: 85,
+      device_class: 'blind',
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-17', parent_id: null, user_id: null }
+  },
+  'cover.bedroom_curtains': {
+    entity_id: 'cover.bedroom_curtains',
+    state: 'opening',
+    attributes: {
+      friendly_name: 'Bedroom Curtains',
+      current_position: 45,
+      device_class: 'curtain',
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-18', parent_id: null, user_id: null }
+  },
 }
 
 const ConnectionStatus = () => {
@@ -381,6 +420,23 @@ const Dashboard = () => {
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <LockCard entityId="lock.back_door" name="Back Door" />
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h5" component="h2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Window /> Covers
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6} md={4}>
+            <CoverCard entityId="cover.garage_door" name="Garage Door" />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <CoverCard entityId="cover.living_room_blinds" name="Living Room Blinds" />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <CoverCard entityId="cover.bedroom_curtains" name="Bedroom Curtains" />
           </Grid>
         </Grid>
       </Box>

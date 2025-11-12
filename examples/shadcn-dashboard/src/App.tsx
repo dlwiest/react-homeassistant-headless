@@ -1,7 +1,8 @@
 import React from 'react'
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
-import { LightCard, SwitchCard, SensorCard, FanCard, LockCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, FanCard, LockCard, CoverCard } from './components/cards'
+import { Home } from 'lucide-react'
 import './styles/dashboard.css'
 
 // Mock data for demo - simulating a typical smart home setup
@@ -209,6 +210,44 @@ const mockData = {
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-15', parent_id: null, user_id: null }
   },
+
+  // Covers
+  'cover.garage_door': {
+    entity_id: 'cover.garage_door',
+    state: 'closed',
+    attributes: {
+      friendly_name: 'Garage Door',
+      current_position: 0,
+      device_class: 'garage',
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-16', parent_id: null, user_id: null }
+  },
+  'cover.living_room_blinds': {
+    entity_id: 'cover.living_room_blinds',
+    state: 'open',
+    attributes: {
+      friendly_name: 'Living Room Blinds',
+      current_position: 85,
+      device_class: 'blind',
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-17', parent_id: null, user_id: null }
+  },
+  'cover.bedroom_curtains': {
+    entity_id: 'cover.bedroom_curtains',
+    state: 'opening',
+    attributes: {
+      friendly_name: 'Bedroom Curtains',
+      current_position: 45,
+      device_class: 'curtain',
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-18', parent_id: null, user_id: null }
+  },
 }
 
 const Dashboard = () => {
@@ -245,6 +284,17 @@ const Dashboard = () => {
           <div className="dashboard-grid">
             <LockCard entityId="lock.front_door" name="Front Door" />
             <LockCard entityId="lock.back_door" name="Back Door" />
+          </div>
+        </section>
+
+        <section className="dashboard-section">
+          <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Home className="h-5 w-5" /> Covers
+          </h2>
+          <div className="dashboard-grid">
+            <CoverCard entityId="cover.garage_door" name="Garage Door" />
+            <CoverCard entityId="cover.living_room_blinds" name="Living Room Blinds" />
+            <CoverCard entityId="cover.bedroom_curtains" name="Bedroom Curtains" />
           </div>
         </section>
 
