@@ -1,7 +1,7 @@
 import React from 'react'
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
-import { LightCard, SwitchCard, SensorCard, BinarySensorCard, FanCard, LockCard, CoverCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard } from './components/cards'
 import { Home } from 'lucide-react'
 import './styles/dashboard.css'
 
@@ -286,6 +286,30 @@ const mockData = {
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-21', parent_id: null, user_id: null }
   },
+
+  // Todo lists
+  'todo.shopping_list': {
+    entity_id: 'todo.shopping_list',
+    state: '2',
+    attributes: {
+      friendly_name: 'Shopping List',
+      supported_features: 15, // All features
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-22', parent_id: null, user_id: null }
+  },
+  'todo.weekend_projects': {
+    entity_id: 'todo.weekend_projects',
+    state: '2',
+    attributes: {
+      friendly_name: 'Weekend Projects',
+      supported_features: 15, // All features
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-23', parent_id: null, user_id: null }
+  },
 }
 
 const Dashboard = () => {
@@ -322,6 +346,14 @@ const Dashboard = () => {
           <div className="dashboard-grid">
             <LockCard entityId="lock.front_door" name="Front Door" />
             <LockCard entityId="lock.back_door" name="Back Door" />
+          </div>
+        </section>
+
+        <section className="dashboard-section">
+          <h2 className="section-title">📝 Todo Lists</h2>
+          <div className="dashboard-grid">
+            <TodoCard entityId="todo.shopping_list" name="Shopping List" />
+            <TodoCard entityId="todo.weekend_projects" name="Weekend Projects" />
           </div>
         </section>
 

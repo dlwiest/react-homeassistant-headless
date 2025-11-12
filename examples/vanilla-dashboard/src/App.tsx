@@ -1,7 +1,7 @@
 import React from 'react'
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
-import { LightCard, SwitchCard, SensorCard, BinarySensorCard, FanCard, LockCard, CoverCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard } from './components/cards'
 import './styles/dashboard.css'
 
 // Mock data for demo - simulating a typical smart home setup
@@ -285,6 +285,30 @@ const mockData = {
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-21', parent_id: null, user_id: null }
   },
+
+  // Todo lists
+  'todo.shopping_list': {
+    entity_id: 'todo.shopping_list',
+    state: '2',
+    attributes: {
+      friendly_name: 'Shopping List',
+      supported_features: 15
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-22', parent_id: null, user_id: null }
+  },
+  'todo.weekend_projects': {
+    entity_id: 'todo.weekend_projects',
+    state: '2',
+    attributes: {
+      friendly_name: 'Weekend Projects',
+      supported_features: 15
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-23', parent_id: null, user_id: null }
+  },
 }
 
 const Dashboard = () => {
@@ -330,6 +354,14 @@ const Dashboard = () => {
             <BinarySensorCard entityId="binary_sensor.front_door" name="Front Door" />
             <BinarySensorCard entityId="binary_sensor.motion_sensor" name="Living Room Motion" />
             <BinarySensorCard entityId="binary_sensor.bedroom_window" name="Bedroom Window" />
+          </div>
+        </section>
+
+        <section className="dashboard-section">
+          <h2 className="section-title">📝 Todo Lists</h2>
+          <div className="dashboard-grid">
+            <TodoCard entityId="todo.shopping_list" name="Shopping List" />
+            <TodoCard entityId="todo.weekend_projects" name="Weekend Projects" />
           </div>
         </section>
 
@@ -394,7 +426,7 @@ const Dashboard = () => {
             <li><strong>Headless component pattern</strong> - Full control over your UI</li>
             <li><strong>TypeScript support</strong> - Type-safe Home Assistant integration</li>
             <li><strong>Mock mode</strong> - Perfect for development and demos</li>
-            <li><strong>Multiple entity types</strong> - Lights, fans, locks, covers, switches, sensors, and binary sensors</li>
+            <li><strong>Multiple entity types</strong> - Lights, fans, locks, covers, switches, sensors, binary sensors, and todo lists</li>
             <li><strong>Responsive design</strong> - Works on desktop and mobile</li>
           </ul>
           <p style={{ marginTop: '1rem', fontSize: '0.9rem', opacity: 0.8 }}>

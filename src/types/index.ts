@@ -52,6 +52,7 @@ export interface BaseEntityHook<T = Record<string, unknown>> {
   isConnected: boolean
   error?: Error
   callService: (domain: string, service: string, data?: object) => Promise<void>
+  callServiceWithResponse: <R = unknown>(domain: string, service: string, data?: object) => Promise<R>
   refresh: () => Promise<void>
 }
 
@@ -186,6 +187,35 @@ export interface BinarySensorState extends BaseEntityHook<BinarySensorAttributes
   icon?: string
 }
 
+export interface TodoItem {
+  uid: string
+  summary: string
+  status: 'needs_action' | 'completed'
+  due?: string
+  description?: string
+}
+
+export interface TodoAttributes {
+  friendly_name?: string
+  items?: TodoItem[]
+  supported_features?: number
+}
+
+export interface TodoState extends BaseEntityHook<TodoAttributes> {
+  itemCount: number
+  items: TodoItem[]
+  isLoadingItems?: boolean
+  supportsAddItem: boolean
+  supportsRemoveItem: boolean
+  supportsUpdateItem: boolean
+  supportsClearCompleted: boolean
+  addItem: (summary: string) => Promise<void>
+  removeItem: (uid: string) => Promise<void>
+  updateItem: (uid: string, status: 'needs_action' | 'completed') => Promise<void>
+  toggleItem: (uid: string) => Promise<void>
+  clearCompleted: () => Promise<void>
+}
+
 // Fan types
 export interface FanAttributes {
   friendly_name?: string
@@ -275,6 +305,13 @@ export const FanFeatures = {
 
 export const LockFeatures = {
   SUPPORT_OPEN: 1,
+} as const
+
+export const TodoFeatures = {
+  SUPPORT_ADD_ITEM: 1,
+  SUPPORT_REMOVE_ITEM: 2,
+  SUPPORT_UPDATE_ITEM: 4,
+  SUPPORT_CLEAR_COMPLETED: 8,
 } as const
 
 // WebSocket event types

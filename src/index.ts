@@ -11,6 +11,7 @@ export { useLight } from './hooks/useLight'
 export { useClimate } from './hooks/useClimate'
 export { useSensor } from './hooks/useSensor'
 export { useBinarySensor } from './hooks/useBinarySensor'
+export { useTodo } from './hooks/useTodo'
 export { useSwitch } from './hooks/useSwitch'
 export { useCover } from './hooks/useCover'
 export { useFan } from './hooks/useFan'
@@ -21,6 +22,7 @@ export { default as Light } from './components/Light'
 export { default as Climate } from './components/Climate'
 export { default as Sensor } from './components/Sensor'
 export { default as BinarySensor } from './components/BinarySensor'
+export { Todo } from './components/Todo'
 export { default as Switch } from './components/Switch'
 export { default as Cover } from './components/Cover'
 export { default as Entity } from './components/Entity'
@@ -41,6 +43,9 @@ export type {
   SensorAttributes,
   BinarySensorState, 
   BinarySensorAttributes,
+  TodoState,
+  TodoAttributes,
+  TodoItem,
   FanState, 
   FanAttributes,
   FanTurnOnParams,
@@ -55,7 +60,7 @@ export type { SwitchState } from './hooks/useSwitch'
 export type { CoverState } from './hooks/useCover'
 
 // Constants
-export { LightFeatures, FanFeatures, ClimateFeatures } from './types'
+export { LightFeatures, FanFeatures, ClimateFeatures, LockFeatures, TodoFeatures } from './types'
 
 
 // Store (for advanced usage)

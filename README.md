@@ -27,7 +27,7 @@ import { HAProvider, Light } from '@dlwiest/hass-react'
 
 function App() {
   return (
-    <HAProvider url="ws://homeassistant.local:8123" token="your-long-lived-access-token">
+    <HAProvider url="http://homeassistant.local:8123" token="your-long-lived-access-token">
       <Light entityId="light.living_room">
         {({ isOn, brightness, toggle, setBrightness }) => (
           <div>
@@ -156,12 +156,25 @@ Three complete dashboard examples showing different UI approaches:
 </BinarySensor>
 ```
 
+### Todo Lists
+```jsx
+<Todo entityId="todo.shopping_list">
+  {({ 
+    items, itemCount,
+    supportsAddItem, supportsRemoveItem, supportsUpdateItem, supportsClearCompleted,
+    addItem, removeItem, toggleItem, clearCompleted
+  }) => (
+    // Your todo list interface
+  )}
+</Todo>
+```
+
 ## Using Hooks Directly
 
 If you prefer hooks over render props:
 
 ```jsx
-import { useLight, useClimate, useFan, useLock, useBinarySensor } from '@dlwiest/hass-react'
+import { useLight, useClimate, useFan, useLock, useBinarySensor, useTodo } from '@dlwiest/hass-react'
 
 function MyComponent() {
   const light = useLight('light.living_room')
@@ -169,6 +182,7 @@ function MyComponent() {
   const fan = useFan('fan.bedroom_ceiling')
   const lock = useLock('lock.front_door')
   const doorSensor = useBinarySensor('binary_sensor.front_door')
+  const todoList = useTodo('todo.shopping_list')
   
   return (
     <div>
@@ -190,6 +204,9 @@ function MyComponent() {
       </div>
       <div>
         Door Sensor: {doorSensor.isOn ? 'OPEN' : 'CLOSED'}
+      </div>
+      <div>
+        Todo Items: {todoList.itemCount} ({todoList.items.filter(i => i.status === 'completed').length} completed)
       </div>
     </div>
   )
@@ -402,6 +419,7 @@ function ConnectionIndicator() {
 - `<Fan>` - Fan controls with speed, presets, oscillation, direction
 - `<Lock>` - Lock controls with lock, unlock, open
 - `<Cover>` - Cover/blind controls
+- `<Todo>` - Todo list management with add, remove, toggle, and clear operations
 - `<Entity>` - Generic entity component
 
 ### All Hooks
@@ -413,6 +431,7 @@ function ConnectionIndicator() {
 - `useFan(entityId)` - Fan entity hook
 - `useLock(entityId)` - Lock entity hook
 - `useCover(entityId)` - Cover entity hook
+- `useTodo(entityId)` - Todo list hook
 - `useEntity(entityId)` - Generic entity hook
 - `useEntityGroup(entityIds)` - Multiple entities hook
 - `useHAConnection()` - Connection status hook

@@ -16,6 +16,7 @@ export function createMockEntity<T = Record<string, unknown>>(
     isUnavailable: state === 'unavailable',
     isConnected: true,
     callService: vi.fn(),
+    callServiceWithResponse: vi.fn(),
     refresh: vi.fn()
   }
 }

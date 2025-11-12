@@ -15,16 +15,24 @@ export const Card = ({ children, className = '' }: CardProps) => {
 
 interface CardHeaderProps {
   title: string
-  subtitle?: string
+  subtitle?: string | ReactNode
   action?: ReactNode
+  icon?: string
 }
 
-export const CardHeader = ({ title, subtitle, action }: CardHeaderProps) => {
+export const CardHeader = ({ title, subtitle, action, icon }: CardHeaderProps) => {
   return (
     <div className="card-header">
-      <div>
-        <h3 className="card-title">{title}</h3>
-        {subtitle && <p className="card-subtitle">{subtitle}</p>}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        {icon && <span style={{ fontSize: '1.5rem' }}>{icon}</span>}
+        <div>
+          <h3 className="card-title">{title}</h3>
+          {subtitle && (
+            typeof subtitle === 'string' ? 
+              <p className="card-subtitle">{subtitle}</p> : 
+              <div className="card-subtitle">{subtitle}</div>
+          )}
+        </div>
       </div>
       {action && <div>{action}</div>}
     </div>

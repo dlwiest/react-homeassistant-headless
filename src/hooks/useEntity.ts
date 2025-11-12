@@ -94,6 +94,49 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEn
     [connection, entityId, config.options?.serviceRetry]
   )
 
+  const callServiceWithResponse = useCallback(
+    async <R = unknown>(domain: string, service: string, data?: object): Promise<R> => {
+      if (!connection) {
+        throw new ConnectionError(`call ${domain}.${service}`)
+      }
+
+      // Get retry configuration from provider options
+      const retryOptions: RetryOptions = {
+        maxAttempts: config.options?.serviceRetry?.maxAttempts ?? 3,
+        baseDelay: config.options?.serviceRetry?.baseDelay ?? 1000,
+        exponentialBackoff: config.options?.serviceRetry?.exponentialBackoff ?? true,
+        maxDelay: config.options?.serviceRetry?.maxDelay ?? 10000,
+      }
+
+      const executeServiceCall = async () => {
+        try {
+          const response = await connection.sendMessagePromise({
+            type: 'call_service',
+            domain,
+            service,
+            service_data: {
+              entity_id: entityId,
+              ...data,
+            },
+            return_response: true,
+          })
+          return response as R
+        } catch (originalError) {
+          throw new ServiceCallError(
+            domain, 
+            service, 
+            originalError instanceof Error ? originalError : new Error(String(originalError)),
+            entityId
+          )
+        }
+      }
+
+      // Execute with retry logic
+      return await withRetry(executeServiceCall, retryOptions)
+    },
+    [connection, entityId, config.options?.serviceRetry]
+  )
+
   const refresh = useCallback(async () => {
     if (!connection) return
 
@@ -130,6 +173,7 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEn
     isConnected: connected,
     error: error || undefined,
     callService,
+    callServiceWithResponse,
     refresh,
   }
 }
