@@ -21,6 +21,45 @@ hass-react is a React library built for people seeking full creative control ove
 npm install hass-react
 ```
 
+## Quick Example
+
+```jsx
+import { HAProvider, Light } from 'hass-react'
+
+function App() {
+  return (
+    <HAProvider url="http://homeassistant.local:8123">
+      <Light entityId="light.living_room">
+        {({ isOn, brightness, toggle, setBrightness }) => (
+          <div>
+            <h3>Living Room Light</h3>
+            <button onClick={toggle}>
+              {isOn ? '💡 ON' : '⚫ OFF'}
+            </button>
+            {isOn && (
+              <input
+                type="range"
+                min="0"
+                max="255"
+                value={brightness}
+                onChange={(e) => setBrightness(parseInt(e.target.value))}
+              />
+            )}
+          </div>
+        )}
+      </Light>
+    </HAProvider>
+  )
+}
+```
+
+## Less Quick Examples
+
+Three complete dashboard examples showing different UI approaches:
+- **[Vanilla React](./examples/vanilla-dashboard)** - Custom CSS
+- **[shadcn/ui](./examples/shadcn-dashboard)** - Tailwind + Radix UI components  
+- **[Material-UI](./examples/mui-dashboard)** - Material Design
+
 ## Authentication
 
 hass-react supports both OAuth 2.0 and long-lived token authentication with automatic detection:
@@ -44,7 +83,7 @@ Traditional token-based authentication:
 ```
 
 ### Auto-detection (Default)
-Automatically chooses OAuth when no token is provided, or token auth when a token is present:
+By default, hass-react chooses OAuth when no token is provided, or token auth when a token is present:
 
 ```jsx
 // Uses OAuth if no token provided
@@ -81,45 +120,6 @@ The logout function:
 - Immediately closes the WebSocket connection
 - Stops all entity controls from working
 - Triggers a new OAuth flow on the next connection attempt
-
-## Quick Example
-
-```jsx
-import { HAProvider, Light } from 'hass-react'
-
-function App() {
-  return (
-    <HAProvider url="http://homeassistant.local:8123">
-      <Light entityId="light.living_room">
-        {({ isOn, brightness, toggle, setBrightness }) => (
-          <div>
-            <h3>Living Room Light</h3>
-            <button onClick={toggle}>
-              {isOn ? '💡 ON' : '⚫ OFF'}
-            </button>
-            {isOn && (
-              <input
-                type="range"
-                min="0"
-                max="255"
-                value={brightness}
-                onChange={(e) => setBrightness(parseInt(e.target.value))}
-              />
-            )}
-          </div>
-        )}
-      </Light>
-    </HAProvider>
-  )
-}
-```
-
-## Examples
-
-Three complete dashboard examples showing different UI approaches:
-- **[Vanilla React](./examples/vanilla-dashboard)** - Custom CSS
-- **[shadcn/ui](./examples/shadcn-dashboard)** - Tailwind + Radix UI components  
-- **[Material-UI](./examples/mui-dashboard)** - Material Design
 
 
 ## Supported Entities
