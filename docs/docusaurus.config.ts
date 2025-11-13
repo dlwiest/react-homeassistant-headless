@@ -15,10 +15,10 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://dlwiest.github.io',
+  url: 'https://hass-react.dlwiest.com',
   // Set the /<baseUrl>/ pathname under which your site is served
-  // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/hass-react/',
+  // For custom domain, this is usually '/'
+  baseUrl: '/',
 
   // GitHub pages deployment config.
   organizationName: 'dlwiest', // Usually your GitHub org/user name.
