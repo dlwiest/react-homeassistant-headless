@@ -3,7 +3,7 @@ import { Connection } from 'home-assistant-js-websocket'
 import { useStore } from '../services/entityStore'
 import { createMockConnection } from '../services/mockConnection'
 import { createAuthenticatedConnection } from '../services/auth'
-// import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../hooks/useAuth'
 import type { HAConfig, ConnectionStatus, EntityState } from '../types'
 
 // Valid connection states
@@ -98,6 +98,7 @@ function connectionReducer(state: ConnectionState, action: ConnectionAction): Co
 interface HAContextValue extends ConnectionStatus {
   connection: Connection | null
   config: HAConfig
+  logout: () => void
 }
 
 const HAContext = createContext<HAContextValue | null>(null)
@@ -151,8 +152,8 @@ const HAProvider = ({
     }
   })()
 
-  // Auth state management (for future use with auth integration)
-  // const auth = useAuth(mockMode ? null : url, authMode)
+  // Auth state management
+  const auth = useAuth(mockMode ? null : url, authMode)
 
   // Development warnings for configuration issues
   useEffect(() => {
@@ -303,6 +304,24 @@ const HAProvider = ({
     }, 0)
   }, [attemptConnection, mockMode])
 
+  // Logout function that immediately closes connection
+  const handleLogout = useCallback(() => {
+    // Clear stored authentication
+    auth.logout()
+    
+    // Immediately close WebSocket connection
+    if (currentConnectionRef.current) {
+      currentConnectionRef.current.close()
+      currentConnectionRef.current = null
+      try {
+        setStoreConnection(null)
+      } catch (error) {
+        console.warn('Failed to clear store connection:', error)
+      }
+      dispatch({ type: 'DISCONNECTED' })
+    }
+  }, [auth, setStoreConnection])
+
   // Handle auto-retry for disconnections and errors
   useEffect(() => {
     const shouldAutoRetry = (state.type === 'disconnected' || state.type === 'error') &&
@@ -367,6 +386,7 @@ const HAProvider = ({
     connecting: state.type === 'connecting',
     error: state.type === 'error' ? state.error : null,
     reconnect,
+    logout: handleLogout,
     connectionState: state.type,
     retryCount: state.retryCount,
     nextRetryIn,

@@ -58,6 +58,30 @@ Automatically chooses OAuth when no token is provided, or token auth when a toke
 </HAProvider>
 ```
 
+### Logout Functionality
+
+For OAuth authentication, you can programmatically log users out:
+
+```jsx
+import { useHAConnection } from '@dlwiest/hass-react'
+
+function LogoutButton() {
+  const { logout, connected } = useHAConnection()
+
+  return (
+    <button onClick={logout} disabled={!connected}>
+      Logout
+    </button>
+  )
+}
+```
+
+The logout function:
+- Clears stored OAuth tokens from localStorage
+- Immediately closes the WebSocket connection
+- Stops all entity controls from working
+- Triggers a new OAuth flow on the next connection attempt
+
 ## Quick Example
 
 ```jsx
@@ -292,8 +316,8 @@ Connection options and status monitoring:
   }}
 />
 
-// Monitor connection status
-const { connected, connecting, error, reconnect } = useHAConnection()
+// Monitor connection status and manage authentication
+const { connected, connecting, error, reconnect, logout } = useHAConnection()
 ```
 
 ## Error Handling & Reliability
