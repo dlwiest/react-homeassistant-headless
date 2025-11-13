@@ -3,7 +3,9 @@ import {
   createConnection, 
   createLongLivedTokenAuth,
   Auth,
-  Connection 
+  Connection,
+  type AuthData,
+  type SaveTokensFunc 
 } from 'home-assistant-js-websocket'
 import type { AuthConfig, AuthError, StoredAuthData } from '../types/auth'
 import { saveAuthData, loadAuthData, removeAuthData } from './tokenStorage'
@@ -92,8 +94,16 @@ export async function createAuthenticatedConnection(config: AuthConfig): Promise
     const storedAuth = loadAuthData(hassUrl)
     
     if (storedAuth) {
-      // Use stored tokens
+      // Use stored tokens and refresh if needed
       auth = createAuthFromStoredData(storedAuth)
+      try {
+        auth = await refreshTokenIfNeeded(auth)
+      } catch (refreshError) {
+        // Token refresh failed, clear stored tokens and redirect to OAuth
+        removeAuthData(hassUrl)
+        window.location.href = getOAuthUrl(hassUrl, config.redirectUri)
+        throw refreshError
+      }
     } else {
       // Check if this is an OAuth callback
       const urlParams = new URLSearchParams(window.location.search)
@@ -141,9 +151,62 @@ function generateRandomState(): string {
          Math.random().toString(36).substring(2, 15)
 }
 
-// Create Auth from stored token data
+// Create Auth from stored token data with refresh capability
 function createAuthFromStoredData(storedAuth: StoredAuthData): Auth {
-  return createLongLivedTokenAuth(storedAuth.hassUrl, storedAuth.access_token)
+  if (storedAuth.refresh_token) {
+    // Create OAuth auth with refresh capability
+    const authData: AuthData = {
+      hassUrl: storedAuth.hassUrl,
+      clientId: null,
+      expires: storedAuth.expires_at || Date.now() + 86400000, // fallback to 24h
+      refresh_token: storedAuth.refresh_token,
+      access_token: storedAuth.access_token,
+      expires_in: Math.floor((storedAuth.expires_at || Date.now() + 86400000) - Date.now()) / 1000
+    }
+    
+    // Create save function that updates our localStorage
+    const saveTokens: SaveTokensFunc = (data: AuthData | null) => {
+      if (data) {
+        saveAuthData(storedAuth.hassUrl, {
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+          expires_at: data.expires
+        })
+      }
+    }
+    
+    return new Auth(authData, saveTokens)
+  } else {
+    // Fallback to long-lived token (no refresh capability)
+    return createLongLivedTokenAuth(storedAuth.hassUrl, storedAuth.access_token)
+  }
+}
+
+// Check if auth token is expired or will expire soon
+export function isTokenExpiring(auth: Auth, bufferMinutes: number = 5): boolean {
+  try {
+    if (auth.expired) return true
+    
+    // Check if expires within buffer time
+    const bufferMs = bufferMinutes * 60 * 1000
+    return auth.data.expires <= Date.now() + bufferMs
+  } catch {
+    return false
+  }
+}
+
+// Refresh auth token if needed
+export async function refreshTokenIfNeeded(auth: Auth): Promise<Auth> {
+  if (isTokenExpiring(auth)) {
+    try {
+      await auth.refreshAccessToken()
+      return auth
+    } catch (error) {
+      // Refresh failed - token might be revoked
+      throw createAuthError('auth_expired', 'Token refresh failed: ' + (error instanceof Error ? error.message : 'Unknown error'))
+    }
+  }
+  return auth
 }
 
 // Create standardized auth errors
