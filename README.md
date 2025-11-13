@@ -1,7 +1,7 @@
 # hass-react
 
-[![npm version](https://img.shields.io/npm/v/@dlwiest/hass-react.svg)](https://www.npmjs.com/package/@dlwiest/hass-react)
-[![npm downloads](https://img.shields.io/npm/dm/@dlwiest/hass-react.svg)](https://www.npmjs.com/package/@dlwiest/hass-react)
+[![npm version](https://img.shields.io/npm/v/hass-react.svg)](https://www.npmjs.com/package/hass-react)
+[![npm downloads](https://img.shields.io/npm/dm/hass-react.svg)](https://www.npmjs.com/package/hass-react)
 
 react-hass is a React library built for people seeking full creative control over the look and feel of their Home Assistant experience. A suite of headless components abstracts all the headaches of WebSocket implementation and state management, allowing you to focus on creating your perfect custom dashboards.
 
@@ -18,7 +18,7 @@ react-hass is a React library built for people seeking full creative control ove
 ## Installation
 
 ```bash
-npm install @dlwiest/hass-react
+npm install hass-react
 ```
 
 ## Authentication
@@ -63,7 +63,7 @@ Automatically chooses OAuth when no token is provided, or token auth when a toke
 For OAuth authentication, you can programmatically log users out:
 
 ```jsx
-import { useHAConnection } from '@dlwiest/hass-react'
+import { useHAConnection } from 'hass-react'
 
 function LogoutButton() {
   const { logout, connected } = useHAConnection()
@@ -85,11 +85,11 @@ The logout function:
 ## Quick Example
 
 ```jsx
-import { HAProvider, Light } from '@dlwiest/hass-react'
+import { HAProvider, Light } from 'hass-react'
 
 function App() {
   return (
-    <HAProvider url="http://homeassistant.local:8123" token="your-long-lived-access-token">
+    <HAProvider url="http://homeassistant.local:8123">
       <Light entityId="light.living_room">
         {({ isOn, brightness, toggle, setBrightness }) => (
           <div>
@@ -236,7 +236,7 @@ Three complete dashboard examples showing different UI approaches:
 If you prefer hooks over render props:
 
 ```jsx
-import { useLight, useClimate, useFan, useLock, useBinarySensor, useTodo } from '@dlwiest/hass-react'
+import { useLight, useClimate, useFan, useLock, useBinarySensor, useTodo } from 'hass-react'
 
 function MyComponent() {
   const light = useLight('light.living_room')
@@ -280,7 +280,7 @@ function MyComponent() {
 Work with multiple entities:
 
 ```jsx
-import { useEntityGroup } from '@dlwiest/hass-react'
+import { useEntityGroup } from 'hass-react'
 
 function AllLights() {
   const lights = useEntityGroup(['light.living_room', 'light.kitchen', 'light.bedroom'])
