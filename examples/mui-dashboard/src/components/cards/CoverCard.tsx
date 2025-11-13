@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Cover } from 'hass-react'
 import {
   Card,
@@ -215,13 +215,16 @@ export const CoverCard = ({ entityId, name }: CoverCardProps) => {
                 <Stack direction="row" spacing={1} flexWrap="wrap">
                   <Chip label="Cover" size="small" />
                   {cover.position !== undefined && <Chip label="Position Control" size="small" />}
-                  {cover.attributes.device_class && (
-                    <Chip 
-                      label={cover.attributes.device_class as string} 
-                      size="small" 
-                      variant="outlined" 
-                    />
-                  )}
+                  {(() => {
+                    const deviceClass = cover.attributes.device_class
+                    return deviceClass && typeof deviceClass === 'string' ? (
+                      <Chip 
+                        label={deviceClass} 
+                        size="small" 
+                        variant="outlined" 
+                      />
+                    ) : null
+                  })()}
                 </Stack>
                 {!cover.isConnected && (
                   <Typography variant="caption" color="error" display="flex" alignItems="center" gap={0.5}>

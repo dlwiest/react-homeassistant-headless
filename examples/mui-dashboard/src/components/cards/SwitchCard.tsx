@@ -1,3 +1,4 @@
+import React from 'react'
 import { Switch as HomeAssistantSwitch } from 'hass-react'
 import {
   Card,

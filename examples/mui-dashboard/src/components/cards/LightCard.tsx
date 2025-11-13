@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import React from 'react'
 import { Light } from 'hass-react'
 import {
   Card,

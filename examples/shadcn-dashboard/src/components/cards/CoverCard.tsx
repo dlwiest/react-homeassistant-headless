@@ -201,11 +201,14 @@ export const CoverCard = ({ entityId, name }: CoverCardProps) => {
                       Position Control
                     </span>
                   )}
-                  {cover.attributes.device_class && (
-                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-600 border border-gray-200">
-                      {cover.attributes.device_class as string}
-                    </span>
-                  )}
+                  {(() => {
+                    const deviceClass = cover.attributes.device_class
+                    return deviceClass && typeof deviceClass === 'string' ? (
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-600 border border-gray-200">
+                        {deviceClass}
+                      </span>
+                    ) : null
+                  })()}
                 </div>
                 {!cover.isConnected && (
                   <p className="text-xs text-red-600 flex items-center gap-1">

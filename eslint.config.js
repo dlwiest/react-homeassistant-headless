@@ -25,7 +25,12 @@ export default [
         WebSocket: 'readonly',
         document: 'readonly',
         MutationObserver: 'readonly',
-        NodeJS: 'readonly'
+        NodeJS: 'readonly',
+        localStorage: 'readonly',
+        sessionStorage: 'readonly',
+        URLSearchParams: 'readonly',
+        URL: 'readonly',
+        crypto: 'readonly'
       }
     },
     plugins: {

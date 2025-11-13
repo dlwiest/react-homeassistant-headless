@@ -13,7 +13,10 @@ export interface StoredAuthData {
 export interface AuthError {
   code: string
   message: string
-  type: 'network' | 'auth_expired' | 'invalid_credentials' | 'unknown'
+  userMessage: string  // User-friendly message
+  type: 'network' | 'auth_expired' | 'invalid_credentials' | 'oauth_cancelled' | 'config_error' | 'unknown'
+  recoverable: boolean  // Whether user can retry
+  retryAction?: 'retry_auth' | 'check_config' | 'contact_admin'
 }
 
 export interface AuthState {

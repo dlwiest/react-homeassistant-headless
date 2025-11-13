@@ -3,6 +3,15 @@ import type { AuthState, AuthError, AuthConfig } from '../types/auth'
 import { hasStoredAuth, loadAuthData } from '../services/tokenStorage'
 import { logout as authLogout, isOAuthCallback } from '../services/auth'
 
+// Type guard for AuthError
+function isAuthError(error: unknown): error is AuthError {
+  return error instanceof Error && 
+    'userMessage' in error && 
+    'type' in error && 
+    'recoverable' in error &&
+    'code' in error
+}
+
 // Hook for managing authentication state
 export function useAuth(hassUrl: string | null, authMode: AuthConfig['authMode'] = 'auto') {
   const [authState, setAuthState] = useState<AuthState>({
@@ -58,11 +67,17 @@ export function useAuth(hassUrl: string | null, authMode: AuthConfig['authMode']
         })
       }
     } catch (error) {
-      const authError: AuthError = {
-        code: 'unknown',
-        message: error instanceof Error ? error.message : 'Authentication check failed',
-        type: 'unknown'
-      }
+      // If it's already an AuthError, use it; otherwise create a generic one
+      const authError: AuthError = isAuthError(error)
+        ? error
+        : {
+            code: 'unknown',
+            message: error instanceof Error ? error.message : 'Authentication check failed',
+            userMessage: 'Failed to check authentication status. Please try again.',
+            type: 'unknown',
+            recoverable: true,
+            retryAction: 'retry_auth'
+          }
       
       updateAuthState({
         isAuthenticated: false,

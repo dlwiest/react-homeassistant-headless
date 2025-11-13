@@ -1009,30 +1009,30 @@ describe('HAProvider Clean Implementation', () => {
   })
 
   describe('Configuration & Validation', () => {
-    it('should require URL and token for real connections', () => {
+    it('should require URL for real connections (OAuth auto-detection)', () => {
       render(
         <HAProvider url="" token="">
           <TestComponent />
         </HAProvider>
       )
 
-      // Should show error for missing URL and token
-      expect(screen.getByTestId('error')).toHaveTextContent('URL and token are required')
+      // Should show error for missing URL (token is optional with OAuth)
+      expect(screen.getByTestId('error')).toHaveTextContent('URL is required')
       expect(screen.getByTestId('connected')).toHaveTextContent('false')
       expect(screen.getByTestId('connecting')).toHaveTextContent('false')
     })
 
-    it('should require token when URL is provided', () => {
+    it('should use OAuth when URL is provided without token', () => {
       render(
         <HAProvider url="http://test:8123" token="">
           <TestComponent />
         </HAProvider>
       )
 
-      // Should show error for missing token
-      expect(screen.getByTestId('error')).toHaveTextContent('URL and token are required')
+      // Should attempt OAuth authentication (no error, will try to connect)
+      // Note: In test environment, this may fail to connect but shouldn't show config errors
       expect(screen.getByTestId('connected')).toHaveTextContent('false')
-      expect(screen.getByTestId('connecting')).toHaveTextContent('false')
+      expect(screen.getByTestId('connecting')).toHaveTextContent('true')
     })
 
     it('should require URL when token is provided', () => {
@@ -1042,8 +1042,8 @@ describe('HAProvider Clean Implementation', () => {
         </HAProvider>
       )
 
-      // Should show error for missing URL
-      expect(screen.getByTestId('error')).toHaveTextContent('URL and token are required')
+      // Should show error for missing URL (URL is always required)
+      expect(screen.getByTestId('error')).toHaveTextContent('URL is required')
       expect(screen.getByTestId('connected')).toHaveTextContent('false')
       expect(screen.getByTestId('connecting')).toHaveTextContent('false')
     })

@@ -10,8 +10,16 @@ import {
 import type { AuthConfig, AuthError, StoredAuthData } from '../types/auth'
 import { saveAuthData, loadAuthData, removeAuthData } from './tokenStorage'
 
+// Constants
+const ONE_DAY_MS = 24 * 60 * 60 * 1000
+const DEFAULT_TOKEN_BUFFER_MINUTES = 5
+
 // Generate OAuth authorization URL for Home Assistant
 export function getOAuthUrl(hassUrl: string, redirectUri?: string): string {
+  if (!hassUrl || typeof hassUrl !== 'string') {
+    throw createAuthError('config_error', 'hassUrl is required and must be a string')
+  }
+  
   const cleanUrl = hassUrl.replace(/\/$/, '')
   // Convert WebSocket URL to HTTP URL for OAuth
   const httpUrl = cleanUrl.replace(/^ws:\/\//, 'http://').replace(/^wss:\/\//, 'https://')
@@ -33,24 +41,30 @@ export function getOAuthUrl(hassUrl: string, redirectUri?: string): string {
 
 // Handle OAuth callback with authorization code
 export async function handleOAuthCallback(hassUrl: string): Promise<Auth> {
+  if (!hassUrl || typeof hassUrl !== 'string') {
+    throw createAuthError('config_error', 'hassUrl is required and must be a string')
+  }
+  
   const urlParams = new URLSearchParams(window.location.search)
   const code = urlParams.get('code')
   const state = urlParams.get('state')
   const error = urlParams.get('error')
   
   if (error) {
-    throw createAuthError('invalid_credentials', urlParams.get('error_description') || error)
+    const errorType = error === 'access_denied' ? 'oauth_cancelled' : 'invalid_credentials'
+    const errorCode = error
+    throw createAuthError(errorType, urlParams.get('error_description') || error, errorCode)
   }
   
   if (!code) {
-    throw createAuthError('invalid_credentials', 'No authorization code received')
+    throw createAuthError('oauth_cancelled', 'No authorization code received', 'no_code')
   }
   
   // Verify state parameter
   const storedState = sessionStorage.getItem('hass-oauth-state')
   if (state !== storedState) {
     console.warn('OAuth state mismatch:', { received: state, stored: storedState })
-    throw createAuthError('invalid_credentials', 'Invalid state parameter')
+    throw createAuthError('config_error', 'OAuth state parameter mismatch - possible security issue', 'state_mismatch')
   }
   
   // Clean up state
@@ -129,6 +143,10 @@ export async function createAuthenticatedConnection(config: AuthConfig): Promise
 
 // Logout and clear stored authentication
 export function logout(hassUrl: string): void {
+  if (!hassUrl || typeof hassUrl !== 'string') {
+    throw createAuthError('config_error', 'hassUrl is required and must be a string')
+  }
+  
   removeAuthData(hassUrl)
   // Clear URL parameters if they exist
   if (window.location.search.includes('code=')) {
@@ -145,10 +163,11 @@ export function isOAuthCallback(): boolean {
   return urlParams.has('code') || urlParams.has('error')
 }
 
-// Generate random state for OAuth flow
+// Generate cryptographically secure random state for OAuth flow
 function generateRandomState(): string {
-  return Math.random().toString(36).substring(2, 15) + 
-         Math.random().toString(36).substring(2, 15)
+  const array = new Uint8Array(16)
+  crypto.getRandomValues(array)
+  return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
 }
 
 // Create Auth from stored token data with refresh capability
@@ -158,10 +177,10 @@ function createAuthFromStoredData(storedAuth: StoredAuthData): Auth {
     const authData: AuthData = {
       hassUrl: storedAuth.hassUrl,
       clientId: null,
-      expires: storedAuth.expires_at || Date.now() + 86400000, // fallback to 24h
+      expires: storedAuth.expires_at || Date.now() + ONE_DAY_MS,
       refresh_token: storedAuth.refresh_token,
       access_token: storedAuth.access_token,
-      expires_in: Math.floor((storedAuth.expires_at || Date.now() + 86400000) - Date.now()) / 1000
+      expires_in: Math.floor((storedAuth.expires_at || Date.now() + ONE_DAY_MS) - Date.now()) / 1000
     }
     
     // Create save function that updates our localStorage
@@ -183,7 +202,7 @@ function createAuthFromStoredData(storedAuth: StoredAuthData): Auth {
 }
 
 // Check if auth token is expired or will expire soon
-export function isTokenExpiring(auth: Auth, bufferMinutes: number = 5): boolean {
+export function isTokenExpiring(auth: Auth, bufferMinutes: number = DEFAULT_TOKEN_BUFFER_MINUTES): boolean {
   try {
     if (auth.expired) return true
     
@@ -209,11 +228,53 @@ export async function refreshTokenIfNeeded(auth: Auth): Promise<Auth> {
   return auth
 }
 
-// Create standardized auth errors
-function createAuthError(type: AuthError['type'], message: string): AuthError {
+// Create standardized auth errors with user-friendly messages
+function createAuthError(type: AuthError['type'], message: string, code?: string): AuthError {
+  const errorMap: Record<AuthError['type'], {
+    userMessage: string
+    recoverable: boolean
+    retryAction?: AuthError['retryAction']
+  }> = {
+    network: {
+      userMessage: 'Unable to connect to Home Assistant. Please check your network connection and try again.',
+      recoverable: true,
+      retryAction: 'retry_auth'
+    },
+    auth_expired: {
+      userMessage: 'Your authentication has expired. Please sign in again.',
+      recoverable: true,
+      retryAction: 'retry_auth'
+    },
+    invalid_credentials: {
+      userMessage: 'Authentication failed. Please check your credentials and try again.',
+      recoverable: true,
+      retryAction: 'retry_auth'
+    },
+    oauth_cancelled: {
+      userMessage: 'Authentication was cancelled. Please try signing in again.',
+      recoverable: true,
+      retryAction: 'retry_auth'
+    },
+    config_error: {
+      userMessage: 'There is a configuration problem with Home Assistant. Please contact your administrator.',
+      recoverable: false,
+      retryAction: 'contact_admin'
+    },
+    unknown: {
+      userMessage: 'An unexpected error occurred. Please try again or contact support if the problem persists.',
+      recoverable: true,
+      retryAction: 'retry_auth'
+    }
+  }
+
+  const errorInfo = errorMap[type]
+  
   return {
-    code: type,
+    code: code || type,
     message,
-    type
+    userMessage: errorInfo.userMessage,
+    type,
+    recoverable: errorInfo.recoverable,
+    retryAction: errorInfo.retryAction
   }
 }

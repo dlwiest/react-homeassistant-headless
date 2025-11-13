@@ -1,3 +1,4 @@
+import React from 'react'
 import { useHAConnection } from 'hass-react'
 
 export const ConnectionStatus = () => {

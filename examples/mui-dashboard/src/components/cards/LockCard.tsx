@@ -1,3 +1,4 @@
+import React from 'react'
 import { Lock } from 'hass-react'
 import {
   Card,

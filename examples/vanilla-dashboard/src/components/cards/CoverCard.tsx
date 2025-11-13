@@ -163,9 +163,12 @@ export const CoverCard = ({ entityId, name }: CoverCardProps) => {
                 <div className="tags">
                   <span className="tag">Cover</span>
                   {cover.position !== undefined && <span className="tag secondary">Position Control</span>}
-                  {cover.attributes.device_class && (
-                    <span className="tag secondary">{cover.attributes.device_class as string}</span>
-                  )}
+                  {(() => {
+                    const deviceClass = cover.attributes.device_class
+                    return deviceClass && typeof deviceClass === 'string' ? (
+                      <span className="tag secondary">{deviceClass}</span>
+                    ) : null
+                  })()}
                 </div>
                 {!cover.isConnected && (
                   <p className="connection-warning">
