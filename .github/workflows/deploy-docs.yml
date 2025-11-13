@@ -2,11 +2,12 @@ name: Deploy Documentation
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
     paths: [ 'docs/**' ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
     paths: [ 'docs/**' ]
+  workflow_dispatch:  # Allows manual triggering from GitHub UI
 
 jobs:
   deploy:
@@ -14,7 +15,7 @@ jobs:
     permissions:
       contents: write
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     
     steps:
       - uses: actions/checkout@v4
