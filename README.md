@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/hass-react.svg)](https://www.npmjs.com/package/hass-react)
 [![npm downloads](https://img.shields.io/npm/dm/hass-react.svg)](https://www.npmjs.com/package/hass-react)
 
-react-hass is a React library built for people seeking full creative control over the look and feel of their Home Assistant experience. A suite of headless components abstracts all the headaches of WebSocket implementation and state management, allowing you to focus on creating your perfect custom dashboards.
+hass-react is a React library built for people seeking full creative control over the look and feel of their Home Assistant experience. A suite of headless components abstracts all the headaches of WebSocket implementation and state management, allowing you to focus on creating your perfect custom dashboards.
 
 ## Features
 
