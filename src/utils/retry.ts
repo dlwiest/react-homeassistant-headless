@@ -1,22 +1,18 @@
-/**
- * Configuration options for retry logic
- */
+// Configuration options for retry logic
 export interface RetryOptions {
-  /** Maximum number of retry attempts (default: 3) */
+  // Maximum number of retry attempts (default: 3)
   maxAttempts?: number
-  /** Delay between retries in milliseconds (default: 1000) */
+  // Delay between retries in milliseconds (default: 1000)
   baseDelay?: number
-  /** Whether to use exponential backoff (default: true) */
+  // Whether to use exponential backoff (default: true)
   exponentialBackoff?: boolean
-  /** Maximum delay between retries in milliseconds (default: 10000) */
+  // Maximum delay between retries in milliseconds (default: 10000)
   maxDelay?: number
-  /** Function to determine if an error should trigger a retry */
+  // Function to determine if an error should trigger a retry
   shouldRetry?: (error: Error, attempt: number) => boolean
 }
 
-/**
- * Default retry options
- */
+// Default retry options
 const DEFAULT_RETRY_OPTIONS: Required<RetryOptions> = {
   maxAttempts: 3,
   baseDelay: 1000,
@@ -29,9 +25,7 @@ const DEFAULT_RETRY_OPTIONS: Required<RetryOptions> = {
   }
 }
 
-/**
- * Executes an async function with retry logic
- */
+// Executes an async function with retry logic
 export async function withRetry<T>(
   operation: () => Promise<T>,
   options: RetryOptions = {}
@@ -70,9 +64,7 @@ export async function withRetry<T>(
   throw lastError
 }
 
-/**
- * Creates a retryable version of an async function
- */
+// Creates a retryable version of an async function
 export function createRetryableFunction<TArgs extends unknown[], TReturn>(
   fn: (...args: TArgs) => Promise<TReturn>,
   options: RetryOptions = {}
@@ -82,9 +74,7 @@ export function createRetryableFunction<TArgs extends unknown[], TReturn>(
   }
 }
 
-/**
- * Delays execution for the specified number of milliseconds
- */
+// Delays execution for the specified number of milliseconds
 export function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
