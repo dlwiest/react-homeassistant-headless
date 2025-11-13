@@ -72,9 +72,7 @@ export function mockServiceCall(
   return { state: newState, attributes: newAttributes }
 }
 
-/**
- * Mock light-specific services for testing.
- */
+// Mock light-specific services for testing
 function mockLightService(
   service: string,
   currentState: string,
@@ -284,9 +282,7 @@ function mockClimateService(
   }
 }
 
-/**
- * Mock basic services for unknown domains in testing.
- */
+// Mock basic services for unknown domains in testing
 function mockBasicService(
   service: string,
   currentState: string,

@@ -19,6 +19,7 @@ export { useSwitch } from './hooks/useSwitch'
 export { useCover } from './hooks/useCover'
 export { useFan } from './hooks/useFan'
 export { useLock } from './hooks/useLock'
+export { useMediaPlayer } from './hooks/useMediaPlayer'
 
 // Headless components
 export { default as Light } from './components/Light'
@@ -31,6 +32,7 @@ export { default as Cover } from './components/Cover'
 export { default as Entity } from './components/Entity'
 export { default as Fan } from './components/Fan'
 export { default as Lock } from './components/Lock'
+export { MediaPlayer } from './components/MediaPlayer'
 
 // Types
 export type { 
@@ -67,9 +69,10 @@ export type {
 } from './types/auth'
 export type { SwitchState } from './hooks/useSwitch'
 export type { CoverState } from './hooks/useCover'
+export type { MediaPlayerState, MediaPlayerAttributes, MediaPlayerCapabilities } from './types'
 
 // Constants
-export { LightFeatures, FanFeatures, ClimateFeatures, LockFeatures, TodoFeatures } from './types'
+export { LightFeatures, FanFeatures, ClimateFeatures, LockFeatures, TodoFeatures, MediaPlayerFeatures } from './types'
 
 
 // Store (for advanced usage)

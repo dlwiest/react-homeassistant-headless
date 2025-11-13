@@ -35,7 +35,7 @@ import {
   Smartphone,
   Window
 } from '@mui/icons-material'
-import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard } from './components/cards'
 
 // Create MUI theme
 const theme = createTheme({
@@ -375,6 +375,62 @@ const mockData = {
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-23', parent_id: null, user_id: null }
   },
+
+  // Media Players
+  'media_player.living_room_speaker': {
+    entity_id: 'media_player.living_room_speaker',
+    state: 'playing',
+    attributes: {
+      friendly_name: 'Living Room Speaker',
+      media_title: 'Bohemian Rhapsody',
+      media_artist: 'Queen',
+      media_album_name: 'A Night at the Opera',
+      media_duration: 354,
+      media_position: 120,
+      volume_level: 0.65,
+      is_volume_muted: false,
+      source: 'Spotify',
+      source_list: ['Spotify', 'Bluetooth', 'AirPlay', 'Line In'],
+      supported_features: 20925, // Play, Pause, Volume, Seek, Source selection
+      app_name: 'Spotify'
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-24', parent_id: null, user_id: null }
+  },
+  'media_player.kitchen_display': {
+    entity_id: 'media_player.kitchen_display',
+    state: 'paused',
+    attributes: {
+      friendly_name: 'Kitchen Display',
+      media_title: 'Morning News',
+      media_artist: 'NPR',
+      volume_level: 0.4,
+      is_volume_muted: false,
+      source: 'Radio',
+      source_list: ['Radio', 'Bluetooth', 'USB'],
+      supported_features: 20925,
+      app_name: 'NPR One'
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-25', parent_id: null, user_id: null }
+  },
+  'media_player.bedroom_tv': {
+    entity_id: 'media_player.bedroom_tv',
+    state: 'off',
+    attributes: {
+      friendly_name: 'Bedroom TV',
+      volume_level: 0.3,
+      is_volume_muted: true,
+      source: 'HDMI 1',
+      source_list: ['HDMI 1', 'HDMI 2', 'Netflix', 'YouTube'],
+      supported_features: 20925
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-26', parent_id: null, user_id: null }
+  },
 }
 
 const ConnectionStatus = () => {
@@ -530,6 +586,23 @@ const Dashboard = () => {
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <SwitchCard entityId="outdoor_lights" name="Outdoor Lights" icon="🏠" />
+          </Grid>
+        </Grid>
+      </Box>
+
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h5" component="h2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          🎵 Media Players
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} sm={6} md={4}>
+            <MediaPlayerCard entityId="media_player.living_room_speaker" name="Living Room Speaker" />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <MediaPlayerCard entityId="media_player.kitchen_display" name="Kitchen Display" />
+          </Grid>
+          <Grid item xs={12} sm={6} md={4}>
+            <MediaPlayerCard entityId="media_player.bedroom_tv" name="Bedroom TV" />
           </Grid>
         </Grid>
       </Box>
