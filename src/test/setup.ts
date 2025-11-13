@@ -4,7 +4,7 @@ import '@testing-library/jest-dom'
 // Suppress React act warnings in tests - these are expected for our async state updates
 const originalError = console.error
 beforeAll(() => {
-  console.error = (...args: any[]) => {
+  console.error = (...args: unknown[]) => {
     if (
       typeof args[0] === 'string' &&
       args[0].includes('Warning: An update to') &&
