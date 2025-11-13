@@ -24,7 +24,7 @@ npm install hass-react
 ## Quick Example
 
 ```jsx
-import { HAProvider, Light } from 'hass-react'
+import { HAProvider, Light, MediaPlayer } from 'hass-react'
 
 function App() {
   return (
@@ -34,7 +34,7 @@ function App() {
           <div>
             <h3>Living Room Light</h3>
             <button onClick={toggle}>
-              {isOn ? '💡 ON' : '⚫ OFF'}
+              {isOn ? 'ON' : 'OFF'}
             </button>
             {isOn && (
               <input
@@ -48,6 +48,24 @@ function App() {
           </div>
         )}
       </Light>
+      
+      <MediaPlayer entityId="media_player.living_room_speaker">
+        {({ isPlaying, mediaTitle, toggle, volumeLevel, setVolume }) => (
+          <div>
+            <h3>Living Room Speaker</h3>
+            <p>{mediaTitle || 'No media playing'}</p>
+            <button onClick={toggle}>
+              {isPlaying ? 'PAUSE' : 'PLAY'}
+            </button>
+            <input
+              type="range"
+              min="0" max="1" step="0.01"
+              value={volumeLevel}
+              onChange={(e) => setVolume(parseFloat(e.target.value))}
+            />
+          </div>
+        )}
+      </MediaPlayer>
     </HAProvider>
   )
 }
@@ -207,6 +225,23 @@ The logout function:
 </Cover>
 ```
 
+### Media Players
+```jsx
+<MediaPlayer entityId="media_player.living_room_speaker">
+  {({ 
+    isPlaying, isPaused, isOn, volumeLevel, isMuted,
+    mediaTitle, mediaArtist, mediaAlbum, mediaDuration, mediaPosition,
+    currentSource, sourceList, appName,
+    supportsPlay, supportsPause, supportsVolumeSet, supportsVolumeMute, 
+    supportsSeek, supportsSelectSource,
+    play, pause, stop, toggle, setVolume, toggleMute, mute, unmute,
+    seek, selectSource, playMedia
+  }) => (
+    // Your media player controls
+  )}
+</MediaPlayer>
+```
+
 ### Binary Sensors
 ```jsx
 <BinarySensor entityId="binary_sensor.front_door">
@@ -236,7 +271,7 @@ The logout function:
 If you prefer hooks over render props:
 
 ```jsx
-import { useLight, useClimate, useFan, useLock, useBinarySensor, useTodo } from 'hass-react'
+import { useLight, useClimate, useFan, useLock, useBinarySensor, useMediaPlayer, useTodo } from 'hass-react'
 
 function MyComponent() {
   const light = useLight('light.living_room')
@@ -244,6 +279,7 @@ function MyComponent() {
   const fan = useFan('fan.bedroom_ceiling')
   const lock = useLock('lock.front_door')
   const doorSensor = useBinarySensor('binary_sensor.front_door')
+  const mediaPlayer = useMediaPlayer('media_player.living_room_speaker')
   const todoList = useTodo('todo.shopping_list')
   
   return (
@@ -266,6 +302,14 @@ function MyComponent() {
       </div>
       <div>
         Door Sensor: {doorSensor.isOn ? 'OPEN' : 'CLOSED'}
+      </div>
+      <div>
+        <button onClick={mediaPlayer.toggle}>
+          Media: {mediaPlayer.isPlaying ? 'PLAYING' : 'STOPPED'}
+        </button>
+        {mediaPlayer.mediaTitle && (
+          <span> - {mediaPlayer.mediaTitle}</span>
+        )}
       </div>
       <div>
         Todo Items: {todoList.itemCount} ({todoList.items.filter(i => i.status === 'completed').length} completed)
@@ -469,6 +513,88 @@ function ConnectionIndicator() {
 </Light>
 ```
 
+### Media Player Control (Detailed Example)
+
+```jsx
+<MediaPlayer entityId="media_player.living_room_speaker">
+  {({ 
+    isPlaying, isPaused, isOn, volumeLevel, isMuted,
+    mediaTitle, mediaArtist, mediaDuration, mediaPosition,
+    currentSource, sourceList,
+    supportsPlay, supportsPause, supportsVolumeSet, supportsVolumeMute, 
+    supportsSeek, supportsSelectSource,
+    play, pause, toggle, setVolume, toggleMute, seek, selectSource
+  }) => (
+    <div>
+      <div>
+        <h3>{mediaTitle || 'No Media'}</h3>
+        {mediaArtist && <p>by {mediaArtist}</p>}
+      </div>
+      
+      <div>
+        <button onClick={play} disabled={!supportsPlay || isPlaying}>
+          Play
+        </button>
+        <button onClick={pause} disabled={!supportsPause || !isPlaying}>
+          Pause
+        </button>
+        <button onClick={toggle}>
+          {isPlaying ? 'Pause' : 'Play'} Toggle
+        </button>
+      </div>
+      
+      {supportsVolumeSet && (
+        <div>
+          <label>Volume: {Math.round(volumeLevel * 100)}%</label>
+          <input
+            type="range"
+            min="0" max="1" step="0.01"
+            value={volumeLevel}
+            onChange={(e) => setVolume(parseFloat(e.target.value))}
+          />
+          {supportsVolumeMute && (
+            <button onClick={toggleMute}>
+              {isMuted ? 'Unmute' : 'Mute'}
+            </button>
+          )}
+        </div>
+      )}
+      
+      {supportsSeek && mediaDuration && (
+        <div>
+          <input
+            type="range"
+            min="0" max={mediaDuration}
+            value={mediaPosition || 0}
+            onChange={(e) => seek(parseInt(e.target.value))}
+          />
+          <span>
+            {Math.floor((mediaPosition || 0) / 60)}:
+            {String((mediaPosition || 0) % 60).padStart(2, '0')} / 
+            {Math.floor(mediaDuration / 60)}:
+            {String(mediaDuration % 60).padStart(2, '0')}
+          </span>
+        </div>
+      )}
+      
+      {supportsSelectSource && sourceList.length > 0 && (
+        <div>
+          <label>Source:</label>
+          <select
+            value={currentSource || ''}
+            onChange={(e) => selectSource(e.target.value)}
+          >
+            {sourceList.map(source => (
+              <option key={source} value={source}>{source}</option>
+            ))}
+          </select>
+        </div>
+      )}
+    </div>
+  )}
+</MediaPlayer>
+```
+
 ### All Components
 - `<HAProvider>` - WebSocket connection provider
 - `<Light>` - Light controls with brightness, color, effects
@@ -479,6 +605,7 @@ function ConnectionIndicator() {
 - `<Fan>` - Fan controls with speed, presets, oscillation, direction
 - `<Lock>` - Lock controls with lock, unlock, open
 - `<Cover>` - Cover/blind controls
+- `<MediaPlayer>` - Media player controls with playback, volume, source selection
 - `<Todo>` - Todo list management with add, remove, toggle, and clear operations
 - `<Entity>` - Generic entity component
 
@@ -492,6 +619,7 @@ function ConnectionIndicator() {
 - `useFan(entityId)` - Fan entity hook
 - `useLock(entityId)` - Lock entity hook
 - `useCover(entityId)` - Cover entity hook
+- `useMediaPlayer(entityId)` - Media player entity hook
 - `useTodo(entityId)` - Todo list hook
 - `useEntity(entityId)` - Generic entity hook
 - `useEntityGroup(entityIds)` - Multiple entities hook

@@ -399,6 +399,170 @@ body, html {
   }
 }
 
+/* Media Player Styles */
+.media-info {
+  margin-bottom: 1rem;
+  min-height: 60px;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 6px;
+}
+
+.media-title {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.media-artist {
+  color: #64748b;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.media-album {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.no-media {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.progress-container {
+  margin-bottom: 1rem;
+}
+
+.progress-slider {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.progress-time {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.playback-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.control-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+}
+
+.control-btn.primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.control-btn.primary:hover:not(:disabled) {
+  background: #2563eb;
+}
+
+.control-btn.secondary {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.control-btn.secondary:hover:not(:disabled) {
+  background: #d1d5db;
+}
+
+.control-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.volume-control {
+  margin-bottom: 1rem;
+}
+
+.volume-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.volume-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1.25rem;
+  padding: 0.25rem;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.volume-btn:hover {
+  background: #f1f5f9;
+}
+
+.volume-slider {
+  flex: 1;
+}
+
+.volume-percent {
+  font-size: 0.875rem;
+  color: #64748b;
+  min-width: 35px;
+  text-align: right;
+}
+
+.source-control {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.source-control label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  min-width: 55px;
+}
+
+.source-select {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.source-select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px #dbeafe;
+}
+
 /* Disabled state for disconnected entities */
 button:disabled, input:disabled, select:disabled {
   opacity: 0.6;
