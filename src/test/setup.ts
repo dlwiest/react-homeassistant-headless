@@ -1,4 +1,4 @@
-import { beforeAll, beforeEach, afterEach, vi } from 'vitest'
+import { beforeAll, afterEach, vi } from 'vitest'
 import '@testing-library/jest-dom'
 
 // Suppress React act warnings in tests - these are expected for our async state updates
