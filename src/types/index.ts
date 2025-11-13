@@ -1,6 +1,8 @@
 export interface HAConfig {
   url: string
   token?: string
+  authMode?: 'token' | 'oauth' | 'auto'
+  redirectUri?: string
   mockMode?: boolean
   mockData?: Record<string, EntityState>
   options?: {

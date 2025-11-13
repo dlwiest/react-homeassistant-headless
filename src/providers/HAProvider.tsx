@@ -1,10 +1,12 @@
 import { createContext, useContext, useEffect, useReducer, useCallback, useRef, useState, ReactNode } from 'react'
-import { createConnection, createLongLivedTokenAuth, Connection } from 'home-assistant-js-websocket'
+import { Connection } from 'home-assistant-js-websocket'
 import { useStore } from '../services/entityStore'
 import { createMockConnection } from '../services/mockConnection'
+import { createAuthenticatedConnection } from '../services/auth'
+// import { useAuth } from '../hooks/useAuth'
 import type { HAConfig, ConnectionStatus, EntityState } from '../types'
 
-// Valid conneciton states
+// Valid connection states
 type ConnectionState =
   | { type: 'idle'; connection: null; error: null; retryCount: 0 }
   | { type: 'connecting'; connection: null; error: null; retryCount: number }
@@ -112,12 +114,23 @@ interface HAProviderProps {
   children: ReactNode
   url: string
   token?: string
+  authMode?: 'token' | 'oauth' | 'auto'
+  redirectUri?: string
   mockMode?: boolean
   mockData?: Record<string, EntityState>
   options?: HAConfig['options']
 }
 
-const HAProvider = ({ children, url, token, mockMode = false, mockData, options = {} }: HAProviderProps) => {
+const HAProvider = ({ 
+  children, 
+  url, 
+  token, 
+  authMode = 'auto', 
+  redirectUri, 
+  mockMode = false, 
+  mockData, 
+  options = {} 
+}: HAProviderProps) => {
   const [state, dispatch] = useReducer(connectionReducer, {
     type: 'idle',
     connection: null,
@@ -138,6 +151,9 @@ const HAProvider = ({ children, url, token, mockMode = false, mockData, options 
     }
   })()
 
+  // Auth state management (for future use with auth integration)
+  // const auth = useAuth(mockMode ? null : url, authMode)
+
   // Development warnings for configuration issues
   useEffect(() => {
     if (!mockMode) {
@@ -147,13 +163,20 @@ const HAProvider = ({ children, url, token, mockMode = false, mockData, options 
         console.warn(`HAProvider: url "${url}" should start with http://, https://, ws://, or wss://`)
       }
       
-      if (!token) {
-        console.warn('HAProvider: token prop is required when not in mock mode. Create a long-lived access token in Home Assistant.')
+      // Only warn about missing token if using token auth mode
+      const effectiveAuthMode = authMode === 'auto' ? (token ? 'token' : 'oauth') : authMode
+      if (effectiveAuthMode === 'token' && !token) {
+        console.warn('HAProvider: token prop is required when using token authentication. Create a long-lived access token in Home Assistant or use OAuth mode.')
       }
-    } else if (!mockData) {
-      console.warn('HAProvider: mockMode is enabled but no mockData provided. Entities will have empty state.')
+    } else {
+      if (!mockData) {
+        console.warn('HAProvider: mockMode is enabled but no mockData provided. Entities will have empty state.')
+      }
+      if (token) {
+        console.warn('HAProvider: token prop provided in mock mode is unnecessary and will be ignored.')
+      }
     }
-  }, [url, token, mockMode, mockData])
+  }, [url, token, mockMode, mockData, authMode])
 
   // Async connection function
   const attemptConnection = useCallback(async () => {
@@ -187,14 +210,18 @@ const HAProvider = ({ children, url, token, mockMode = false, mockData, options 
       return
     }
 
-    if (!url || !token) {
-      dispatch({ type: 'CONNECTION_ERROR', error: new Error('URL and token are required') })
+    if (!url) {
+      dispatch({ type: 'CONNECTION_ERROR', error: new Error('URL is required') })
       return
     }
 
     try {
-      const auth = createLongLivedTokenAuth(url, token)
-      const conn = await createConnection({ auth })
+      const conn = await createAuthenticatedConnection({
+        hassUrl: url,
+        token,
+        authMode,
+        redirectUri
+      })
 
       // Set up event listeners
       conn.addEventListener('disconnected', () => {
@@ -244,7 +271,7 @@ const HAProvider = ({ children, url, token, mockMode = false, mockData, options 
       console.error(helpfulMessage)
       dispatch({ type: 'CONNECTION_ERROR', error })
     }
-  }, [url, token, mockMode, mockData, setStoreConnection])
+  }, [url, token, authMode, redirectUri, mockMode, mockData, setStoreConnection])
 
   // Start a connection attempt
   const connect = useCallback(() => {
@@ -348,7 +375,7 @@ const HAProvider = ({ children, url, token, mockMode = false, mockData, options 
                    options.autoReconnect !== false && 
                    !!nextRetryIn,
     lastConnectedAt,
-    config: { url, token, mockMode, mockData, options },
+    config: { url, token, authMode, redirectUri, mockMode, mockData, options },
   }
 
   return <HAContext.Provider value={contextValue}>{children}</HAContext.Provider>

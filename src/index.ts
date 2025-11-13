@@ -2,6 +2,9 @@
 export { default as HAProvider } from './providers/HAProvider'
 export { useHAConnection } from './providers/HAProvider'
 
+// Auth
+export { useAuth } from './hooks/useAuth'
+
 // Base hooks
 export { useEntity } from './hooks/useEntity'
 export { useEntityGroup } from './hooks/useEntityGroup'
@@ -56,6 +59,12 @@ export type {
   ConnectionStatus, 
   BaseEntityHook
 } from './types'
+export type {
+  AuthState,
+  AuthError,
+  AuthConfig,
+  StoredAuthData
+} from './types/auth'
 export type { SwitchState } from './hooks/useSwitch'
 export type { CoverState } from './hooks/useCover'
 

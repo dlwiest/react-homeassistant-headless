@@ -7,6 +7,7 @@ react-hass is a React library built for people seeking full creative control ove
 
 ## Features
 
+- **OAuth 2.0 & Long-lived Token authentication** - Flexible authentication with auto-detection
 - **Full TypeScript support** - Complete type definitions for all entities and their properties
 - **Automatic reconnection** - Handles connection drops and network issues transparently
 - **Comprehensive error handling** - Standardized error types for entity availability and service call failures
@@ -18,6 +19,43 @@ react-hass is a React library built for people seeking full creative control ove
 
 ```bash
 npm install @dlwiest/hass-react
+```
+
+## Authentication
+
+hass-react supports both OAuth 2.0 and long-lived token authentication with automatic detection:
+
+### OAuth 2.0 (Recommended)
+OAuth provides secure, user-friendly authentication without exposing tokens:
+
+```jsx
+<HAProvider url="http://homeassistant.local:8123" authMode="oauth">
+  <YourApp />
+</HAProvider>
+```
+
+### Long-lived Token
+Traditional token-based authentication:
+
+```jsx
+<HAProvider url="http://homeassistant.local:8123" token="your-long-lived-access-token">
+  <YourApp />
+</HAProvider>
+```
+
+### Auto-detection (Default)
+Automatically chooses OAuth when no token is provided, or token auth when a token is present:
+
+```jsx
+// Uses OAuth if no token provided
+<HAProvider url="http://homeassistant.local:8123">
+  <YourApp />
+</HAProvider>
+
+// Uses token auth if token provided  
+<HAProvider url="http://homeassistant.local:8123" token="your-token">
+  <YourApp />
+</HAProvider>
 ```
 
 ## Quick Example
@@ -238,7 +276,7 @@ function AllLights() {
 ## Configuration
 
 ```jsx
-<HAProvider url="ws://homeassistant.local:8123" token="your-token">
+<HAProvider url="http://homeassistant.local:8123">
   <YourApp />
 </HAProvider>
 ```
@@ -246,8 +284,7 @@ function AllLights() {
 Connection options and status monitoring:
 ```jsx
 <HAProvider
-  url="ws://homeassistant.local:8123"
-  token="your-token"
+  url="http://homeassistant.local:8123"
   options={{
     reconnectInterval: 5000,
     reconnectAttempts: 10,
@@ -296,8 +333,7 @@ Configure retry behavior for your entire application:
 
 ```jsx
 <HAProvider
-  url="ws://homeassistant.local:8123"
-  token="your-token"
+  url="http://homeassistant.local:8123"
   options={{
     // Connection retry (for initial connection)
     reconnectInterval: 5000,
@@ -423,6 +459,7 @@ function ConnectionIndicator() {
 - `<Entity>` - Generic entity component
 
 ### All Hooks
+- `useAuth(hassUrl, authMode)` - Authentication state hook
 - `useLight(entityId)` - Light entity hook
 - `useClimate(entityId)` - Climate entity hook
 - `useSwitch(entityId)` - Switch entity hook
