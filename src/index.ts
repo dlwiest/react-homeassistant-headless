@@ -35,6 +35,8 @@ export { default as Fan } from './components/Fan'
 export { default as Lock } from './components/Lock'
 export { MediaPlayer } from './components/MediaPlayer'
 export { default as Camera } from './components/Camera'
+export type { StreamPlayerProps } from './components/Camera/StreamPlayer'
+export type { ImageProps as CameraImageProps } from './components/Camera/Image'
 
 // Types
 export type { 
@@ -71,7 +73,7 @@ export type {
 } from './types/auth'
 export type { SwitchState } from './hooks/useSwitch'
 export type { CoverState } from './hooks/useCover'
-export type { MediaPlayerState, MediaPlayerAttributes, MediaPlayerCapabilities, CameraState, CameraAttributes, CameraCapabilities } from './types'
+export type { MediaPlayerState, MediaPlayerAttributes, MediaPlayerCapabilities, CameraState, CameraAttributes, CameraCapabilities, StreamState, StreamOptions, StreamType } from './types'
 
 // Constants
 export { LightFeatures, FanFeatures, ClimateFeatures, LockFeatures, TodoFeatures, MediaPlayerFeatures, CameraFeatures } from './types'

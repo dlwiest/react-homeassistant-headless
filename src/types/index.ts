@@ -438,18 +438,42 @@ export interface CameraAttributes {
   supported_features?: number
 }
 
+export type StreamType = 'hls' | 'webrtc' | 'mjpeg'
+
+export interface StreamState {
+  isLoading: boolean
+  isActive: boolean
+  error: Error | null
+  url: string | null
+  type: StreamType | null
+}
+
+export interface StreamOptions {
+  type?: StreamType
+  lowLatency?: boolean
+  fallback?: boolean
+}
+
 export interface CameraCapabilities {
   supportsOnOff: boolean
   supportsStream: boolean
 }
 
-export interface CameraState extends BaseEntityHook<CameraAttributes>, CameraCapabilities {
+export interface CameraStreamMethods {
+  getStreamUrl: (options?: StreamOptions) => Promise<string | null>
+  startStream: (options?: StreamOptions) => Promise<void>
+  stopStream: () => Promise<void>
+  retryStream: () => Promise<void>
+}
+
+export interface CameraState extends BaseEntityHook<CameraAttributes>, CameraCapabilities, CameraStreamMethods {
   isOn: boolean
   isRecording: boolean
   isStreaming: boolean
   isIdle: boolean
   motionDetectionEnabled: boolean
   imageUrl: string | null
+  streamState: StreamState
   accessToken?: string
   brand?: string
   model?: string

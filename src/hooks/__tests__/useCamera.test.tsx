@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, act } from '@testing-library/react'
+import { renderHook, act, waitFor } from '@testing-library/react'
 import { CameraFeatures } from '../../types'
 import { createMockEntity } from '../../test/utils'
 import { FeatureNotSupportedError } from '../../utils/errors'
@@ -583,6 +583,379 @@ describe('useCamera', () => {
       expect(result.current.playStream).toBe(firstCallbacks.playStream)
       expect(result.current.record).toBe(firstCallbacks.record)
       expect(result.current.refreshImage).toBe(firstCallbacks.refreshImage)
+    })
+  })
+
+  describe('Streaming Functionality', () => {
+    const mockConnection = {
+      sendMessagePromise: vi.fn()
+    }
+
+    beforeEach(() => {
+      mockUseHAConnection.mockReturnValue({
+        config: { url: 'http://homeassistant.local:8123' },
+        connection: mockConnection
+      })
+    })
+
+    describe('getStreamUrl', () => {
+      it('should get HLS stream URL', async () => {
+        mockConnection.sendMessagePromise.mockResolvedValue({
+          url: '/api/hls/camera.test/playlist.m3u8'
+        })
+
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: CameraFeatures.SUPPORT_STREAM
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        const url = await result.current.getStreamUrl({ type: 'hls' })
+
+        expect(url).toContain('/api/hls/camera.test/playlist.m3u8')
+        expect(mockConnection.sendMessagePromise).toHaveBeenCalledWith({
+          type: 'camera/stream',
+          entity_id: 'camera.test'
+        })
+      })
+
+      it('should get MJPEG stream URL', async () => {
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: CameraFeatures.SUPPORT_STREAM,
+          access_token: 'test-token-123'
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        const url = await result.current.getStreamUrl({ type: 'mjpeg' })
+
+        expect(url).toContain('/api/camera_proxy_stream/camera.test')
+        expect(url).toContain('token=test-token-123')
+      })
+
+      it('should convert relative HLS URLs to absolute', async () => {
+        mockConnection.sendMessagePromise.mockResolvedValue({
+          url: '/api/hls/camera.test/playlist.m3u8'
+        })
+
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: CameraFeatures.SUPPORT_STREAM
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        const url = await result.current.getStreamUrl({ type: 'hls' })
+
+        expect(url).toBe('http://homeassistant.local:8123/api/hls/camera.test/playlist.m3u8')
+      })
+
+      it('should handle absolute HLS URLs', async () => {
+        mockConnection.sendMessagePromise.mockResolvedValue({
+          url: 'https://external.com/stream/playlist.m3u8'
+        })
+
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: CameraFeatures.SUPPORT_STREAM
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        const url = await result.current.getStreamUrl({ type: 'hls' })
+
+        expect(url).toBe('https://external.com/stream/playlist.m3u8')
+      })
+
+      it('should throw error for WebRTC', async () => {
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: CameraFeatures.SUPPORT_STREAM
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        await expect(
+          result.current.getStreamUrl({ type: 'webrtc' })
+        ).rejects.toThrow('WebRTC streaming requires specialized setup')
+      })
+
+      it('should throw error when stream support is missing', async () => {
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: 0
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        await expect(
+          result.current.getStreamUrl({ type: 'hls' })
+        ).rejects.toThrow(FeatureNotSupportedError)
+      })
+
+      it('should throw error when no connection available', async () => {
+        mockUseHAConnection.mockReturnValue({
+          config: { url: 'http://homeassistant.local:8123' },
+          connection: null
+        })
+
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: CameraFeatures.SUPPORT_STREAM
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        await expect(
+          result.current.getStreamUrl({ type: 'hls' })
+        ).rejects.toThrow('No connection available')
+      })
+    })
+
+    describe('startStream', () => {
+      it('should start HLS stream successfully', async () => {
+        mockConnection.sendMessagePromise.mockResolvedValue({
+          url: '/api/hls/camera.test/playlist.m3u8'
+        })
+
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: CameraFeatures.SUPPORT_STREAM
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        await act(async () => {
+          await result.current.startStream({ type: 'hls' })
+        })
+
+        expect(result.current.streamState.isActive).toBe(true)
+        expect(result.current.streamState.type).toBe('hls')
+        expect(result.current.streamState.url).toContain('/api/hls/camera.test')
+        expect(result.current.streamState.error).toBeNull()
+        expect(result.current.streamState.isLoading).toBe(false)
+      })
+
+      it('should start MJPEG stream successfully', async () => {
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: CameraFeatures.SUPPORT_STREAM,
+          access_token: 'test-token-123'
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        await act(async () => {
+          await result.current.startStream({ type: 'mjpeg' })
+        })
+
+        expect(result.current.streamState.isActive).toBe(true)
+        expect(result.current.streamState.type).toBe('mjpeg')
+        expect(result.current.streamState.url).toContain('/api/camera_proxy_stream/camera.test')
+      })
+
+      it('should set loading state while starting', async () => {
+        let resolveStream: any
+        const streamPromise = new Promise(resolve => {
+          resolveStream = resolve
+        })
+
+        mockConnection.sendMessagePromise.mockReturnValue(streamPromise)
+
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: CameraFeatures.SUPPORT_STREAM
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        let startPromise: Promise<void>
+        act(() => {
+          startPromise = result.current.startStream({ type: 'hls' })
+        })
+
+        // Should be loading
+        expect(result.current.streamState.isLoading).toBe(true)
+        expect(result.current.streamState.isActive).toBe(false)
+
+        // Resolve the stream
+        act(() => {
+          resolveStream({ url: '/stream' })
+        })
+
+        await act(async () => {
+          await startPromise!
+        })
+
+        // Should be active now
+        expect(result.current.streamState.isLoading).toBe(false)
+        expect(result.current.streamState.isActive).toBe(true)
+      })
+
+      it('should handle stream errors', async () => {
+        const error = new Error('Stream not available')
+        mockConnection.sendMessagePromise.mockRejectedValue(error)
+
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: CameraFeatures.SUPPORT_STREAM
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        let caughtError: any
+        try {
+          await act(async () => {
+            await result.current.startStream({ type: 'hls' })
+          })
+        } catch (e) {
+          caughtError = e
+        }
+
+        expect(caughtError).toBeTruthy()
+        // Error message is enhanced by our error handling
+        expect(caughtError.message).toContain('streaming')
+        expect(result.current.streamState.isActive).toBe(false)
+        expect(result.current.streamState.isLoading).toBe(false)
+      })
+
+      it('should default to HLS when type not specified', async () => {
+        mockConnection.sendMessagePromise.mockResolvedValue({
+          url: '/stream'
+        })
+
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: CameraFeatures.SUPPORT_STREAM
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        await act(async () => {
+          await result.current.startStream()
+        })
+
+        expect(mockConnection.sendMessagePromise).toHaveBeenCalledWith({
+          type: 'camera/stream',
+          entity_id: 'camera.test'
+        })
+      })
+    })
+
+    describe('stopStream', () => {
+      it('should stop active stream', async () => {
+        mockConnection.sendMessagePromise.mockResolvedValue({
+          url: '/stream'
+        })
+
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: CameraFeatures.SUPPORT_STREAM
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        // Start stream
+        await act(async () => {
+          await result.current.startStream({ type: 'hls' })
+        })
+
+        expect(result.current.streamState.isActive).toBe(true)
+
+        // Stop stream
+        await act(async () => {
+          await result.current.stopStream()
+        })
+
+        expect(result.current.streamState.isActive).toBe(false)
+        expect(result.current.streamState.url).toBeNull()
+        expect(result.current.streamState.type).toBeNull()
+        expect(result.current.streamState.error).toBeNull()
+      })
+
+      it('should be safe to call when no stream is active', async () => {
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: CameraFeatures.SUPPORT_STREAM
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        await act(async () => {
+          await result.current.stopStream()
+        })
+
+        expect(result.current.streamState.isActive).toBe(false)
+      })
+    })
+
+    describe('retryStream', () => {
+      it('should retry with previous stream type', async () => {
+        mockConnection.sendMessagePromise
+          .mockRejectedValueOnce(new Error('First attempt failed'))
+          .mockResolvedValueOnce({ url: '/stream' })
+
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: CameraFeatures.SUPPORT_STREAM
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        // First attempt fails
+        try {
+          await act(async () => {
+            await result.current.startStream({ type: 'hls' })
+          })
+        } catch (e) {
+          // Expected to throw
+        }
+
+        // Second attempt should work
+        await act(async () => {
+          await result.current.startStream({ type: 'hls' })
+        })
+
+        expect(result.current.streamState.isActive).toBe(true)
+        expect(result.current.streamState.type).toBe('hls')
+        expect(result.current.streamState.error).toBeNull()
+      })
+
+      it('should throw error when no previous stream to retry', async () => {
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: CameraFeatures.SUPPORT_STREAM
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        await expect(async () => {
+          await act(async () => {
+            await result.current.retryStream()
+          })
+        }).rejects.toThrow('No previous stream to retry')
+      })
+    })
+
+    describe('streamState management', () => {
+      it('should initialize with default state', () => {
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle'))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        expect(result.current.streamState).toEqual({
+          isLoading: false,
+          isActive: false,
+          error: null,
+          url: null,
+          type: null
+        })
+      })
+
+      it('should maintain separate state from entity state', async () => {
+        mockConnection.sendMessagePromise.mockResolvedValue({
+          url: '/stream'
+        })
+
+        mockUseEntity.mockReturnValue(createMockCameraEntity('test', 'idle', {
+          supported_features: CameraFeatures.SUPPORT_STREAM
+        }))
+
+        const { result } = renderHook(() => useCamera('camera.test'))
+
+        await act(async () => {
+          await result.current.startStream({ type: 'hls' })
+        })
+
+        expect(result.current.state).toBe('idle')  // Entity state unchanged
+        expect(result.current.streamState.isActive).toBe(true)  // Stream state changed
+      })
     })
   })
 })

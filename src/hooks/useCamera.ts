@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useEntity } from './useEntity'
 import { useHAConnection } from '../providers/HAProvider'
-import type { CameraState, CameraAttributes } from '../types'
+import type { CameraState, CameraAttributes, StreamState, StreamOptions } from '../types'
 import { CameraFeatures } from '../types'
 import { createDomainValidator } from '../utils/entityId'
 import { checkFeatures } from '../utils/features'
@@ -12,9 +12,18 @@ const validateCameraEntityId = createDomainValidator('camera', 'useCamera')
 export function useCamera(entityId: string): CameraState {
   const normalizedEntityId = validateCameraEntityId(entityId)
   const entity = useEntity<CameraAttributes>(normalizedEntityId)
-  const { config } = useHAConnection()
+  const { config, connection } = useHAConnection()
   const { attributes, state, callService } = entity
   const [imageRefreshKey, setImageRefreshKey] = useState(0)
+
+  // Streaming state management
+  const [streamState, setStreamState] = useState<StreamState>({
+    isLoading: false,
+    isActive: false,
+    error: null,
+    url: null,
+    type: null
+  })
 
   // Feature detection using bit flags
   const features = useMemo(() => {
@@ -108,6 +117,116 @@ export function useCamera(entityId: string): CameraState {
     await entity.refresh()
   }, [entity.refresh])
 
+  // Get stream URL for different streaming types
+  const getStreamUrl = useCallback(async (options: StreamOptions = {}): Promise<string | null> => {
+    if (!connection) {
+      throw new Error('No connection available')
+    }
+
+    if (!features.stream) {
+      throw new FeatureNotSupportedError(normalizedEntityId, 'streaming')
+    }
+
+    const streamType = options.type || 'hls'
+    
+    try {
+      if (streamType === 'hls') {
+        // Request HLS stream URL via WebSocket
+        const response = await connection.sendMessagePromise({
+          type: 'camera/stream',
+          entity_id: normalizedEntityId,
+        }) as { url?: string }
+
+        if (!response?.url) {
+          throw new Error('No HLS stream URL received. The stream integration may not be configured in Home Assistant.')
+        }
+        
+        // Convert relative URL to absolute URL
+        const baseUrl = config.url?.replace(/^ws:\/\//, 'http://').replace(/^wss:\/\//, 'https://').replace(/\/$/, '')
+        return response.url.startsWith('/') ? `${baseUrl}${response.url}` : response.url
+      }
+      
+      if (streamType === 'mjpeg') {
+        // Use camera proxy stream for MJPEG
+        if (!accessToken || !config.url) {
+          return null
+        }
+        const baseUrl = config.url.replace(/^ws:\/\//, 'http://').replace(/^wss:\/\//, 'https://').replace(/\/$/, '')
+        return `${baseUrl}/api/camera_proxy_stream/${normalizedEntityId}?token=${accessToken}`
+      }
+      
+      if (streamType === 'webrtc') {
+        // WebRTC requires more complex setup, return placeholder for now
+        throw new Error('WebRTC streaming requires specialized setup - use HLS for now')
+      }
+      
+      return null
+    } catch (error) {
+      console.error('Failed to get stream URL:', error)
+      // Enhance error message for common issues
+      if (error instanceof Error) {
+        if (error.message.includes('invalid_format') || error.message.includes('extra keys')) {
+          throw new Error('Camera streaming API error. Try MJPEG instead.')
+        }
+        if (streamType === 'hls' && (error.message.includes('not') || error.message.includes('No'))) {
+          throw new Error('HLS streaming not available. The stream integration may not be configured. Try MJPEG instead.')
+        }
+      }
+      throw error
+    }
+  }, [connection, features.stream, normalizedEntityId, accessToken, config.url])
+
+  // Start streaming
+  const startStream = useCallback(async (options: StreamOptions = {}) => {
+    const streamType = options.type || 'hls'
+    setStreamState(prev => ({ ...prev, isLoading: true, error: null }))
+
+    try {
+      const streamUrl = await getStreamUrl(options)
+      if (!streamUrl) {
+        throw new Error('Failed to obtain stream URL')
+      }
+
+      setStreamState({
+        isLoading: false,
+        isActive: true,
+        error: null,
+        url: streamUrl,
+        type: streamType
+      })
+    } catch (error) {
+      const streamError = error instanceof Error ? error : new Error(String(error))
+      setStreamState({
+        isLoading: false,
+        isActive: false,
+        error: streamError,
+        url: null,
+        type: streamType  // Keep the type so we can retry
+      })
+      throw streamError
+    }
+  }, [getStreamUrl])
+
+  // Stop streaming
+  const stopStream = useCallback(async () => {
+    setStreamState({
+      isLoading: false,
+      isActive: false,
+      error: null,
+      url: null,
+      type: null
+    })
+  }, [])
+
+  // Retry streaming with last options
+  const retryStream = useCallback(async () => {
+    if (!streamState.type) {
+      throw new Error('No previous stream to retry')
+    }
+    
+    await startStream({ type: streamState.type })
+  }, [startStream, streamState.type])
+
   return {
     ...entity,
     isOn,
@@ -116,6 +235,7 @@ export function useCamera(entityId: string): CameraState {
     isIdle,
     motionDetectionEnabled,
     imageUrl,
+    streamState,
     accessToken,
     brand: attributes.brand,
     model: attributes.model,
@@ -129,5 +249,9 @@ export function useCamera(entityId: string): CameraState {
     playStream,
     record,
     refreshImage,
+    getStreamUrl,
+    startStream,
+    stopStream,
+    retryStream,
   }
 }
