@@ -9,12 +9,12 @@ A React library for building custom Home Assistant interfaces. Headless componen
 ## Features
 
 - **Headless & Unstyled** - Works with any UI library or custom CSS
-- **Real-time Updates** - WebSocket connection with automatic reconnection
-- **Full TypeScript Support** - Complete type definitions for all entities
-- **OAuth & Token Auth** - Flexible authentication with auto-detection
-- **Error Handling** - Automatic retries and standardized error types
+- **Real-time Updates** - Fully managed WebSocket connection
+- **Full TypeScript Support** - Complete type definitions for all supported entities
+- **OAuth & Token Auth** - Flexible authentication with connection state tracking
+- **Error Handling** - Informative, standardized error types and (optional) automatic retry for network errors
 - **Mock Mode** - Develop and test without a real Home Assistant instance
-- **10+ Entity Types** - Lights, climate, media players, sensors, and more
+- **Most HA Entities Supported** - Lights, climate, media players, sensors, and more
 
 ## Installation
 
@@ -49,24 +49,6 @@ function App() {
           </div>
         )}
       </Light>
-      
-      <MediaPlayer entityId="media_player.living_room_speaker">
-        {({ isPlaying, mediaTitle, toggle, volumeLevel, setVolume }) => (
-          <div>
-            <h3>Living Room Speaker</h3>
-            <p>{mediaTitle || 'No media playing'}</p>
-            <button onClick={toggle}>
-              {isPlaying ? 'PAUSE' : 'PLAY'}
-            </button>
-            <input
-              type="range"
-              min="0" max="1" step="0.01"
-              value={volumeLevel}
-              onChange={(e) => setVolume(parseFloat(e.target.value))}
-            />
-          </div>
-        )}
-      </MediaPlayer>
     </HAProvider>
   )
 }
@@ -95,6 +77,7 @@ function App() {
 - **Locks** - Lock, unlock, and open functionality  
 - **Covers** - Blinds, garage doors, curtains
 - **Todo Lists** - Task management and shopping lists
+- **More on the Way!**
 
 [→ See all entity documentation](https://hass-react.com/docs/entities/light)
 
