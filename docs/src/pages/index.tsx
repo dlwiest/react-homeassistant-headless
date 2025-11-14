@@ -30,7 +30,7 @@ const features = [
   {
     title: 'Built-in State Management',
     icon: '📦',
-    description: 'No Redux or Context needed. Intelligent caching and state synchronization out of the box.',
+    description: 'No Redux or Context needed. Automatic state synchronization and WebSocket management out of the box.',
   },
   {
     title: 'Simple Service Calls',
@@ -71,8 +71,8 @@ function HeroSection() {
             <Link className={styles.primaryButton} to="/docs/intro">
               Get Started
             </Link>
-            <Link className={styles.secondaryButton} to="/docs/intro">
-              View Docs
+            <Link className={styles.secondaryButton} to="/docs/entities/light">
+              Browse Entities
             </Link>
           </div>
         </div>
@@ -173,8 +173,8 @@ function CTASection() {
             </Link>
             <Link
               className={styles.secondaryButton}
-              href="https://github.com/dlwiest/hass-react">
-              Read Documentation
+              to="/docs/entities/light">
+              Browse Entities
             </Link>
           </div>
         </div>

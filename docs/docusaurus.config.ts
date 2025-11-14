@@ -98,7 +98,7 @@ const config: Config = {
           title: 'hass-react',
           items: [
             {
-              label: 'React hooks for Home Assistant. Build custom interfaces with ease.',
+              label: 'React hooks for Home Assistant. Build custom interfaces with ease',
               href: '#',
             },
           ],

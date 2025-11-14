@@ -174,3 +174,19 @@
   flex: 0 0 30%;
   max-width: 30%;
 }
+
+/* Sidebar styling for better readability */
+.theme-doc-sidebar-container a,
+.theme-doc-sidebar-item-link,
+.theme-doc-sidebar-item-category .theme-doc-sidebar-item-link,
+.theme-doc-sidebar-item-category-level-1 .theme-doc-sidebar-item-link,
+.theme-doc-sidebar-item-category-level-2 .theme-doc-sidebar-item-link,
+.menu__link {
+  font-size: 0.875rem !important;
+  padding-right: 1rem !important;
+}
+
+.theme-doc-sidebar-item-category .theme-doc-sidebar-item-link,
+.menu__link--sublist {
+  font-weight: 600 !important;
+}
