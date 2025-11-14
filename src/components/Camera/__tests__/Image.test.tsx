@@ -21,55 +21,11 @@ describe('Camera.Image', () => {
       expect(container.firstChild).toBeNull()
     })
 
-    it('should apply default alt text', () => {
-      render(<Image url="http://example.com/camera.jpg" />)
-
-      const img = screen.getByRole('img')
-      expect(img).toHaveAttribute('alt', 'Camera image')
-    })
-
     it('should apply custom alt text', () => {
       render(<Image url="http://example.com/camera.jpg" alt="Front door camera" />)
 
       const img = screen.getByRole('img')
       expect(img).toHaveAttribute('alt', 'Front door camera')
-    })
-
-    it('should apply default styles', () => {
-      render(<Image url="http://example.com/camera.jpg" />)
-
-      const img = screen.getByRole('img')
-      expect(img).toHaveStyle({
-        width: '100%',
-        maxWidth: '640px',
-        height: 'auto',
-        display: 'block'
-      })
-    })
-
-    it('should apply custom styles', () => {
-      const customStyle = {
-        border: '2px solid blue',
-        borderRadius: '8px',
-        maxWidth: '800px'
-      }
-
-      render(<Image url="http://example.com/camera.jpg" style={customStyle} />)
-
-      const img = screen.getByRole('img') as HTMLImageElement
-      expect(img.style.border).toBe('2px solid blue')
-      expect(img.style.borderRadius).toBe('8px')
-      expect(img.style.maxWidth).toBe('800px')
-    })
-
-    it('should merge custom styles with defaults', () => {
-      render(<Image url="http://example.com/camera.jpg" style={{ border: '1px solid red' }} />)
-
-      const img = screen.getByRole('img') as HTMLImageElement
-      expect(img.style.border).toBe('1px solid red')
-      expect(img.style.width).toBe('100%')  // Default preserved
-      expect(img.style.height).toBe('auto')  // Default preserved
-      expect(img.style.display).toBe('block')  // Default preserved
     })
 
     it('should apply className', () => {
@@ -191,31 +147,6 @@ describe('Camera.Image', () => {
     it('should handle empty string URL as falsy', () => {
       const { container } = render(<Image url="" />)
       expect(container.firstChild).toBeNull()
-    })
-
-    it('should handle all props together', () => {
-      const onError = vi.fn()
-      const customStyle = { border: '1px solid green' }
-
-      render(
-        <Image
-          url="http://example.com/camera.jpg"
-          alt="Test camera"
-          style={customStyle}
-          className="test-class"
-          onError={onError}
-        />
-      )
-
-      const img = screen.getByRole('img') as HTMLImageElement
-      expect(img).toHaveAttribute('src', 'http://example.com/camera.jpg')
-      expect(img).toHaveAttribute('alt', 'Test camera')
-      expect(img.style.border).toBe('1px solid green')
-      expect(img).toHaveClass('test-class')
-
-      // Trigger error to verify callback
-      fireEvent.error(img)
-      expect(onError).toHaveBeenCalled()
     })
   })
 

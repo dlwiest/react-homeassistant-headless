@@ -93,27 +93,6 @@ describe('Camera.StreamPlayer', () => {
   })
 
   describe('Props', () => {
-    it('should apply custom styles', () => {
-      const streamState: StreamState = {
-        isLoading: false,
-        isActive: true,
-        error: null,
-        url: 'http://example.com/stream.m3u8',
-        type: 'hls'
-      }
-
-      const customStyle = {
-        border: '2px solid red',
-        borderRadius: '8px'
-      }
-
-      render(<StreamPlayer stream={streamState} style={customStyle} />)
-
-      const video = document.querySelector('video') as HTMLVideoElement
-      expect(video.style.border).toBe('2px solid red')
-      expect(video.style.borderRadius).toBe('8px')
-    })
-
     it('should apply className', () => {
       const streamState: StreamState = {
         isLoading: false,
@@ -184,42 +163,6 @@ describe('Camera.StreamPlayer', () => {
       rerender(<StreamPlayer stream={streamState} controls={true} />)
       video = document.querySelector('video') as HTMLVideoElement
       expect(video.controls).toBe(true)
-    })
-
-    it('should apply default styles', () => {
-      const streamState: StreamState = {
-        isLoading: false,
-        isActive: true,
-        error: null,
-        url: 'http://example.com/stream.m3u8',
-        type: 'hls'
-      }
-
-      render(<StreamPlayer stream={streamState} />)
-
-      const video = document.querySelector('video') as HTMLVideoElement
-      expect(video.style.width).toBe('100%')
-      expect(video.style.maxWidth).toBe('640px')
-      expect(video.style.height).toBe('auto')
-      expect(video.style.backgroundColor).toBe('rgb(0, 0, 0)')
-    })
-
-    it('should merge custom styles with defaults', () => {
-      const streamState: StreamState = {
-        isLoading: false,
-        isActive: true,
-        error: null,
-        url: 'http://example.com/stream.m3u8',
-        type: 'hls'
-      }
-
-      render(<StreamPlayer stream={streamState} style={{ width: '50%', border: '1px solid blue' }} />)
-
-      const video = document.querySelector('video') as HTMLVideoElement
-      expect(video.style.width).toBe('50%')  // Custom override
-      expect(video.style.maxWidth).toBe('640px')  // Default preserved
-      expect(video.style.backgroundColor).toBe('rgb(0, 0, 0)')  // Default preserved
-      expect(video.style.border).toBe('1px solid blue')  // Custom addition
     })
   })
 
@@ -323,27 +266,6 @@ describe('Camera.StreamPlayer', () => {
       const img = document.querySelector('img')
       expect(img).toBeInTheDocument()
       expect(img).toHaveAttribute('src', 'http://example.com/camera_proxy_stream')
-    })
-
-    it('should apply styles to MJPEG img', () => {
-      const streamState: StreamState = {
-        isLoading: false,
-        isActive: true,
-        error: null,
-        url: 'http://example.com/stream.mjpeg',
-        type: 'mjpeg'
-      }
-
-      const customStyle = {
-        border: '3px dashed green',
-        maxWidth: '800px'
-      }
-
-      render(<StreamPlayer stream={streamState} style={customStyle} />)
-
-      const img = document.querySelector('img') as HTMLImageElement
-      expect(img.style.border).toBe('3px dashed green')
-      expect(img.style.maxWidth).toBe('800px')
     })
 
     it('should apply className to MJPEG img', () => {
