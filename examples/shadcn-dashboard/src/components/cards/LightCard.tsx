@@ -4,8 +4,9 @@ import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription }
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
-import { Lightbulb, Palette, AlertTriangle, WifiOff, Thermometer } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { ConnectionIndicator } from '@/components/ui/connection-indicator'
+import { AlertTriangle, WifiOff } from 'lucide-react'
 import { ColorPicker } from '../controls/ColorPicker'
 import { ColorTempSlider } from '../controls/ColorTempSlider'
 
@@ -61,18 +62,15 @@ export const LightCard = ({ entityId, name }: LightCardProps) => {
           <Card className="h-full">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Lightbulb className={`h-5 w-5 ${light.isOn ? 'text-yellow-500' : 'text-muted-foreground'}`} />
-                  <div>
-                    <CardTitle className="text-lg">{name}</CardTitle>
-                    <CardDescription>
-                      {light.isConnected ? (light.isOn ? 'On' : 'Off') : 'Disconnected'}
-                    </CardDescription>
-                  </div>
+                <div>
+                  <CardTitle className="text-lg">{name}</CardTitle>
+                  <CardDescription>
+                    {light.isConnected ? (light.isOn ? 'On' : 'Off') : 'Disconnected'}
+                  </CardDescription>
                 </div>
                 <div className="flex items-center space-x-2">
                   {!light.isConnected && <WifiOff className="h-4 w-4 text-muted-foreground" />}
-                  <Switch 
+                  <Switch
                     checked={light.isOn}
                     onCheckedChange={() => handleAction(light.toggle, 'Toggle')}
                     disabled={!light.isConnected}
@@ -92,12 +90,12 @@ export const LightCard = ({ entityId, name }: LightCardProps) => {
             )}
             
             {light.isOn && light.isConnected && (
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-3">
                 {light.supportsBrightness && (
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span>Brightness</span>
-                      <span>{light.brightnessPercent}%</span>
+                      <span className="text-slate-400">Brightness</span>
+                      <span className="text-slate-300">{light.brightnessPercent}%</span>
                     </div>
                     <Slider
                       value={[light.brightness]}
@@ -113,44 +111,30 @@ export const LightCard = ({ entityId, name }: LightCardProps) => {
                 )}
 
                 {light.supportsRgb && (
-                  <div className="space-y-2">
-                    <ColorPicker
-                      color={light.rgbColor}
-                      onChange={(color) => handleAction(
-                        () => light.setRgbColor(color),
-                        'Set color'
-                      )}
-                    />
-                    {light.effect && light.effect !== 'off' && (
-                      <p className="text-xs text-muted-foreground italic">
-                        Color may be controlled by effect "{light.effect}"
-                      </p>
+                  <ColorPicker
+                    color={light.rgbColor}
+                    onChange={(color) => handleAction(
+                      () => light.setRgbColor(color),
+                      'Set color'
                     )}
-                  </div>
+                  />
                 )}
 
                 {light.supportsColorTemp && (
-                  <div className="space-y-2">
-                    <ColorTempSlider
-                      value={light.colorTemp}
-                      onChange={(temp) => handleAction(
-                        () => light.setColorTemp(temp),
-                        'Set temperature'
-                      )}
-                      min={light.attributes.min_mireds}
-                      max={light.attributes.max_mireds}
-                    />
-                    {light.effect && light.effect !== 'off' && light.colorTemp === undefined && (
-                      <p className="text-xs text-muted-foreground italic">
-                        Temperature not available during effect "{light.effect}"
-                      </p>
+                  <ColorTempSlider
+                    value={light.colorTemp}
+                    onChange={(temp) => handleAction(
+                      () => light.setColorTemp(temp),
+                      'Set temperature'
                     )}
-                  </div>
+                    min={light.attributes.min_mireds}
+                    max={light.attributes.max_mireds}
+                  />
                 )}
 
                 {light.supportsEffects && light.availableEffects.length > 0 && (
                   <div className="space-y-2">
-                    <label className="text-sm font-medium">Effect</label>
+                    <label className="text-sm text-slate-400">Effect</label>
                     <Select
                       value={(!light.effect || light.effect === 'off') ? 'none' : light.effect}
                       onValueChange={(value) => {
@@ -161,7 +145,7 @@ export const LightCard = ({ entityId, name }: LightCardProps) => {
                         )
                       }}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-slate-800 border-slate-600/50">
                         <SelectValue placeholder="Select an effect" />
                       </SelectTrigger>
                       <SelectContent>
@@ -178,20 +162,17 @@ export const LightCard = ({ entityId, name }: LightCardProps) => {
               </CardContent>
             )}
 
-            <CardFooter className="text-xs text-muted-foreground">
-              <div className="space-y-1">
-                <div>
-                  Features: {[
-                    light.supportsBrightness && 'Brightness',
-                    light.supportsRgb && 'RGB Color',
-                    light.supportsColorTemp && 'Color Temperature',
-                    light.supportsEffects && 'Effects'
-                  ].filter(Boolean).join(', ') || 'Basic On/Off'}
-                </div>
-                {!light.isConnected && (
-                  <div className="text-red-600">⚠️ Not connected to Home Assistant</div>
+            <CardFooter className="flex-col items-start gap-2">
+              <div className="flex flex-wrap gap-1.5">
+                {light.supportsBrightness && <Badge>Brightness</Badge>}
+                {light.supportsRgb && <Badge>RGB Color</Badge>}
+                {light.supportsColorTemp && <Badge>Color Temperature</Badge>}
+                {light.supportsEffects && <Badge>Effects</Badge>}
+                {!light.supportsBrightness && !light.supportsRgb && !light.supportsColorTemp && !light.supportsEffects && (
+                  <Badge>Basic On/Off</Badge>
                 )}
               </div>
+              <ConnectionIndicator isConnected={light.isConnected} className="pt-2" />
             </CardFooter>
           </Card>
         )

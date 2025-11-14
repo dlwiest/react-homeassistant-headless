@@ -1,7 +1,8 @@
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
-import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard } from './components/cards'
-import { Home } from 'lucide-react'
+import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard } from './components/cards'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs'
+import { Lightbulb, Thermometer, Shield, Music, ListTodo } from 'lucide-react'
 import './styles/dashboard.css'
 
 // Mock data for demo - simulating a typical smart home setup
@@ -310,6 +311,53 @@ const mockData = {
     context: { id: 'context-23', parent_id: null, user_id: null }
   },
 
+  // Cameras
+  'camera.front_door': {
+    entity_id: 'camera.front_door',
+    state: 'idle',
+    attributes: {
+      friendly_name: 'Front Door Camera',
+      access_token: 'mock_token_front_door',
+      supported_features: 3, // SUPPORT_ON_OFF (1) + SUPPORT_STREAM (2)
+      brand: 'Nest',
+      model: 'Cam IQ',
+      motion_detection: true,
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-24', parent_id: null, user_id: null }
+  },
+  'camera.backyard': {
+    entity_id: 'camera.backyard',
+    state: 'recording',
+    attributes: {
+      friendly_name: 'Backyard Camera',
+      access_token: 'mock_token_backyard',
+      supported_features: 3,
+      brand: 'Ring',
+      model: 'Spotlight Cam',
+      motion_detection: true,
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-25', parent_id: null, user_id: null }
+  },
+  'camera.garage': {
+    entity_id: 'camera.garage',
+    state: 'off',
+    attributes: {
+      friendly_name: 'Garage Camera',
+      access_token: 'mock_token_garage',
+      supported_features: 1, // SUPPORT_ON_OFF only, no streaming
+      brand: 'Wyze',
+      model: 'Cam v3',
+      motion_detection: false,
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-26', parent_id: null, user_id: null }
+  },
+
   // Media Players
   'media_player.living_room_speaker': {
     entity_id: 'media_player.living_room_speaker',
@@ -330,7 +378,7 @@ const mockData = {
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
-    context: { id: 'context-24', parent_id: null, user_id: null }
+    context: { id: 'context-27', parent_id: null, user_id: null }
   },
   'media_player.kitchen_display': {
     entity_id: 'media_player.kitchen_display',
@@ -348,7 +396,7 @@ const mockData = {
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
-    context: { id: 'context-25', parent_id: null, user_id: null }
+    context: { id: 'context-28', parent_id: null, user_id: null }
   },
   'media_player.bedroom_tv': {
     entity_id: 'media_player.bedroom_tv',
@@ -363,141 +411,204 @@ const mockData = {
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
-    context: { id: 'context-26', parent_id: null, user_id: null }
+    context: { id: 'context-29', parent_id: null, user_id: null }
   },
 }
 
 const Dashboard = () => {
   return (
-    <div className="dashboard">
-      <div className="dashboard-container">
-        <header className="dashboard-header">
-          <h1 className="dashboard-title">Smart Home Dashboard</h1>
-          <p className="dashboard-subtitle">Built with hass-react + shadcn/ui</p>
-        </header>
-
-        <ConnectionStatus />
-
-        <section className="dashboard-section">
-          <h2 className="section-title">💡 Lighting</h2>
-          <div className="dashboard-grid">
-            <LightCard entityId="living_room_main" name="Living Room Main" />
-            <LightCard entityId="living_room_accent" name="Living Room Accent" />
-            <LightCard entityId="bedroom_ceiling" name="Bedroom Ceiling" />
-            <LightCard entityId="bedside_lamp" name="Bedside Lamp" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <header className="sticky top-0 z-50 border-b border-slate-700/50 bg-slate-900/80 backdrop-blur-md">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">Smart Home</h1>
+              <p className="text-sm text-slate-400">Manage your connected devices</p>
+            </div>
+            <ConnectionStatus />
           </div>
-        </section>
+        </div>
+      </header>
 
-        <section className="dashboard-section">
-          <h2 className="section-title">🌪️ Fans</h2>
-          <div className="dashboard-grid">
-            <FanCard entityId="fan.living_room_ceiling" name="Living Room Ceiling Fan" />
-            <FanCard entityId="fan.bedroom_fan" name="Bedroom Fan" />
-          </div>
-        </section>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
 
-        <section className="dashboard-section">
-          <h2 className="section-title">🔒 Security</h2>
-          <div className="dashboard-grid">
-            <LockCard entityId="lock.front_door" name="Front Door" />
-            <LockCard entityId="lock.back_door" name="Back Door" />
-          </div>
-        </section>
+        <Tabs defaultValue="lighting" className="w-full">
+          <TabsList className="grid w-full grid-cols-5 mb-8 bg-slate-800/50 border border-slate-700/50 h-auto p-1">
+            <TabsTrigger
+              value="lighting"
+              className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-500 data-[state=active]:text-white text-slate-300"
+            >
+              <Lightbulb className="h-4 w-4" />
+              <span className="hidden sm:inline">Lighting & Power</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="climate"
+              className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-500 data-[state=active]:text-white text-slate-300"
+            >
+              <Thermometer className="h-4 w-4" />
+              <span className="hidden sm:inline">Climate & Environment</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="security"
+              className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-500 data-[state=active]:text-white text-slate-300"
+            >
+              <Shield className="h-4 w-4" />
+              <span className="hidden sm:inline">Security</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="entertainment"
+              className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-500 data-[state=active]:text-white text-slate-300"
+            >
+              <Music className="h-4 w-4" />
+              <span className="hidden sm:inline">Entertainment</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="productivity"
+              className="flex items-center gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:to-blue-500 data-[state=active]:text-white text-slate-300"
+            >
+              <ListTodo className="h-4 w-4" />
+              <span className="hidden sm:inline">Productivity</span>
+            </TabsTrigger>
+          </TabsList>
 
-        <section className="dashboard-section">
-          <h2 className="section-title">📝 Todo Lists</h2>
-          <div className="dashboard-grid">
-            <TodoCard entityId="todo.shopping_list" name="Shopping List" />
-            <TodoCard entityId="todo.weekend_projects" name="Weekend Projects" />
-          </div>
-        </section>
+          {/* Lighting & Power Tab */}
+          <TabsContent value="lighting" className="space-y-6">
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Lights</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <LightCard entityId="living_room_main" name="Living Room Main" />
+                <LightCard entityId="living_room_accent" name="Living Room Accent" />
+                <LightCard entityId="bedroom_ceiling" name="Bedroom Ceiling" />
+                <LightCard entityId="bedside_lamp" name="Bedside Lamp" />
+              </div>
+            </section>
 
-        <section className="dashboard-section">
-          <h2 className="section-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Home className="h-5 w-5" /> Covers
-          </h2>
-          <div className="dashboard-grid">
-            <CoverCard entityId="cover.garage_door" name="Garage Door" />
-            <CoverCard entityId="cover.living_room_blinds" name="Living Room Blinds" />
-            <CoverCard entityId="cover.bedroom_curtains" name="Bedroom Curtains" />
-          </div>
-        </section>
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Switches</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <SwitchCard entityId="coffee_maker" name="Coffee Maker" />
+                <SwitchCard entityId="desk_fan" name="Desk Fan" />
+                <SwitchCard entityId="outdoor_lights" name="Outdoor Lights" />
+              </div>
+            </section>
 
-        <section className="dashboard-section">
-          <h2 className="section-title">🎵 Media Players</h2>
-          <div className="dashboard-grid">
-            <MediaPlayerCard entityId="media_player.living_room_speaker" name="Living Room Speaker" />
-            <MediaPlayerCard entityId="media_player.kitchen_display" name="Kitchen Display" />
-            <MediaPlayerCard entityId="media_player.bedroom_tv" name="Bedroom TV" />
-          </div>
-        </section>
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Fans</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <FanCard entityId="fan.living_room_ceiling" name="Living Room Ceiling Fan" />
+                <FanCard entityId="fan.bedroom_fan" name="Bedroom Fan" />
+              </div>
+            </section>
+          </TabsContent>
 
-        <section className="dashboard-section">
-          <h2 className="section-title">🔌 Devices & Switches</h2>
-          <div className="dashboard-grid">
-            <SwitchCard entityId="coffee_maker" name="Coffee Maker" icon="☕" />
-            <SwitchCard entityId="desk_fan" name="Desk Fan" icon="🌪️" />
-            <SwitchCard entityId="outdoor_lights" name="Outdoor Lights" icon="🏠" />
-          </div>
-        </section>
+          {/* Climate & Environment Tab */}
+          <TabsContent value="climate" className="space-y-6">
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Sensors</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <SensorCard
+                  entityId="living_room_temperature"
+                  name="Living Room Temperature"
+                  precision={1}
+                />
+                <SensorCard
+                  entityId="living_room_humidity"
+                  name="Living Room Humidity"
+                  precision={1}
+                />
+                <SensorCard
+                  entityId="outdoor_temperature"
+                  name="Outdoor Temperature"
+                  precision={1}
+                />
+                <SensorCard
+                  entityId="energy_usage"
+                  name="Current Energy Usage"
+                  precision={2}
+                />
+              </div>
+            </section>
 
-        <section className="dashboard-section">
-          <h2 className="section-title">📊 Environmental Sensors</h2>
-          <div className="dashboard-grid">
-            <SensorCard 
-              entityId="living_room_temperature" 
-              name="Living Room Temperature"
-              precision={1}
-            />
-            <SensorCard 
-              entityId="living_room_humidity" 
-              name="Living Room Humidity"
-              precision={1}
-            />
-            <SensorCard 
-              entityId="outdoor_temperature" 
-              name="Outdoor Temperature"
-              precision={1}
-            />
-            <SensorCard 
-              entityId="energy_usage" 
-              name="Current Energy Usage"
-              precision={2}
-            />
-          </div>
-        </section>
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Binary Sensors</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <BinarySensorCard entityId="binary_sensor.front_door" name="Front Door" />
+                <BinarySensorCard entityId="binary_sensor.motion_sensor" name="Living Room Motion" />
+                <BinarySensorCard entityId="binary_sensor.bedroom_window" name="Bedroom Window" />
+              </div>
+            </section>
+          </TabsContent>
 
-        <section className="dashboard-section">
-          <h2 className="section-title">📱 Binary Sensors</h2>
-          <div className="dashboard-grid">
-            <BinarySensorCard entityId="binary_sensor.front_door" name="Front Door" />
-            <BinarySensorCard entityId="binary_sensor.motion_sensor" name="Living Room Motion" />
-            <BinarySensorCard entityId="binary_sensor.bedroom_window" name="Bedroom Window" />
-          </div>
-        </section>
+          {/* Security & Access Tab */}
+          <TabsContent value="security" className="space-y-6">
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Cameras</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <CameraCard entityId="camera.front_door" name="Front Door Camera" />
+                <CameraCard entityId="camera.backyard" name="Backyard Camera" />
+                <CameraCard entityId="camera.garage" name="Garage Camera" />
+              </div>
+            </section>
 
-        <footer style={{ 
-          marginTop: '3rem', 
-          padding: '2rem', 
-          background: 'rgba(255, 255, 255, 0.1)', 
-          borderRadius: '16px',
-          backdropFilter: 'blur(10px)',
-          color: 'white'
-        }}>
-          <h3>About This Example</h3>
-          <p>
-            This dashboard showcases the <strong>hass-react</strong> library with 
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Locks</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <LockCard entityId="lock.front_door" name="Front Door" />
+                <LockCard entityId="lock.back_door" name="Back Door" />
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Covers</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <CoverCard entityId="cover.garage_door" name="Garage Door" />
+                <CoverCard entityId="cover.living_room_blinds" name="Living Room Blinds" />
+                <CoverCard entityId="cover.bedroom_curtains" name="Bedroom Curtains" />
+              </div>
+            </section>
+          </TabsContent>
+
+          {/* Entertainment Tab */}
+          <TabsContent value="entertainment" className="space-y-6">
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Media Players</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <MediaPlayerCard entityId="media_player.living_room_speaker" name="Living Room Speaker" />
+                <MediaPlayerCard entityId="media_player.kitchen_display" name="Kitchen Display" />
+                <MediaPlayerCard entityId="media_player.bedroom_tv" name="Bedroom TV" />
+              </div>
+            </section>
+          </TabsContent>
+
+          {/* Productivity Tab */}
+          <TabsContent value="productivity" className="space-y-6">
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Todo Lists</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <TodoCard entityId="todo.shopping_list" name="Shopping List" />
+                <TodoCard entityId="todo.weekend_projects" name="Weekend Projects" />
+              </div>
+            </section>
+          </TabsContent>
+        </Tabs>
+
+        <footer className="mt-16 pt-8 border-t border-slate-700/30 text-slate-400 text-sm">
+          <h3 className="text-white text-lg font-semibold mb-4">
+            About This Example
+          </h3>
+          <p className="mb-4">
+            This dashboard showcases the <strong>hass-react</strong> library with
             <strong> shadcn/ui components</strong>. It demonstrates:
           </p>
-          <ul style={{ marginTop: '1rem' }}>
+          <ul className="mt-3 ml-5 space-y-1">
             <li><strong>shadcn/ui integration</strong> - Beautiful, accessible components</li>
             <li><strong>Tailwind CSS styling</strong> - Modern utility-first CSS</li>
             <li><strong>Radix UI primitives</strong> - Robust, accessible foundations</li>
             <li><strong>TypeScript support</strong> - Type-safe Home Assistant integration</li>
             <li><strong>Mock mode</strong> - Perfect for development and demos</li>
           </ul>
-          <p style={{ marginTop: '1rem', fontSize: '0.9rem', opacity: 0.8 }}>
-            Try toggling lights, adjusting brightness, changing colors, and exploring the different features!
+          <p className="mt-4 opacity-70">
+            Navigate through the tabs to explore different entity types and features!
           </p>
         </footer>
       </div>

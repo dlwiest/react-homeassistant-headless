@@ -1,45 +1,44 @@
-import React from 'react'
-import { Switch } from 'hass-react'
-import { Card, CardHeader, CardFooter } from '../layout/Card'
+import { Switch as SwitchEntity } from 'hass-react'
+import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from '@/components/ui/card'
+import { Switch } from '@/components/ui/switch'
+import { ConnectionIndicator } from '@/components/ui/connection-indicator'
 
 interface SwitchCardProps {
   entityId: string
   name: string
-  icon?: string
 }
 
-export const SwitchCard = ({ entityId, name, icon = '🔌' }: SwitchCardProps) => {
+export const SwitchCard = ({ entityId, name }: SwitchCardProps) => {
   return (
-    <Switch entityId={entityId}>
+    <SwitchEntity entityId={entityId}>
       {(switchEntity) => (
-        <Card>
-          <CardHeader 
-            title={name}
-            subtitle={switchEntity.isOn ? 'On' : 'Off'}
-            action={
-              <button 
-                className={`toggle-switch ${switchEntity.isOn ? 'on' : ''}`}
-                onClick={switchEntity.toggle}
-                aria-label={`Toggle ${name}`}
+        <Card className="h-full">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-lg">{name}</CardTitle>
+                <CardDescription>
+                  {switchEntity.isOn ? 'On' : 'Off'}
+                </CardDescription>
+              </div>
+              <Switch
+                checked={switchEntity.isOn}
+                onCheckedChange={switchEntity.toggle}
               />
-            }
-          />
-          
-          <div style={{ 
-            textAlign: 'center', 
-            fontSize: '3rem', 
-            margin: '1rem 0',
-            opacity: switchEntity.isOn ? 1 : 0.3,
-            transition: 'opacity 0.3s ease'
-          }}>
-            {icon}
-          </div>
+            </div>
+          </CardHeader>
 
-          <CardFooter>
-            Last changed: {switchEntity.lastChanged.toLocaleTimeString()}
+          <CardContent>
+            <div className="text-sm text-slate-400">
+              Last changed: {switchEntity.lastChanged.toLocaleTimeString()}
+            </div>
+          </CardContent>
+
+          <CardFooter className="flex-col items-start gap-2">
+            <ConnectionIndicator isConnected={switchEntity.isConnected} className="pt-2" />
           </CardFooter>
         </Card>
       )}
-    </Switch>
+    </SwitchEntity>
   )
 }

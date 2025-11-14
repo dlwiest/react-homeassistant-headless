@@ -1,17 +1,18 @@
-import React from 'react'
 import { MediaPlayer } from 'hass-react'
-import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Button } from '../ui/button'
-import { Slider } from '../ui/slider'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
-import { 
-  Play, 
-  Pause, 
-  Square, 
-  SkipForward, 
-  SkipBack, 
-  Volume2, 
-  VolumeX 
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Slider } from '@/components/ui/slider'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Badge } from '@/components/ui/badge'
+import { ConnectionIndicator } from '@/components/ui/connection-indicator'
+import {
+  Play,
+  Pause,
+  Square,
+  SkipForward,
+  SkipBack,
+  Volume2,
+  VolumeX
 } from 'lucide-react'
 
 interface MediaPlayerCardProps {
@@ -47,50 +48,47 @@ export function MediaPlayerCard({ entityId, name }: MediaPlayerCardProps) {
         play,
         pause,
         stop,
-        toggle,
         nextTrack,
         previousTrack,
         setVolume,
         toggleMute,
         seek,
-        selectSource
+        selectSource,
+        isConnected
       }) => (
-        <Card>
+        <Card className="h-full">
           <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              {name}
-              <div className={`px-2 py-1 text-xs rounded ${
-                isOn ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-              }`}>
-                {isOn ? 'Online' : 'Offline'}
-              </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Media Info */}
-            <div className="mb-4 min-h-[60px]">
-              {mediaTitle ? (
-                <div>
-                  <div className="font-medium truncate">{mediaTitle}</div>
-                  {mediaArtist && (
-                    <div className="text-sm text-muted-foreground truncate">
-                      by {mediaArtist}
-                    </div>
-                  )}
-                  {mediaAlbum && (
-                    <div className="text-xs text-muted-foreground truncate">
-                      {mediaAlbum}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-muted-foreground">No media playing</div>
-              )}
+            <div>
+              <CardTitle className="text-lg">{name}</CardTitle>
+              <CardDescription>
+                {isPlaying ? 'Playing' : isPaused ? 'Paused' : isOn ? 'Idle' : 'Off'}
+              </CardDescription>
             </div>
-            
+          </CardHeader>
+
+          <CardContent className="space-y-3">
+            {/* Media Info */}
+            {mediaTitle ? (
+              <div>
+                <div className="text-lg font-medium text-white truncate">{mediaTitle}</div>
+                {mediaArtist && (
+                  <div className="text-sm text-slate-400 truncate">
+                    {mediaArtist}
+                  </div>
+                )}
+                {mediaAlbum && (
+                  <div className="text-xs text-slate-500 truncate">
+                    {mediaAlbum}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-slate-400">No media playing</div>
+            )}
+
             {/* Progress Bar */}
             {supportsSeek && mediaDuration && (
-              <div className="mb-4">
+              <div className="space-y-1">
                 <Slider
                   value={[mediaPosition || 0]}
                   max={mediaDuration}
@@ -98,7 +96,7 @@ export function MediaPlayerCard({ entityId, name }: MediaPlayerCardProps) {
                   onValueChange={([value]) => seek(value)}
                   className="w-full"
                 />
-                <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <div className="flex justify-between text-xs text-slate-400">
                   <span>
                     {Math.floor((mediaPosition || 0) / 60)}:
                     {String((mediaPosition || 0) % 60).padStart(2, '0')}
@@ -110,51 +108,57 @@ export function MediaPlayerCard({ entityId, name }: MediaPlayerCardProps) {
                 </div>
               </div>
             )}
-            
+
             {/* Playback Controls */}
-            <div className="flex items-center justify-center gap-2 mb-4">
+            <div className="flex items-center justify-center gap-2">
               {supportsPreviousTrack && (
                 <Button variant="outline" size="sm" onClick={previousTrack}>
                   <SkipBack className="h-4 w-4" />
                 </Button>
               )}
-              
+
               {supportsPlay && (
-                <Button 
-                  onClick={play} 
+                <Button
+                  onClick={play}
                   disabled={isPlaying}
                   size="sm"
+                  variant={isPlaying ? "default" : "outline"}
                 >
                   <Play className="h-4 w-4" />
                 </Button>
               )}
-              
+
               {supportsPause && (
-                <Button 
-                  onClick={pause} 
+                <Button
+                  onClick={pause}
                   disabled={!isPlaying}
                   size="sm"
+                  variant="outline"
                 >
                   <Pause className="h-4 w-4" />
                 </Button>
               )}
-              
+
               {supportsStop && (
                 <Button variant="outline" size="sm" onClick={stop}>
                   <Square className="h-4 w-4" />
                 </Button>
               )}
-              
+
               {supportsNextTrack && (
                 <Button variant="outline" size="sm" onClick={nextTrack}>
                   <SkipForward className="h-4 w-4" />
                 </Button>
               )}
             </div>
-            
+
             {/* Volume Control */}
             {supportsVolumeSet && (
-              <div className="mb-4">
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-400">Volume</span>
+                  <span className="text-slate-300">{Math.round(volumeLevel * 100)}%</span>
+                </div>
                 <div className="flex items-center gap-2">
                   {supportsVolumeMute && (
                     <Button variant="outline" size="sm" onClick={toggleMute}>
@@ -168,29 +172,40 @@ export function MediaPlayerCard({ entityId, name }: MediaPlayerCardProps) {
                     onValueChange={([value]) => setVolume(value)}
                     className="flex-1"
                   />
-                  <span className="text-sm text-muted-foreground min-w-[35px]">
-                    {Math.round(volumeLevel * 100)}%
-                  </span>
                 </div>
               </div>
             )}
-            
+
             {/* Source Selection */}
             {supportsSelectSource && sourceList.length > 0 && (
-              <Select value={currentSource || ''} onValueChange={selectSource}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select source" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sourceList.map(source => (
-                    <SelectItem key={source} value={source}>
-                      {source}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="space-y-2">
+                <label className="text-sm text-slate-400">Source</label>
+                <Select value={currentSource || ''} onValueChange={selectSource}>
+                  <SelectTrigger className="bg-slate-800 border-slate-600/50">
+                    <SelectValue placeholder="Select source" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sourceList.map(source => (
+                      <SelectItem key={source} value={source}>
+                        {source}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             )}
           </CardContent>
+
+          <CardFooter className="flex-col items-start gap-2">
+            <div className="flex flex-wrap gap-1.5">
+              {supportsPlay && <Badge>Play</Badge>}
+              {supportsPause && <Badge>Pause</Badge>}
+              {supportsStop && <Badge>Stop</Badge>}
+              {supportsVolumeSet && <Badge>Volume</Badge>}
+              {supportsSelectSource && <Badge>Source</Badge>}
+            </div>
+            <ConnectionIndicator isConnected={isConnected} className="pt-2" />
+          </CardFooter>
         </Card>
       )}
     </MediaPlayer>
