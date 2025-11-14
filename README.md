@@ -25,7 +25,7 @@ npm install hass-react
 ## Quick Start
 
 ```jsx
-import { HAProvider, Light, MediaPlayer } from 'hass-react'
+import { HAProvider, Light } from 'hass-react'
 
 function App() {
   return (
