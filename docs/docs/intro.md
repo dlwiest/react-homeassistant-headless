@@ -79,6 +79,5 @@ Both approaches give you the same functionality - choose the pattern you prefer!
 ## Next Steps
 
 - **[Authentication](/docs/authentication)** - Configure OAuth or token authentication
-- **[Lights](/docs/entities/lights)** - Control lights with brightness, color, and effects
-- **[Examples](/docs/examples)** - See complete dashboard examples
+- **[Lights](/docs/entities/light)** - Control lights with brightness, color, and effects
 - Browse the [GitHub repository](https://github.com/dlwiest/hass-react) for more examples
