@@ -190,3 +190,93 @@
 .menu__link--sublist {
   font-weight: 600 !important;
 }
+
+/* Align navbar with container content on desktop */
+@media (min-width: 997px) {
+  .navbar__inner {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Hide hamburger menu entirely - not needed for documentation site */
+@media (max-width: 996px) {
+  .navbar__toggle {
+    display: none !important;
+  }
+  
+  .navbar__items {
+    display: flex !important;
+  }
+  
+  .navbar__items--right {
+    display: flex !important;
+  }
+  
+  /* Add proper padding to logo on mobile to align with content */
+  .navbar__brand {
+    padding-left: 1rem !important;
+  }
+  
+  
+  /* Fix mobile footer layout - stack columns and use full width */
+  .footer .container {
+    max-width: 100% !important;
+    padding: 1rem !important;
+  }
+  
+  .footer__links {
+    flex-direction: column !important;
+  }
+  
+  .footer__col {
+    flex: none !important;
+    max-width: 100% !important;
+    margin-bottom: 1.5rem !important;
+  }
+  
+  .footer__title {
+    white-space: nowrap !important;
+  }
+  
+  /* Force the description text to wrap naturally */
+  .footer__link-item[href="#"] {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+    max-width: 100% !important;
+    display: block !important;
+  }
+  
+  .footer__bottom {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 1rem !important;
+  }
+  
+  .footer__bottom-links {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+  }
+  
+  .footer__bottom-links a {
+    margin: 0 !important;
+    padding: 0 !important;
+    text-indent: 0 !important;
+  }
+}
+
+/* Ensure navbar itself has proper z-index */
+.navbar {
+  z-index: 1000 !important;
+}
+
+/* Lower z-index for main content */
+.main-wrapper,
+.docusaurus-main,
+.container {
+  position: relative;
+  z-index: 1 !important;
+}
