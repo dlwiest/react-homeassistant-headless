@@ -99,6 +99,10 @@
   color: var(--ifm-heading-color);
 }
 
+[data-theme='dark'] .sectionTitle {
+  color: white;
+}
+
 .sectionSubtitle {
   font-size: 1.125rem;
   color: var(--landing-text-muted);
@@ -155,6 +159,12 @@
   background: #f0fdfa;
   border-top: 1px solid var(--ifm-color-emphasis-200);
   border-bottom: 1px solid var(--ifm-color-emphasis-200);
+}
+
+[data-theme='dark'] .codeSection {
+  background: var(--landing-gradient-start);
+  border-top: 1px solid rgba(20, 184, 166, 0.15);
+  border-bottom: 1px solid rgba(20, 184, 166, 0.15);
 }
 
 .codeLayout {
