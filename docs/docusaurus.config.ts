@@ -75,18 +75,19 @@ const config: Config = {
     },
     navbar: {
       title: 'hass-react',
+      hideOnScroll: false,
       items: [
-        {
-          type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
-          position: 'left',
-          label: 'Tutorial',
-        },
-        {to: '/blog', label: 'Blog', position: 'left'},
         {
           href: 'https://github.com/dlwiest/hass-react',
           label: 'GitHub',
           position: 'right',
+          className: 'navbar__link--github',
+        },
+        {
+          to: '/docs/intro',
+          label: 'Get Started',
+          position: 'right',
+          className: 'navbar__link--get-started',
         },
       ],
     },
@@ -94,46 +95,41 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Docs',
+          title: 'hass-react',
           items: [
             {
-              label: 'Tutorial',
+              label: 'React hooks for Home Assistant. Build custom interfaces with ease',
+              href: '#',
+            },
+          ],
+        },
+        {
+          title: 'Links',
+          items: [
+            {
+              label: 'GitHub Repository',
+              href: 'https://github.com/dlwiest/hass-react',
+            },
+            {
+              label: 'Documentation',
               to: '/docs/intro',
             },
-          ],
-        },
-        {
-          title: 'Community',
-          items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/docusaurus',
-            },
-            {
-              label: 'Discord',
-              href: 'https://discordapp.com/invite/docusaurus',
-            },
-            {
-              label: 'X',
-              href: 'https://x.com/docusaurus',
+              label: 'Examples',
+              href: 'https://github.com/dlwiest/hass-react/tree/master/examples',
             },
           ],
         },
         {
-          title: 'More',
+          title: 'Developer',
           items: [
             {
-              label: 'Blog',
-              to: '/blog',
-            },
-            {
-              label: 'GitHub',
-              href: 'https://github.com/dlwiest/hass-react',
+              html: 'Created by <a href="https://dlwiest.com" target="_blank" rel="noopener noreferrer">Derrick Wiest</a>',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} hass-react. Built with Docusaurus.`,
+      copyright: `<div class="footer__bottom"><span>© ${new Date().getFullYear()} hass-react. Open source and free to use.</span><div class="footer__bottom-links"><a href="https://github.com/dlwiest/hass-react" target="_blank" rel="noopener noreferrer">GitHub</a><a href="https://dlwiest.com" target="_blank" rel="noopener noreferrer">Developer Site</a></div></div>`,
     },
     prism: {
       theme: prismThemes.github,

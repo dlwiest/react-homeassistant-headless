@@ -4,21 +4,64 @@ sidebar_position: 1
 
 # Getting Started
 
-**hass-react** is a headless React library that provides hooks and components for building Home Assistant user interfaces without the hassle.
+**hass-react** is a headless React library that provides hooks and components for building Home Assistant user interfaces without the hassle of WebSockets or service calls.
 
-## Quick Start
+## Installation
 
 ```bash
 npm install hass-react
 ```
 
-## Basic Usage
+## Setup
+
+Wrap your app with `HAProvider` and point it to your Home Assistant instance:
 
 ```tsx
-import { HAProvider, useLight } from 'hass-react'
+import { HAProvider } from 'hass-react'
+
+function App() {
+  return (
+    <HAProvider url="http://homeassistant.local:8123">
+      <YourApp />
+    </HAProvider>
+  )
+}
+```
+
+The provider handles authentication automatically using OAuth 2.0 (recommended) or long-lived tokens.
+
+## Your First Control
+
+hass-react offers two ways to work with entities: **components** with render props or **hooks** for direct access.
+
+### Using Components (Render Props)
+
+```tsx
+import { Light } from 'hass-react'
 
 function LightControl() {
-  const light = useLight('light.living_room')
+  return (
+    <Light entityId="light.floor_lamp">
+      {({ isOn, toggle, attributes }) => (
+        <div>
+          <h3>{attributes.friendly_name}</h3>
+          <button onClick={toggle}>
+            {isOn ? 'Turn Off' : 'Turn On'}
+          </button>
+        </div>
+      )}
+    </Light>
+  )
+}
+```
+
+### Using Hooks
+
+```tsx
+import { useLight } from 'hass-react'
+
+function LightControl() {
+  const light = useLight('light.floor_lamp')
   
   return (
     <div>
@@ -29,25 +72,13 @@ function LightControl() {
     </div>
   )
 }
-
-function App() {
-  return (
-    <HAProvider url="http://homeassistant.local:8123">
-      <LightControl />
-    </HAProvider>
-  )
-}
 ```
 
-## What's Included
-
-- **Entity Hooks**: `useLight`, `useMediaPlayer`, `useSensor`, and more
-- **Headless Components**: Full control over your UI
-- **TypeScript Support**: Complete type safety
-- **Authentication**: OAuth and token support
-- **Mock Mode**: Perfect for development and testing
+Both approaches give you the same functionality - choose the pattern you prefer!
 
 ## Next Steps
 
-- Browse the examples in the repository
-- Check out the different UI framework examples (Material-UI, shadcn/ui, vanilla CSS)
+- **[Authentication](/docs/authentication)** - Configure OAuth or token authentication
+- **[Lights](/docs/entities/lights)** - Control lights with brightness, color, and effects
+- **[Examples](/docs/examples)** - See complete dashboard examples
+- Browse the [GitHub repository](https://github.com/dlwiest/hass-react) for more examples
