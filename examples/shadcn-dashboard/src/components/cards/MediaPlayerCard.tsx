@@ -1,3 +1,4 @@
+import React from 'react'
 import { MediaPlayer } from 'hass-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -20,7 +21,7 @@ interface MediaPlayerCardProps {
   name: string
 }
 
-export function MediaPlayerCard({ entityId, name }: MediaPlayerCardProps) {
+const MediaPlayerCard = ({ entityId, name }: MediaPlayerCardProps) => {
   return (
     <MediaPlayer entityId={entityId}>
       {({
@@ -211,3 +212,5 @@ export function MediaPlayerCard({ entityId, name }: MediaPlayerCardProps) {
     </MediaPlayer>
   )
 }
+
+export default MediaPlayerCard

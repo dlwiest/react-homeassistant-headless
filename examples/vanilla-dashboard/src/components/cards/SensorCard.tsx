@@ -5,11 +5,10 @@ import { Card, CardHeader, CardContent, CardFooter } from '../layout/Card'
 interface SensorCardProps {
   entityId: string
   name: string
-  icon?: string
   precision?: number
 }
 
-export const SensorCard = ({ entityId, name, icon = '📊', precision = 1 }: SensorCardProps) => {
+const SensorCard = ({ entityId, name, precision = 1 }: SensorCardProps) => {
   const formatValue = (value: string | number | null | undefined, unit?: string) => {
     if (value === null || value === undefined) return 'Unknown'
     if (typeof value === 'number') {
@@ -18,44 +17,36 @@ export const SensorCard = ({ entityId, name, icon = '📊', precision = 1 }: Sen
     return `${value}${unit ? ` ${unit}` : ''}`
   }
 
-  const getIconForDeviceClass = (deviceClass?: string) => {
-    switch (deviceClass) {
-      case 'temperature': return '🌡️'
-      case 'humidity': return '💧'
-      case 'pressure': return '📊'
-      case 'battery': return '🔋'
-      case 'power': return '⚡'
-      case 'energy': return '🔌'
-      case 'illuminance': return '💡'
-      default: return icon
-    }
-  }
-
   return (
     <Sensor entityId={entityId}>
       {(sensor) => (
         <Card>
-          <CardHeader 
+          <CardHeader
             title={name}
             subtitle={sensor.deviceClass || 'Sensor'}
           />
-          
+
           <CardContent>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>
-                {getIconForDeviceClass(sensor.deviceClass)}
-              </div>
-              <div className="sensor-value">
-                {formatValue(sensor.numericValue, sensor.unitOfMeasurement)}
-              </div>
+            <div className="sensor-value">
+              {formatValue(sensor.numericValue, sensor.unitOfMeasurement)}
             </div>
           </CardContent>
 
           <CardFooter>
-            Last updated: {sensor.lastUpdated.toLocaleTimeString()}
+            {sensor.stateClass && (
+              <div className="badge-container">
+                <span className="badge">{sensor.stateClass}</span>
+              </div>
+            )}
+            <div className={`connection-indicator ${sensor.isConnected ? 'connected' : 'disconnected'}`}>
+              <div className="connection-dot"></div>
+              <span>{sensor.isConnected ? 'Online' : 'Offline'}</span>
+            </div>
           </CardFooter>
         </Card>
       )}
     </Sensor>
   )
 }
+
+export default SensorCard

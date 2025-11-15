@@ -1,3 +1,4 @@
+import React from 'react'
 import { Cover } from 'hass-react'
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -11,7 +12,7 @@ interface CoverCardProps {
   name: string
 }
 
-export const CoverCard = ({ entityId, name }: CoverCardProps) => {
+const CoverCard = ({ entityId, name }: CoverCardProps) => {
   return (
     <Cover entityId={entityId}>
       {(cover) => {
@@ -121,3 +122,5 @@ export const CoverCard = ({ entityId, name }: CoverCardProps) => {
     </Cover>
   )
 }
+
+export default CoverCard

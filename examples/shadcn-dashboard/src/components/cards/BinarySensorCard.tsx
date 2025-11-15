@@ -1,3 +1,4 @@
+import React from 'react'
 import { BinarySensor } from 'hass-react'
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from '@/components/ui/card'
 import { ConnectionIndicator } from '@/components/ui/connection-indicator'
@@ -41,7 +42,7 @@ const getDeviceLabel = (deviceClass?: string) => {
   }
 }
 
-export const BinarySensorCard = ({ entityId, name }: BinarySensorCardProps) => {
+const BinarySensorCard = ({ entityId, name }: BinarySensorCardProps) => {
   return (
     <BinarySensor entityId={entityId}>
       {(binarySensor) => {
@@ -79,3 +80,5 @@ export const BinarySensorCard = ({ entityId, name }: BinarySensorCardProps) => {
     </BinarySensor>
   )
 }
+
+export default BinarySensorCard

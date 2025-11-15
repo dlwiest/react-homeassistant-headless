@@ -1,3 +1,4 @@
+import React from 'react'
 import { Switch as SwitchEntity } from 'hass-react'
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
@@ -8,7 +9,7 @@ interface SwitchCardProps {
   name: string
 }
 
-export const SwitchCard = ({ entityId, name }: SwitchCardProps) => {
+const SwitchCard = ({ entityId, name }: SwitchCardProps) => {
   return (
     <SwitchEntity entityId={entityId}>
       {(switchEntity) => (
@@ -42,3 +43,5 @@ export const SwitchCard = ({ entityId, name }: SwitchCardProps) => {
     </SwitchEntity>
   )
 }
+
+export default SwitchCard

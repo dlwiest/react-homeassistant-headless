@@ -1,18 +1,17 @@
 import React, { useState, useCallback } from 'react'
 import { Light } from 'hass-react'
 import { Card, CardHeader, CardContent, CardFooter } from '../layout/Card'
-import { ColorPicker } from '../controls/ColorPicker'
-import { ColorTempSlider } from '../controls/ColorTempSlider'
+import ColorPicker from '../controls/ColorPicker'
+import ColorTempSlider from '../controls/ColorTempSlider'
 
 interface LightCardProps {
   entityId: string
   name: string
 }
 
-export const LightCard = ({ entityId, name }: LightCardProps) => {
+const LightCard = ({ entityId, name }: LightCardProps) => {
   const [actionError, setActionError] = useState<string | null>(null)
 
-  // Helper to handle errors from actions (like setting brightness, colors, etc.)
   const handleAction = useCallback(async (action: () => Promise<void>, actionName: string) => {
     try {
       setActionError(null)
@@ -20,8 +19,7 @@ export const LightCard = ({ entityId, name }: LightCardProps) => {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error occurred'
       setActionError(`${actionName}: ${message}`)
-      
-      // Auto-clear error after 5 seconds
+
       setTimeout(() => setActionError(null), 5000)
     }
   }, [])
@@ -29,17 +27,16 @@ export const LightCard = ({ entityId, name }: LightCardProps) => {
   return (
     <Light entityId={entityId}>
       {(light) => {
-        // Check for entity availability errors
         if (light.error) {
           return (
             <Card>
-              <CardHeader 
+              <CardHeader
                 title={name}
                 subtitle="Entity Error"
               />
               <CardContent>
                 <div className="error-message">
-                  ⚠️ {light.error.message}
+                  {light.error.message}
                 </div>
               </CardContent>
             </Card>
@@ -48,34 +45,37 @@ export const LightCard = ({ entityId, name }: LightCardProps) => {
 
         return (
           <Card>
-            <CardHeader 
+            <CardHeader
               title={name}
               subtitle={light.isConnected ? (light.isOn ? 'On' : 'Off') : 'Disconnected'}
               action={
-                <button 
-                  className={`toggle-switch ${light.isOn ? 'on' : ''}`}
-                  onClick={() => handleAction(light.toggle, 'Toggle')}
-                  disabled={!light.isConnected}
-                  aria-label={`Toggle ${name}`}
-                />
+                <label className="switch-toggle">
+                  <input
+                    type="checkbox"
+                    checked={light.isOn}
+                    onChange={() => handleAction(light.toggle, 'Toggle')}
+                    disabled={!light.isConnected}
+                  />
+                  <span className="switch-toggle-slider"></span>
+                </label>
               }
             />
 
-            {/* Display action errors */}
             {actionError && (
               <div className="error-banner">
-                ⚠️ {actionError}
+                {actionError}
               </div>
             )}
-            
+
             {light.isOn && light.isConnected && (
               <CardContent>
                 <div className="light-controls">
                   {light.supportsBrightness && (
-                    <div className="control-row">
-                      <label className="control-label">
-                        Brightness: {light.brightnessPercent}%
-                      </label>
+                    <div className="control-group">
+                      <div className="control-header">
+                        <span className="control-label">Brightness</span>
+                        <span className="control-value">{light.brightnessPercent}%</span>
+                      </div>
                       <input
                         type="range"
                         min="0"
@@ -91,61 +91,42 @@ export const LightCard = ({ entityId, name }: LightCardProps) => {
                   )}
 
                   {light.supportsRgb && (
-                    <div className="control-row">
-                      <ColorPicker
-                        color={light.rgbColor}
-                        onChange={(color) => handleAction(
-                          () => light.setRgbColor(color),
-                          'Set color'
-                        )}
-                      />
-                      {light.effect && light.effect !== 'off' && (
-                        <div className="effect-notice">
-                          Color may be controlled by effect "{light.effect}"
-                        </div>
+                    <ColorPicker
+                      color={light.rgbColor}
+                      onChange={(color) => handleAction(
+                        () => light.setRgbColor(color),
+                        'Set color'
                       )}
-                    </div>
+                    />
                   )}
 
                   {light.supportsColorTemp && (
-                    <div className="control-row">
-                      <ColorTempSlider
-                        value={light.colorTemp}
-                        onChange={(temp) => handleAction(
-                          () => light.setColorTemp(temp),
-                          'Set temperature'
-                        )}
-                        min={light.attributes.min_mireds}
-                        max={light.attributes.max_mireds}
-                      />
-                      {light.effect && light.effect !== 'off' && light.colorTemp === undefined && (
-                        <div className="effect-notice">
-                          Temperature not available during effect "{light.effect}"
-                        </div>
+                    <ColorTempSlider
+                      value={light.colorTemp}
+                      onChange={(temp) => handleAction(
+                        () => light.setColorTemp(temp),
+                        'Set temperature'
                       )}
-                    </div>
+                      min={light.attributes.min_mireds}
+                      max={light.attributes.max_mireds}
+                    />
                   )}
 
                   {light.supportsEffects && light.availableEffects.length > 0 && (
-                    <div className="control-row">
-                      <label className="control-label">Effect:</label>
+                    <div className="control-group">
+                      <label className="control-label">Effect</label>
                       <select
-                        value={(!light.effect || light.effect === 'off') ? '' : light.effect}
+                        value={(!light.effect || light.effect === 'off') ? 'none' : light.effect}
                         onChange={(e) => {
-                          const effectValue = e.target.value === '' ? null : e.target.value
+                          const effectValue = e.target.value === 'none' ? null : e.target.value
                           handleAction(
                             () => light.setEffect(effectValue),
                             'Set effect'
                           )
                         }}
-                        style={{ 
-                          padding: '0.5rem', 
-                          borderRadius: '6px', 
-                          border: '1px solid #d1d5db',
-                          flex: 1
-                        }}
+                        className="select-input"
                       >
-                        <option value="">None</option>
+                        <option value="none">None</option>
                         {light.availableEffects
                           .filter(effect => effect.toLowerCase() !== 'none')
                           .map(effect => (
@@ -159,19 +140,19 @@ export const LightCard = ({ entityId, name }: LightCardProps) => {
             )}
 
             <CardFooter>
-              <div>
-                Features: {[
-                  light.supportsBrightness && 'Brightness',
-                  light.supportsRgb && 'RGB Color',
-                  light.supportsColorTemp && 'Color Temperature',
-                  light.supportsEffects && 'Effects'
-                ].filter(Boolean).join(', ') || 'Basic On/Off'}
+              <div className="badge-container">
+                {light.supportsBrightness && <span className="badge">Brightness</span>}
+                {light.supportsRgb && <span className="badge">RGB Color</span>}
+                {light.supportsColorTemp && <span className="badge">Color Temperature</span>}
+                {light.supportsEffects && <span className="badge">Effects</span>}
+                {!light.supportsBrightness && !light.supportsRgb && !light.supportsColorTemp && !light.supportsEffects && (
+                  <span className="badge">Basic On/Off</span>
+                )}
               </div>
-              {!light.isConnected && (
-                <div style={{ color: '#ef4444', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-                  ⚠️ Not connected to Home Assistant
-                </div>
-              )}
+              <div className={`connection-indicator ${light.isConnected ? 'connected' : 'disconnected'}`}>
+                <div className="connection-dot"></div>
+                <span>{light.isConnected ? 'Online' : 'Offline'}</span>
+              </div>
             </CardFooter>
           </Card>
         )
@@ -179,3 +160,5 @@ export const LightCard = ({ entityId, name }: LightCardProps) => {
     </Light>
   )
 }
+
+export default LightCard

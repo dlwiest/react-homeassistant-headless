@@ -1,3 +1,4 @@
+import React from 'react'
 import { Lock } from 'hass-react'
 import { Card, CardContent, CardHeader, CardFooter, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -10,7 +11,7 @@ interface LockCardProps {
   name: string
 }
 
-export const LockCard: React.FC<LockCardProps> = ({ entityId, name }) => {
+const LockCard = ({ entityId, name }: LockCardProps) => {
   return (
     <Lock entityId={entityId}>
       {(lock) => {
@@ -97,3 +98,5 @@ export const LockCard: React.FC<LockCardProps> = ({ entityId, name }) => {
     </Lock>
   )
 }
+
+export default LockCard

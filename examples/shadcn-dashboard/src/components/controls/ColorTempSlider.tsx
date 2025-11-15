@@ -1,3 +1,4 @@
+import React from 'react'
 import { Slider } from '../ui/slider'
 
 interface ColorTempSliderProps {
@@ -59,4 +60,4 @@ const ColorTempSlider = ({
   )
 }
 
-export { ColorTempSlider }
+export default ColorTempSlider

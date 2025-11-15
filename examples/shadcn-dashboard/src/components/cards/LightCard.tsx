@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Light } from 'hass-react'
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
@@ -7,15 +7,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge'
 import { ConnectionIndicator } from '@/components/ui/connection-indicator'
 import { AlertTriangle, WifiOff } from 'lucide-react'
-import { ColorPicker } from '../controls/ColorPicker'
-import { ColorTempSlider } from '../controls/ColorTempSlider'
+import ColorPicker from '../controls/ColorPicker'
+import ColorTempSlider from '../controls/ColorTempSlider'
 
 interface LightCardProps {
   entityId: string
   name: string
 }
 
-export const LightCard = ({ entityId, name }: LightCardProps) => {
+const LightCard = ({ entityId, name }: LightCardProps) => {
   const [actionError, setActionError] = useState<string | null>(null)
 
   // Helper to handle errors from actions
@@ -180,3 +180,5 @@ export const LightCard = ({ entityId, name }: LightCardProps) => {
     </Light>
   )
 }
+
+export default LightCard

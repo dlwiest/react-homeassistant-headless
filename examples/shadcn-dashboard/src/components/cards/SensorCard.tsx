@@ -1,3 +1,4 @@
+import React from 'react'
 import { Sensor } from 'hass-react'
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -9,7 +10,7 @@ interface SensorCardProps {
   precision?: number
 }
 
-export const SensorCard = ({ entityId, name, precision = 1 }: SensorCardProps) => {
+const SensorCard = ({ entityId, name, precision = 1 }: SensorCardProps) => {
   const formatValue = (value: string | number | null | undefined, unit?: string) => {
     if (value === null || value === undefined) return 'Unknown'
     if (typeof value === 'number') {
@@ -50,3 +51,5 @@ export const SensorCard = ({ entityId, name, precision = 1 }: SensorCardProps) =
     </Sensor>
   )
 }
+
+export default SensorCard

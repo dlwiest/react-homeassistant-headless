@@ -1,3 +1,5 @@
+import React from 'react'
+
 interface ColorPickerProps {
   color: [number, number, number] | undefined
   onChange: (color: [number, number, number]) => void
@@ -39,4 +41,4 @@ const ColorPicker = ({ color = [255, 255, 255], onChange }: ColorPickerProps) =>
   )
 }
 
-export { ColorPicker }
+export default ColorPicker

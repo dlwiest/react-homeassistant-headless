@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Camera } from 'hass-react'
 import { Card, CardContent, CardHeader, CardFooter, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -11,7 +11,7 @@ interface CameraCardProps {
   name: string
 }
 
-export const CameraCard = ({ entityId, name }: CameraCardProps) => {
+const CameraCard = ({ entityId, name }: CameraCardProps) => {
   const [streamError, setStreamError] = useState<string | null>(null)
 
   return (
@@ -144,3 +144,5 @@ export const CameraCard = ({ entityId, name }: CameraCardProps) => {
     </Camera>
   )
 }
+
+export default CameraCard

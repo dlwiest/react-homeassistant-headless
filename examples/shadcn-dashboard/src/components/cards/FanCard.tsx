@@ -1,3 +1,4 @@
+import React from 'react'
 import { Fan } from 'hass-react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card'
 import { Slider } from '@/components/ui/slider'
@@ -11,7 +12,7 @@ interface FanCardProps {
   name: string
 }
 
-export const FanCard: React.FC<FanCardProps> = ({ entityId, name }) => {
+const FanCard = ({ entityId, name }: FanCardProps) => {
   return (
     <Fan entityId={entityId}>
       {(fan) => (
@@ -120,3 +121,5 @@ export const FanCard: React.FC<FanCardProps> = ({ entityId, name }) => {
     </Fan>
   )
 }
+
+export default FanCard

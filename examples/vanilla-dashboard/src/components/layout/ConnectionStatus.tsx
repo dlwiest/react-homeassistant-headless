@@ -14,20 +14,23 @@ export const ConnectionStatus = () => {
   }
 
   const getStatusText = () => {
-    if (connecting && !connected) return '⏳ Connecting to Home Assistant...'
-    if (connected && !connecting) return '✅ Connected to Home Assistant'
-    if (!connected && !connecting && error && autoReconnectEnabled) return '🔄 Reconnecting...'
-    if (!connected && !connecting && error && !autoReconnectEnabled) return `❌ ${error.message}`
-    if (!connected && !connecting && !error) return '⚠️ Disconnected'
+    if (connecting && !connected) return 'Connecting...'
+    if (connected && !connecting) return 'Connected'
+    if (!connected && !connecting && error && autoReconnectEnabled) return 'Reconnecting...'
+    if (!connected && !connecting && error && !autoReconnectEnabled) return error.message
+    if (!connected && !connecting && !error) return 'Disconnected'
     return ''
   }
 
   return (
     <div className={`connection-status ${getStatusClass()}`}>
-      <span>{getStatusText()}</span>
+      <div className="connection-indicator">
+        <div className="connection-dot"></div>
+        <span>{getStatusText()}</span>
+      </div>
       {!connected && !connecting && error && !autoReconnectEnabled && (
         <button className="btn btn-primary" onClick={reconnect}>
-          Retry Connection
+          Retry
         </button>
       )}
     </div>
