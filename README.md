@@ -15,6 +15,7 @@ A React library for building custom Home Assistant interfaces. Headless componen
 - **Error Handling** - Informative, standardized error types and (optional) automatic retry for network errors
 - **Mock Mode** - Develop and test without a real Home Assistant instance
 - **Most HA Entities Supported** - Lights, climate, media players, sensors, and more
+- **Camera Streaming** - HLS and MJPEG stream support with static images
 
 ## Installation
 
@@ -68,13 +69,14 @@ function App() {
 ## Supported Entity Types
 
 - **Lights** - Brightness, color, effects, and more
-- **Climate** - Thermostats and HVAC controls  
+- **Climate** - Thermostats and HVAC controls
 - **Media Players** - Playback, volume, source selection
+- **Cameras** - Live streaming (HLS/MJPEG) and static image snapshots
 - **Switches** - Simple on/off controls
 - **Sensors** - Temperature, humidity, and other measurements
 - **Binary Sensors** - Door/window sensors, motion detectors
 - **Fans** - Speed, oscillation, direction controls
-- **Locks** - Lock, unlock, and open functionality  
+- **Locks** - Lock, unlock, and open functionality
 - **Covers** - Blinds, garage doors, curtains
 - **Todo Lists** - Task management and shopping lists
 - **More on the Way!**

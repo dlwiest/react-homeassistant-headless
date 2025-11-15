@@ -1,99 +1,58 @@
-import React, { useState, useCallback } from 'react'
+import React from 'react'
 import { Fan } from 'hass-react'
-import { Card } from '../layout/Card'
+import { Card, CardHeader, CardContent, CardFooter } from '../layout/Card'
 
 interface FanCardProps {
   entityId: string
   name: string
 }
 
-export const FanCard: React.FC<FanCardProps> = ({ entityId, name }) => {
-  const [actionError, setActionError] = useState<string | null>(null)
-
-  // Helper to handle errors from actions
-  const handleAction = useCallback(async (action: () => Promise<void>, actionName: string) => {
-    try {
-      setActionError(null)
-      await action()
-    } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error occurred'
-      setActionError(`${actionName}: ${message}`)
-      
-      // Auto-clear error after 5 seconds
-      setTimeout(() => setActionError(null), 5000)
-    }
-  }, [])
-
+const FanCard = ({ entityId, name }: FanCardProps) => {
   return (
     <Fan entityId={entityId}>
-      {(fan) => {
-        // Check for entity availability errors
-        if (fan.error) {
-          return (
-            <Card>
-              <div className="card-header">
-                <h3 className="card-title">{name}</h3>
-                <div className="card-subtitle">Entity Error</div>
-              </div>
-              <div className="card-content">
-                <div className="error-message">
-                  ⚠️ {fan.error.message}
-                </div>
-              </div>
-            </Card>
-          )
-        }
+      {(fan) => (
+        <Card>
+          <CardHeader
+            title={name}
+            subtitle={fan.isOn ? 'On' : 'Off'}
+            action={
+              <label className="switch-toggle">
+                <input
+                  type="checkbox"
+                  checked={fan.isOn}
+                  onChange={fan.toggle}
+                />
+                <span className="switch-toggle-slider"></span>
+              </label>
+            }
+          />
 
-        return (
-          <Card>
-            <div className="card-header">
-              <h3 className="card-title">{name}</h3>
-              <button 
-                className={`toggle-button ${fan.isOn ? 'on' : ''}`}
-                onClick={() => handleAction(fan.toggle, 'Toggle fan')}
-                disabled={!fan.isConnected}
-              >
-                {fan.isOn ? '🌪️ ON' : '⭕ OFF'}
-              </button>
-            </div>
-
-            {/* Display action errors */}
-            {actionError && (
-              <div className="error-banner">
-                ⚠️ {actionError}
-              </div>
-            )}
-            
-            {fan.isOn && fan.isConnected && (
-              <div className="card-content">
+          {fan.isOn && (
+            <CardContent>
+              <div className="fan-controls">
                 {fan.supportsSetSpeed && (
                   <div className="control-group">
-                    <label className="control-label">
-                      Speed: {fan.percentage}%
-                    </label>
+                    <div className="control-header">
+                      <span className="control-label">Speed</span>
+                      <span className="control-value">{fan.percentage}%</span>
+                    </div>
                     <input
                       type="range"
                       min="0"
                       max="100"
                       value={fan.percentage}
-                      onChange={(e) => handleAction(
-                        () => fan.setPercentage(parseInt(e.target.value)),
-                        'Set speed'
-                      )}
-                      className="range-input"
+                      onChange={(e) => fan.setPercentage(parseInt(e.target.value))}
+                      className="slider"
                     />
                   </div>
                 )}
 
                 {fan.supportsPresetMode && fan.availablePresetModes.length > 0 && (
                   <div className="control-group">
-                    <label className="control-label">Preset Mode:</label>
+                    <label className="control-label">Preset Mode</label>
                     <select
                       value={fan.presetMode || (fan.availablePresetModes[0] || '')}
-                      onChange={(e) => handleAction(
-                        () => fan.setPresetMode(e.target.value),
-                        'Set preset mode'
-                      )}
+                      onChange={(e) => fan.setPresetMode(e.target.value)}
                       className="select-input"
                     >
                       {fan.availablePresetModes.map(preset => (
@@ -104,31 +63,25 @@ export const FanCard: React.FC<FanCardProps> = ({ entityId, name }) => {
                 )}
 
                 {fan.supportsOscillate && (
-                  <div className="control-group">
-                    <label className="control-label">
+                  <div className="control-row">
+                    <label className="control-label">Oscillating</label>
+                    <label className="switch-toggle">
                       <input
                         type="checkbox"
                         checked={fan.isOscillating || false}
-                        onChange={(e) => handleAction(
-                          () => fan.setOscillating(e.target.checked),
-                          'Set oscillation'
-                        )}
-                        className="checkbox-input"
+                        onChange={(e) => fan.setOscillating(e.target.checked)}
                       />
-                      Oscillating
+                      <span className="switch-toggle-slider"></span>
                     </label>
                   </div>
                 )}
 
                 {fan.supportsDirection && (
                   <div className="control-group">
-                    <label className="control-label">Direction:</label>
+                    <label className="control-label">Direction</label>
                     <select
                       value={fan.direction || 'forward'}
-                      onChange={(e) => handleAction(
-                        () => fan.setDirection(e.target.value as 'forward' | 'reverse'),
-                        'Set direction'
-                      )}
+                      onChange={(e) => fan.setDirection(e.target.value as 'forward' | 'reverse')}
                       className="select-input"
                     >
                       <option value="forward">Forward</option>
@@ -137,29 +90,28 @@ export const FanCard: React.FC<FanCardProps> = ({ entityId, name }) => {
                   </div>
                 )}
               </div>
-            )}
+            </CardContent>
+          )}
 
-            <div className="card-footer">
-              <div className="feature-tags">
-                {fan.supportsSetSpeed && <span className="feature-tag">Speed</span>}
-                {fan.supportsOscillate && <span className="feature-tag">Oscillate</span>}
-                {fan.supportsDirection && <span className="feature-tag">Direction</span>}
-                {fan.supportsPresetMode && <span className="feature-tag">Presets</span>}
-                {!fan.supportsSetSpeed && !fan.supportsOscillate && !fan.supportsDirection && !fan.supportsPresetMode && (
-                  <span className="feature-tag">Basic</span>
-                )}
-              </div>
-              <div className="entity-info">
-                {fan.isConnected ? (
-                  `Last updated: ${fan.lastUpdated.toLocaleTimeString()}`
-                ) : (
-                  <span style={{ color: '#ef4444' }}>⚠️ Not connected to Home Assistant</span>
-                )}
-              </div>
+          <CardFooter>
+            <div className="badge-container">
+              {fan.supportsSetSpeed && <span className="badge">Speed</span>}
+              {fan.supportsOscillate && <span className="badge">Oscillate</span>}
+              {fan.supportsDirection && <span className="badge">Direction</span>}
+              {fan.supportsPresetMode && <span className="badge">Presets</span>}
+              {!fan.supportsSetSpeed && !fan.supportsOscillate && !fan.supportsDirection && !fan.supportsPresetMode && (
+                <span className="badge">Basic On/Off</span>
+              )}
             </div>
-          </Card>
-        )
-      }}
+            <div className={`connection-indicator ${fan.isConnected ? 'connected' : 'disconnected'}`}>
+              <div className="connection-dot"></div>
+              <span>{fan.isConnected ? 'Online' : 'Offline'}</span>
+            </div>
+          </CardFooter>
+        </Card>
+      )}
     </Fan>
   )
 }
+
+export default FanCard

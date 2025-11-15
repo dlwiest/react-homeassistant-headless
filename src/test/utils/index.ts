@@ -9,6 +9,7 @@ export {
   createMockClimateEntity,
   createMockSensorEntity,
   createMockCoverEntity,
+  createMockCameraEntity,
   createMockEntityWithDefaults,
   createMockEntityWithFeatures,
   getMockServiceCall,

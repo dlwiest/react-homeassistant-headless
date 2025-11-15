@@ -30,6 +30,7 @@ const sidebars: SidebarsConfig = {
           type: 'category',
           label: 'Security & Access',
           items: [
+            'entities/camera',
             'entities/lock',
             'entities/cover',
           ],

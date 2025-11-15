@@ -1,71 +1,74 @@
 import React from 'react'
 import { Lock } from 'hass-react'
-import { Card } from '../layout/Card'
+import { Card, CardHeader, CardContent, CardFooter } from '../layout/Card'
 
 interface LockCardProps {
   entityId: string
   name: string
 }
 
-export const LockCard: React.FC<LockCardProps> = ({ entityId, name }) => {
+const LockCard = ({ entityId, name }: LockCardProps) => {
   return (
     <Lock entityId={entityId}>
       {(lock) => (
         <Card>
-          <div className="card-header">
-            <h3 className="card-title">{name}</h3>
-            <div className={`status-indicator ${lock.isLocked ? 'locked' : lock.isUnlocked ? 'unlocked' : 'unknown'}`}>
-              {lock.isLocked ? '🔒 LOCKED' : lock.isUnlocked ? '🔓 UNLOCKED' : '❓ UNKNOWN'}
+          <CardHeader
+            title={name}
+            subtitle={lock.isLocked ? 'Locked' : lock.isUnlocked ? 'Unlocked' : 'Unknown'}
+          />
+
+          <CardContent>
+            <div className={`lock-status ${lock.isLocked ? 'locked' : 'unlocked'}`}>
+              {lock.isLocked ? 'Locked' : lock.isUnlocked ? 'Unlocked' : 'Unknown'}
             </div>
-          </div>
-          
-          <div className="card-content">
-            <div className="button-group">
-              <button 
-                className="action-button lock-button"
+
+            <div className="lock-controls">
+              <button
+                className={`lock-button ${lock.isLocked ? 'active' : 'inactive'}`}
                 onClick={lock.lock}
                 disabled={lock.isLocked}
               >
-                🔒 Lock
+                Lock
               </button>
-              <button 
-                className="action-button unlock-button"
+              <button
+                className={`lock-button ${lock.isUnlocked ? 'active' : 'inactive'}`}
                 onClick={() => lock.unlock()}
                 disabled={lock.isUnlocked}
               >
-                🔓 Unlock
+                Unlock
               </button>
               {lock.supportsOpen && (
-                <button 
-                  className="action-button open-button"
+                <button
+                  className="lock-button inactive"
                   onClick={() => lock.open()}
                 >
-                  🚪 Open
+                  Open
                 </button>
               )}
             </div>
-            
+
             {lock.changedBy && (
               <div className="lock-info">
                 Changed by: {lock.changedBy}
               </div>
             )}
-          </div>
+          </CardContent>
 
-          <div className="card-footer">
-            <div className="feature-tags">
-              {lock.supportsOpen ? (
-                <span className="feature-tag">Lock, Unlock, Open</span>
-              ) : (
-                <span className="feature-tag">Lock, Unlock</span>
-              )}
+          <CardFooter>
+            <div className="badge-container">
+              <span className="badge">Lock</span>
+              <span className="badge">Unlock</span>
+              {lock.supportsOpen && <span className="badge">Open</span>}
             </div>
-            <div className="entity-info">
-              Last updated: {lock.lastUpdated.toLocaleTimeString()}
+            <div className={`connection-indicator ${lock.isConnected ? 'connected' : 'disconnected'}`}>
+              <div className="connection-dot"></div>
+              <span>{lock.isConnected ? 'Online' : 'Offline'}</span>
             </div>
-          </div>
+          </CardFooter>
         </Card>
       )}
     </Lock>
   )
 }
+
+export default LockCard

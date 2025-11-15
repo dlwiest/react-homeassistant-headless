@@ -1,44 +1,48 @@
+import React from 'react'
 import { Switch } from 'hass-react'
-import { Card, CardHeader, CardFooter } from '../layout/Card'
+import { Card, CardHeader, CardContent, CardFooter } from '../layout/Card'
 
 interface SwitchCardProps {
   entityId: string
   name: string
-  icon?: string
 }
 
-export const SwitchCard = ({ entityId, name, icon = '🔌' }: SwitchCardProps) => {
+const SwitchCard = ({ entityId, name }: SwitchCardProps) => {
   return (
     <Switch entityId={entityId}>
       {(switchEntity) => (
         <Card>
-          <CardHeader 
+          <CardHeader
             title={name}
             subtitle={switchEntity.isOn ? 'On' : 'Off'}
             action={
-              <button 
-                className={`toggle-switch ${switchEntity.isOn ? 'on' : ''}`}
-                onClick={switchEntity.toggle}
-                aria-label={`Toggle ${name}`}
-              />
+              <label className="switch-toggle">
+                <input
+                  type="checkbox"
+                  checked={switchEntity.isOn}
+                  onChange={switchEntity.toggle}
+                />
+                <span className="switch-toggle-slider"></span>
+              </label>
             }
           />
-          
-          <div style={{ 
-            textAlign: 'center', 
-            fontSize: '3rem', 
-            margin: '1rem 0',
-            opacity: switchEntity.isOn ? 1 : 0.3,
-            transition: 'opacity 0.3s ease'
-          }}>
-            {icon}
-          </div>
+
+          <CardContent>
+            <div className="card-info">
+              Last changed: {switchEntity.lastChanged.toLocaleTimeString()}
+            </div>
+          </CardContent>
 
           <CardFooter>
-            Last changed: {switchEntity.lastChanged.toLocaleTimeString()}
+            <div className={`connection-indicator ${switchEntity.isConnected ? 'connected' : 'disconnected'}`}>
+              <div className="connection-dot"></div>
+              <span>{switchEntity.isConnected ? 'Online' : 'Offline'}</span>
+            </div>
           </CardFooter>
         </Card>
       )}
     </Switch>
   )
 }
+
+export default SwitchCard

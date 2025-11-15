@@ -37,6 +37,7 @@ export const createMockLockEntity = createMockEntityFactory('lock')
 export const createMockClimateEntity = createMockEntityFactory('climate')
 export const createMockSensorEntity = createMockEntityFactory('sensor')
 export const createMockCoverEntity = createMockEntityFactory('cover')
+export const createMockCameraEntity = createMockEntityFactory('camera')
 
 // Creates mock entities with typical default attributes for each domain
 export const createMockEntityWithDefaults = {
@@ -85,6 +86,15 @@ export const createMockEntityWithDefaults = {
       friendly_name: `Test Cover ${entityName}`,
       supported_features: 15, // SUPPORT_OPEN | SUPPORT_CLOSE | SUPPORT_STOP | SUPPORT_SET_POSITION
       current_position: state === 'open' ? 100 : 0
+    }),
+
+  camera: (entityName: string = 'test', state: string = 'idle') =>
+    createMockCameraEntity(entityName, state, {
+      friendly_name: `Test Camera ${entityName}`,
+      supported_features: 3, // SUPPORT_ON_OFF | SUPPORT_STREAM by default
+      access_token: 'mock-access-token-123',
+      brand: 'TestBrand',
+      model: 'TestModel'
     })
 }
 

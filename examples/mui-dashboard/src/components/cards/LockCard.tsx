@@ -7,110 +7,102 @@ import {
   CardActions,
   Typography,
   Button,
-  Box,
   Stack,
   Chip,
-  Alert
+  Box
 } from '@mui/material'
-import { LockOutlined, LockOpenOutlined, QuestionMark } from '@mui/icons-material'
 
 interface LockCardProps {
   entityId: string
   name: string
 }
 
-export const LockCard = ({ entityId, name }: LockCardProps) => {
+const LockCard = ({ entityId, name }: LockCardProps) => {
   return (
     <Lock entityId={entityId}>
       {(lock) => (
         <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <CardHeader
-            avatar={
-              lock.isLocked ? (
-                <LockOutlined sx={{ color: 'error.main', fontSize: 32 }} />
-              ) : lock.isUnlocked ? (
-                <LockOpenOutlined sx={{ color: 'success.main', fontSize: 32 }} />
-              ) : (
-                <QuestionMark sx={{ color: 'warning.main', fontSize: 32 }} />
-              )
-            }
             title={
               <Typography variant="h6" component="h2">
                 {name}
               </Typography>
             }
-            subheader={
-              <Chip 
-                label={lock.isLocked ? '🔒 LOCKED' : lock.isUnlocked ? '🔓 UNLOCKED' : '❓ UNKNOWN'}
-                color={lock.isLocked ? 'error' : lock.isUnlocked ? 'success' : 'warning'}
-                size="small"
-                variant="outlined"
-              />
-            }
+            subheader={lock.isLocked ? 'Locked' : lock.isUnlocked ? 'Unlocked' : 'Unknown'}
           />
-          
+
           <CardContent sx={{ flexGrow: 1 }}>
-            <Stack spacing={2}>
-              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            <Typography
+              variant="h3"
+              component="div"
+              sx={{
+                fontWeight: 700,
+                color: lock.isLocked ? 'success.main' : 'error.main',
+                mb: 2
+              }}
+            >
+              {lock.isLocked ? 'Locked' : lock.isUnlocked ? 'Unlocked' : 'Unknown'}
+            </Typography>
+
+            <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+              <Button
+                variant={lock.isLocked ? 'contained' : 'outlined'}
+                onClick={lock.lock}
+                disabled={lock.isLocked}
+                fullWidth
+              >
+                Lock
+              </Button>
+              <Button
+                variant={lock.isUnlocked ? 'contained' : 'outlined'}
+                onClick={() => lock.unlock()}
+                disabled={lock.isUnlocked}
+                fullWidth
+              >
+                Unlock
+              </Button>
+              {lock.supportsOpen && (
                 <Button
-                  onClick={lock.lock}
-                  disabled={lock.isLocked}
-                  variant="contained"
-                  color="error"
-                  size="small"
-                  startIcon={<LockOutlined />}
-                  sx={{ flex: 1, minWidth: 'fit-content' }}
+                  variant="outlined"
+                  onClick={() => lock.open()}
+                  fullWidth
                 >
-                  Lock
+                  Open
                 </Button>
-                <Button
-                  onClick={() => lock.unlock()}
-                  disabled={lock.isUnlocked}
-                  variant="contained"
-                  color="success"
-                  size="small"
-                  startIcon={<LockOpenOutlined />}
-                  sx={{ flex: 1, minWidth: 'fit-content' }}
-                >
-                  Unlock
-                </Button>
-                {lock.supportsOpen && (
-                  <Button
-                    onClick={() => lock.open()}
-                    variant="outlined"
-                    color="primary"
-                    size="small"
-                    sx={{ flex: 1, minWidth: 'fit-content' }}
-                  >
-                    🚪 Open
-                  </Button>
-                )}
-              </Box>
-              
-              {lock.changedBy && (
-                <Alert severity="info" sx={{ py: 0 }}>
-                  <Typography variant="body2">
-                    Changed by: <strong>{lock.changedBy}</strong>
-                  </Typography>
-                </Alert>
               )}
             </Stack>
+
+            {lock.changedBy && (
+              <Typography variant="body2" color="text.secondary">
+                Changed by: {lock.changedBy}
+              </Typography>
+            )}
           </CardContent>
 
-          <CardActions sx={{ p: 2, pt: 0, flexDirection: 'column', alignItems: 'stretch' }}>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
-              <Chip 
-                label={lock.supportsOpen ? 'Lock, Unlock, Open' : 'Lock, Unlock'} 
-                size="small" 
-                variant="outlined"
+          <CardActions sx={{ p: 2, pt: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Stack direction="row" spacing={0.5} flexWrap="wrap">
+              <Chip label="Lock" size="small" />
+              <Chip label="Unlock" size="small" />
+              {lock.supportsOpen && <Chip label="Open" size="small" />}
+            </Stack>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
+              <Box
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  bgcolor: lock.isConnected ? 'success.main' : 'error.main'
+                }}
               />
+              <Typography variant="caption">
+                {lock.isConnected ? 'Online' : 'Offline'}
+              </Typography>
             </Box>
-            <Typography variant="caption" color="text.secondary">
-              Last updated: {lock.lastUpdated.toLocaleTimeString()}
-            </Typography>
           </CardActions>
         </Card>
       )}
     </Lock>
   )
 }
+
+export default LockCard
