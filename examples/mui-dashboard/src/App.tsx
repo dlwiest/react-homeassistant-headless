@@ -1,78 +1,69 @@
 import React from 'react'
-import {
-  HAProvider,
-  useHAConnection
-} from 'hass-react'
+import { HAProvider } from 'hass-react'
 import {
   ThemeProvider,
   createTheme,
   CssBaseline,
   Container,
   Typography,
-  Grid,
-  Card,
-  CardContent,
-  Alert,
-  AlertTitle,
-  Button,
   Box,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemIcon
+  Tabs,
+  Tab,
+  Paper
 } from '@mui/material'
 import {
-  CheckCircle,
-  Error,
-  HourglassEmpty,
-  Warning,
-  Home,
   Lightbulb,
-  Settings,
-  Security,
-  Lock,
-  Speed,
-  Smartphone,
-  Window
+  Thermostat,
+  Shield,
+  MusicNote,
+  Assignment
 } from '@mui/icons-material'
-import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard } from './components/cards'
+import ConnectionStatus from './components/ConnectionStatus'
+import {
+  LightCard,
+  SwitchCard,
+  SensorCard,
+  BinarySensorCard,
+  TodoCard,
+  FanCard,
+  LockCard,
+  CoverCard,
+  MediaPlayerCard,
+  CameraCard
+} from './components/cards'
 
-// Create MUI theme
-const theme = createTheme({
+// Create dark MUI theme
+const darkTheme = createTheme({
   palette: {
-    mode: 'light',
+    mode: 'dark',
     primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
+      main: '#3b82f6',
     },
     background: {
-      default: '#f5f5f5',
-    },
-  },
-  typography: {
-    h4: {
-      fontWeight: 600,
-    },
-    h5: {
-      fontWeight: 500,
+      default: '#0f172a',
+      paper: '#1e293b',
     },
   },
   components: {
     MuiCard: {
       styleOverrides: {
         root: {
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          backgroundImage: 'none',
+          border: '1px solid rgba(71, 85, 105, 0.5)',
+          transition: 'border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+          '&:hover': {
+            borderColor: '#3b82f6',
+            boxShadow: '0 0 8px 2px rgba(59, 130, 246, 0.25)',
+          },
         },
       },
     },
   },
 })
 
-// Mock data for demo - same as other examples
+// Mock data matching vanilla/shadcn examples
 const mockData = {
-  // Living room lights with full RGB support
+  // Lights
   'light.living_room_main': {
     entity_id: 'light.living_room_main',
     state: 'on',
@@ -80,9 +71,12 @@ const mockData = {
       friendly_name: 'Living Room Main Light',
       brightness: 180,
       rgb_color: [255, 255, 255],
-      supported_features: 63, // Brightness + RGB + Effects
+      supported_features: 63,
       effect_list: ['None', 'Colorloop', 'Breath', 'Strobe', 'Police'],
-      effect: 'None'
+      effect: 'None',
+      min_mireds: 153,
+      max_mireds: 500,
+      color_temp: 250
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
@@ -97,21 +91,22 @@ const mockData = {
       rgb_color: [255, 0, 0],
       supported_features: 63,
       effect_list: ['None', 'Colorloop', 'Breath', 'Strobe'],
-      effect: 'None'
+      effect: 'None',
+      min_mireds: 153,
+      max_mireds: 500,
+      color_temp: 250
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-2', parent_id: null, user_id: null }
   },
-  
-  // Bedroom lights
   'light.bedroom_ceiling': {
     entity_id: 'light.bedroom_ceiling',
     state: 'on',
     attributes: {
       friendly_name: 'Bedroom Ceiling',
       brightness: 120,
-      supported_features: 1, // Brightness only
+      supported_features: 1,
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
@@ -124,20 +119,21 @@ const mockData = {
       friendly_name: 'Bedside Lamp',
       brightness: 0,
       rgb_color: [255, 180, 120],
-      supported_features: 31, // Brightness + RGB
+      supported_features: 31,
+      min_mireds: 153,
+      max_mireds: 500,
+      color_temp: 370
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-4', parent_id: null, user_id: null }
   },
 
-  // Switches for various devices
+  // Switches
   'switch.coffee_maker': {
     entity_id: 'switch.coffee_maker',
     state: 'off',
-    attributes: {
-      friendly_name: 'Coffee Maker',
-    },
+    attributes: { friendly_name: 'Coffee Maker' },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-5', parent_id: null, user_id: null }
@@ -145,9 +141,7 @@ const mockData = {
   'switch.desk_fan': {
     entity_id: 'switch.desk_fan',
     state: 'on',
-    attributes: {
-      friendly_name: 'Desk Fan',
-    },
+    attributes: { friendly_name: 'Desk Fan' },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-6', parent_id: null, user_id: null }
@@ -155,15 +149,13 @@ const mockData = {
   'switch.outdoor_lights': {
     entity_id: 'switch.outdoor_lights',
     state: 'on',
-    attributes: {
-      friendly_name: 'Outdoor Lights',
-    },
+    attributes: { friendly_name: 'Outdoor Lights' },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-7', parent_id: null, user_id: null }
   },
 
-  // Environmental sensors
+  // Sensors
   'sensor.living_room_temperature': {
     entity_id: 'sensor.living_room_temperature',
     state: '72.5',
@@ -228,7 +220,7 @@ const mockData = {
       preset_mode: 'Medium',
       oscillating: false,
       direction: 'forward',
-      supported_features: 15, // Speed + Oscillate + Direction + Preset
+      supported_features: 15,
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
@@ -243,7 +235,7 @@ const mockData = {
       preset_modes: ['Low', 'Medium', 'High'],
       preset_mode: null,
       oscillating: false,
-      supported_features: 9, // Speed + Preset
+      supported_features: 9,
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
@@ -257,7 +249,7 @@ const mockData = {
     attributes: {
       friendly_name: 'Front Door',
       changed_by: 'Manual',
-      supported_features: 1, // Open support
+      supported_features: 1,
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
@@ -269,7 +261,7 @@ const mockData = {
     attributes: {
       friendly_name: 'Back Door',
       changed_by: 'Key',
-      supported_features: 0, // Basic lock/unlock only
+      supported_features: 0,
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
@@ -321,7 +313,6 @@ const mockData = {
     attributes: {
       friendly_name: 'Front Door',
       device_class: 'door',
-      icon: 'mdi:door'
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
@@ -333,7 +324,6 @@ const mockData = {
     attributes: {
       friendly_name: 'Living Room Motion',
       device_class: 'motion',
-      icon: 'mdi:motion-sensor'
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
@@ -345,7 +335,6 @@ const mockData = {
     attributes: {
       friendly_name: 'Bedroom Window',
       device_class: 'opening',
-      icon: 'mdi:window-open'
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
@@ -358,7 +347,7 @@ const mockData = {
     state: '2',
     attributes: {
       friendly_name: 'Shopping List',
-      supported_features: 15, // All features
+      supported_features: 15,
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
@@ -369,11 +358,58 @@ const mockData = {
     state: '2',
     attributes: {
       friendly_name: 'Weekend Projects',
-      supported_features: 15, // All features
+      supported_features: 15,
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-23', parent_id: null, user_id: null }
+  },
+
+  // Cameras
+  'camera.front_door': {
+    entity_id: 'camera.front_door',
+    state: 'idle',
+    attributes: {
+      friendly_name: 'Front Door Camera',
+      access_token: 'mock_token_front_door',
+      supported_features: 3,
+      brand: 'Nest',
+      model: 'Cam IQ',
+      motion_detection: true,
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-24', parent_id: null, user_id: null }
+  },
+  'camera.backyard': {
+    entity_id: 'camera.backyard',
+    state: 'recording',
+    attributes: {
+      friendly_name: 'Backyard Camera',
+      access_token: 'mock_token_backyard',
+      supported_features: 3,
+      brand: 'Ring',
+      model: 'Spotlight Cam',
+      motion_detection: true,
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-25', parent_id: null, user_id: null }
+  },
+  'camera.garage': {
+    entity_id: 'camera.garage',
+    state: 'off',
+    attributes: {
+      friendly_name: 'Garage Camera',
+      access_token: 'mock_token_garage',
+      supported_features: 1,
+      brand: 'Wyze',
+      model: 'Cam v3',
+      motion_detection: false,
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-26', parent_id: null, user_id: null }
   },
 
   // Media Players
@@ -391,12 +427,11 @@ const mockData = {
       is_volume_muted: false,
       source: 'Spotify',
       source_list: ['Spotify', 'Bluetooth', 'AirPlay', 'Line In'],
-      supported_features: 20925, // Play, Pause, Volume, Seek, Source selection
-      app_name: 'Spotify'
+      supported_features: 20925,
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
-    context: { id: 'context-24', parent_id: null, user_id: null }
+    context: { id: 'context-27', parent_id: null, user_id: null }
   },
   'media_player.kitchen_display': {
     entity_id: 'media_player.kitchen_display',
@@ -410,11 +445,10 @@ const mockData = {
       source: 'Radio',
       source_list: ['Radio', 'Bluetooth', 'USB'],
       supported_features: 20925,
-      app_name: 'NPR One'
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
-    context: { id: 'context-25', parent_id: null, user_id: null }
+    context: { id: 'context-28', parent_id: null, user_id: null }
   },
   'media_player.bedroom_tv': {
     entity_id: 'media_player.bedroom_tv',
@@ -429,239 +463,209 @@ const mockData = {
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
-    context: { id: 'context-26', parent_id: null, user_id: null }
+    context: { id: 'context-29', parent_id: null, user_id: null }
   },
 }
 
-const ConnectionStatus = () => {
-  const { connected, connecting, error, reconnect, config } = useHAConnection()
-  
-  const autoReconnectEnabled = config.options?.autoReconnect !== false
+interface TabPanelProps {
+  children?: React.ReactNode
+  index: number
+  value: number
+}
 
-  const getStatusIcon = () => {
-    if (connected) return <CheckCircle color="success" />
-    if (connecting) return <HourglassEmpty color="warning" />
-    if (error) return <Error color="error" />
-    return <Warning color="warning" />
-  }
-
-  const getStatusText = () => {
-    if (connecting && !connected) return 'Connecting to Home Assistant...'
-    if (connected && !connecting) return 'Connected to Home Assistant'
-    if (!connected && !connecting && error && autoReconnectEnabled) return 'Reconnecting...'
-    if (!connected && !connecting && error && !autoReconnectEnabled) return `Error: ${error.message}`
-    if (!connected && !connecting && !error) return 'Disconnected'
-    return ''
-  }
-
-  const getSeverity = () => {
-    if (connected) return 'success'
-    if (connecting) return 'info' 
-    if (error) return 'error'
-    return 'warning'
-  }
+const TabPanel = (props: TabPanelProps) => {
+  const { children, value, index, ...other } = props
 
   return (
-    <Alert 
-      severity={getSeverity() as any}
-      icon={getStatusIcon()}
-      sx={{ mb: 3 }}
-      action={
-        !connected && !connecting && error && !autoReconnectEnabled ? (
-          <Button color="inherit" size="small" onClick={reconnect}>
-            Retry
-          </Button>
-        ) : null
-      }
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`tabpanel-${index}`}
+      aria-labelledby={`tab-${index}`}
+      {...other}
     >
-      <AlertTitle>Connection Status</AlertTitle>
-      {getStatusText()}
-    </Alert>
+      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
+    </div>
   )
 }
 
 const Dashboard = () => {
+  const [tabValue, setTabValue] = React.useState(0)
+
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setTabValue(newValue)
+  }
+
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
-      <Box sx={{ mb: 4, textAlign: 'center' }}>
-        <Typography variant="h4" component="h1" gutterBottom>
-          Smart Home Dashboard
-        </Typography>
-        <Typography variant="h6" color="text.secondary" gutterBottom>
-          Built with hass-react + Material-UI
-        </Typography>
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+      {/* Header */}
+      <Box
+        sx={{
+          bgcolor: 'background.paper',
+          borderBottom: 1,
+          borderColor: 'divider',
+          py: 3,
+          px: 2
+        }}
+      >
+        <Container maxWidth="xl">
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box>
+              <Typography variant="h4" component="h1" fontWeight={600} gutterBottom>
+                Smart Home
+              </Typography>
+              <Typography variant="body1" color="text.secondary">
+                Manage your connected devices
+              </Typography>
+            </Box>
+            <ConnectionStatus />
+          </Box>
+        </Container>
       </Box>
 
-      <ConnectionStatus />
+      <Container maxWidth="xl" sx={{ py: 4 }}>
+        {/* Tabs */}
+        <Paper sx={{ mb: 4 }}>
+          <Tabs
+            value={tabValue}
+            onChange={handleTabChange}
+            variant="fullWidth"
+            sx={{ borderBottom: 1, borderColor: 'divider' }}
+          >
+            <Tab icon={<Lightbulb />} label="Lighting & Power" iconPosition="start" />
+            <Tab icon={<Thermostat />} label="Climate" iconPosition="start" />
+            <Tab icon={<Shield />} label="Security" iconPosition="start" />
+            <Tab icon={<MusicNote />} label="Entertainment" iconPosition="start" />
+            <Tab icon={<Assignment />} label="Productivity" iconPosition="start" />
+          </Tabs>
+        </Paper>
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Lightbulb /> Lighting
-        </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={3}>
-            <LightCard entityId="living_room_main" name="Living Room Main" />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <LightCard entityId="living_room_accent" name="Living Room Accent" />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <LightCard entityId="bedroom_ceiling" name="Bedroom Ceiling" />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <LightCard entityId="bedside_lamp" name="Bedside Lamp" />
-          </Grid>
-        </Grid>
-      </Box>
+        {/* Lighting & Power Tab */}
+        <TabPanel value={tabValue} index={0}>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Lights
+            </Typography>
+            <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', maxWidth: '100%', '@media (min-width: 1200px)': { gridTemplateColumns: 'repeat(3, 1fr)' } }}>
+              <LightCard entityId="living_room_main" name="Living Room Main" />
+              <LightCard entityId="living_room_accent" name="Living Room Accent" />
+              <LightCard entityId="bedroom_ceiling" name="Bedroom Ceiling" />
+              <LightCard entityId="bedside_lamp" name="Bedside Lamp" />
+            </Box>
+          </Box>
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Speed /> Fans
-        </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={4}>
-            <FanCard entityId="fan.living_room_ceiling" name="Living Room Ceiling Fan" />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <FanCard entityId="fan.bedroom_fan" name="Bedroom Fan" />
-          </Grid>
-        </Grid>
-      </Box>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Switches
+            </Typography>
+            <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', maxWidth: '100%', '@media (min-width: 1200px)': { gridTemplateColumns: 'repeat(3, 1fr)' } }}>
+              <SwitchCard entityId="coffee_maker" name="Coffee Maker" />
+              <SwitchCard entityId="desk_fan" name="Desk Fan" />
+              <SwitchCard entityId="outdoor_lights" name="Outdoor Lights" />
+            </Box>
+          </Box>
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Lock /> Security
-        </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={4}>
-            <LockCard entityId="lock.front_door" name="Front Door" />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <LockCard entityId="lock.back_door" name="Back Door" />
-          </Grid>
-        </Grid>
-      </Box>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Fans
+            </Typography>
+            <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', maxWidth: '100%', '@media (min-width: 1200px)': { gridTemplateColumns: 'repeat(3, 1fr)' } }}>
+              <FanCard entityId="fan.living_room_ceiling" name="Living Room Ceiling Fan" />
+              <FanCard entityId="fan.bedroom_fan" name="Bedroom Fan" />
+            </Box>
+          </Box>
+        </TabPanel>
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          📝 Todo Lists
-        </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={6}>
-            <TodoCard entityId="todo.shopping_list" name="Shopping List" />
-          </Grid>
-          <Grid item xs={12} sm={6} md={6}>
-            <TodoCard entityId="todo.weekend_projects" name="Weekend Projects" />
-          </Grid>
-        </Grid>
-      </Box>
+        {/* Climate Tab */}
+        <TabPanel value={tabValue} index={1}>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Sensors
+            </Typography>
+            <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', maxWidth: '100%', '@media (min-width: 1200px)': { gridTemplateColumns: 'repeat(3, 1fr)' } }}>
+              <SensorCard entityId="living_room_temperature" name="Living Room Temperature" precision={1} />
+              <SensorCard entityId="living_room_humidity" name="Living Room Humidity" precision={1} />
+              <SensorCard entityId="outdoor_temperature" name="Outdoor Temperature" precision={1} />
+              <SensorCard entityId="energy_usage" name="Current Energy Usage" precision={2} />
+            </Box>
+          </Box>
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Window /> Covers
-        </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={4}>
-            <CoverCard entityId="cover.garage_door" name="Garage Door" />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <CoverCard entityId="cover.living_room_blinds" name="Living Room Blinds" />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <CoverCard entityId="cover.bedroom_curtains" name="Bedroom Curtains" />
-          </Grid>
-        </Grid>
-      </Box>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Binary Sensors
+            </Typography>
+            <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', maxWidth: '100%', '@media (min-width: 1200px)': { gridTemplateColumns: 'repeat(3, 1fr)' } }}>
+              <BinarySensorCard entityId="binary_sensor.front_door" name="Front Door" />
+              <BinarySensorCard entityId="binary_sensor.motion_sensor" name="Living Room Motion" />
+              <BinarySensorCard entityId="binary_sensor.bedroom_window" name="Bedroom Window" />
+            </Box>
+          </Box>
+        </TabPanel>
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Settings /> Devices & Switches
-        </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={4}>
-            <SwitchCard entityId="coffee_maker" name="Coffee Maker" icon="☕" />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <SwitchCard entityId="desk_fan" name="Desk Fan" icon="🌪️" />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <SwitchCard entityId="outdoor_lights" name="Outdoor Lights" icon="🏠" />
-          </Grid>
-        </Grid>
-      </Box>
+        {/* Security Tab */}
+        <TabPanel value={tabValue} index={2}>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Cameras
+            </Typography>
+            <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', maxWidth: '100%', '@media (min-width: 1200px)': { gridTemplateColumns: 'repeat(3, 1fr)' } }}>
+              <CameraCard entityId="camera.front_door" name="Front Door Camera" />
+              <CameraCard entityId="camera.backyard" name="Backyard Camera" />
+              <CameraCard entityId="camera.garage" name="Garage Camera" />
+            </Box>
+          </Box>
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          🎵 Media Players
-        </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={4}>
-            <MediaPlayerCard entityId="media_player.living_room_speaker" name="Living Room Speaker" />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <MediaPlayerCard entityId="media_player.kitchen_display" name="Kitchen Display" />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <MediaPlayerCard entityId="media_player.bedroom_tv" name="Bedroom TV" />
-          </Grid>
-        </Grid>
-      </Box>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Locks
+            </Typography>
+            <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', maxWidth: '100%', '@media (min-width: 1200px)': { gridTemplateColumns: 'repeat(3, 1fr)' } }}>
+              <LockCard entityId="lock.front_door" name="Front Door" />
+              <LockCard entityId="lock.back_door" name="Back Door" />
+            </Box>
+          </Box>
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Speed /> Environmental Sensors
-        </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={3}>
-            <SensorCard 
-              entityId="living_room_temperature" 
-              name="Living Room Temperature"
-              precision={1}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <SensorCard 
-              entityId="living_room_humidity" 
-              name="Living Room Humidity"
-              precision={1}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <SensorCard 
-              entityId="outdoor_temperature" 
-              name="Outdoor Temperature"
-              precision={1}
-            />
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <SensorCard 
-              entityId="energy_usage" 
-              name="Current Energy Usage"
-              precision={2}
-            />
-          </Grid>
-        </Grid>
-      </Box>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Covers
+            </Typography>
+            <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', maxWidth: '100%', '@media (min-width: 1200px)': { gridTemplateColumns: 'repeat(3, 1fr)' } }}>
+              <CoverCard entityId="cover.garage_door" name="Garage Door" />
+              <CoverCard entityId="cover.living_room_blinds" name="Living Room Blinds" />
+              <CoverCard entityId="cover.bedroom_curtains" name="Bedroom Curtains" />
+            </Box>
+          </Box>
+        </TabPanel>
 
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h5" component="h2" gutterBottom sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Smartphone /> Binary Sensors
-        </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={4}>
-            <BinarySensorCard entityId="binary_sensor.front_door" name="Front Door" />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <BinarySensorCard entityId="binary_sensor.motion_sensor" name="Living Room Motion" />
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <BinarySensorCard entityId="binary_sensor.bedroom_window" name="Bedroom Window" />
-          </Grid>
-        </Grid>
-      </Box>
+        {/* Entertainment Tab */}
+        <TabPanel value={tabValue} index={3}>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Media Players
+            </Typography>
+            <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', maxWidth: '100%', '@media (min-width: 1200px)': { gridTemplateColumns: 'repeat(3, 1fr)' } }}>
+              <MediaPlayerCard entityId="media_player.living_room_speaker" name="Living Room Speaker" />
+              <MediaPlayerCard entityId="media_player.kitchen_display" name="Kitchen Display" />
+              <MediaPlayerCard entityId="media_player.bedroom_tv" name="Bedroom TV" />
+            </Box>
+          </Box>
+        </TabPanel>
 
-      <Card sx={{ mt: 4 }}>
-        <CardContent>
+        {/* Productivity Tab */}
+        <TabPanel value={tabValue} index={4}>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Todo Lists
+            </Typography>
+            <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', maxWidth: '100%', '@media (min-width: 1200px)': { gridTemplateColumns: 'repeat(3, 1fr)' } }}>
+              <TodoCard entityId="todo.shopping_list" name="Shopping List" />
+              <TodoCard entityId="todo.weekend_projects" name="Weekend Projects" />
+            </Box>
+          </Box>
+        </TabPanel>
+
+        {/* Footer */}
+        <Paper sx={{ mt: 6, p: 3 }}>
           <Typography variant="h6" gutterBottom>
             About This Example
           </Typography>
@@ -669,36 +673,36 @@ const Dashboard = () => {
             This dashboard showcases the <strong>hass-react</strong> library with{' '}
             <strong>Material-UI components</strong>. It demonstrates:
           </Typography>
-          <List dense>
-            <ListItem>
-              <ListItemIcon><Smartphone /></ListItemIcon>
-              <ListItemText primary="Material-UI integration" secondary="Beautiful, accessible components with Material Design" />
-            </ListItem>
-            <ListItem>
-              <ListItemIcon><Security /></ListItemIcon>
-              <ListItemText primary="TypeScript support" secondary="Type-safe Home Assistant integration" />
-            </ListItem>
-            <ListItem>
-              <ListItemIcon><Home /></ListItemIcon>
-              <ListItemText primary="Mock mode" secondary="Perfect for development and demos" />
-            </ListItem>
-          </List>
+          <Box component="ul" sx={{ pl: 3 }}>
+            <Typography component="li" variant="body2" paragraph>
+              <strong>Material-UI integration</strong> - Accessible components with Material Design
+            </Typography>
+            <Typography component="li" variant="body2" paragraph>
+              <strong>Tabbed navigation</strong> - Organized entity management
+            </Typography>
+            <Typography component="li" variant="body2" paragraph>
+              <strong>TypeScript support</strong> - Type-safe Home Assistant integration
+            </Typography>
+            <Typography component="li" variant="body2">
+              <strong>Mock mode</strong> - Perfect for development and demos
+            </Typography>
+          </Box>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-            Try toggling lights, adjusting brightness, changing colors, and exploring the different features!
+            Navigate through the tabs to explore different entity types and features!
           </Typography>
-        </CardContent>
-      </Card>
-    </Container>
+        </Paper>
+      </Container>
+    </Box>
   )
 }
 
 const App = () => {
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <HAProvider 
-        url="http://homeassistant.local:8123" 
-        mockMode={true} 
+      <HAProvider
+        url="http://homeassistant.local:8123"
+        mockMode={true}
         mockData={mockData}
       >
         <Dashboard />

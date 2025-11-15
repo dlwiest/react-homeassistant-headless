@@ -601,7 +601,7 @@ const Dashboard = () => {
             <strong> shadcn/ui components</strong>. It demonstrates:
           </p>
           <ul className="mt-3 ml-5 space-y-1">
-            <li><strong>shadcn/ui integration</strong> - Beautiful, accessible components</li>
+            <li><strong>shadcn/ui integration</strong> - Accessible components</li>
             <li><strong>Tailwind CSS styling</strong> - Modern utility-first CSS</li>
             <li><strong>Radix UI primitives</strong> - Robust, accessible foundations</li>
             <li><strong>TypeScript support</strong> - Type-safe Home Assistant integration</li>

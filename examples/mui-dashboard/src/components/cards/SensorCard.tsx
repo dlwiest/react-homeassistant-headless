@@ -4,20 +4,11 @@ import {
   Card,
   CardHeader,
   CardContent,
+  CardActions,
   Typography,
   Box,
   Chip
 } from '@mui/material'
-import {
-  Thermostat,
-  WaterDrop,
-  Speed,
-  BatteryFull,
-  Bolt,
-  Power,
-  Lightbulb,
-  Analytics
-} from '@mui/icons-material'
 
 interface SensorCardProps {
   entityId: string
@@ -25,20 +16,7 @@ interface SensorCardProps {
   precision?: number
 }
 
-export const SensorCard = ({ entityId, name, precision = 1 }: SensorCardProps) => {
-  const getIconForDeviceClass = (deviceClass?: string) => {
-    switch (deviceClass) {
-      case 'temperature': return <Thermostat sx={{ fontSize: 48 }} />
-      case 'humidity': return <WaterDrop sx={{ fontSize: 48 }} />
-      case 'pressure': return <Speed sx={{ fontSize: 48 }} />
-      case 'battery': return <BatteryFull sx={{ fontSize: 48 }} />
-      case 'power': return <Bolt sx={{ fontSize: 48 }} />
-      case 'energy': return <Power sx={{ fontSize: 48 }} />
-      case 'illuminance': return <Lightbulb sx={{ fontSize: 48 }} />
-      default: return <Analytics sx={{ fontSize: 48 }} />
-    }
-  }
-
+const SensorCard = ({ entityId, name, precision = 1 }: SensorCardProps) => {
   const formatValue = (value: string | number | null | undefined, unit?: string) => {
     if (value === null || value === undefined) return 'Unknown'
     if (typeof value === 'number') {
@@ -57,45 +35,44 @@ export const SensorCard = ({ entityId, name, precision = 1 }: SensorCardProps) =
                 {name}
               </Typography>
             }
-            subheader={
-              <Chip 
-                label={sensor.deviceClass || 'Sensor'} 
-                size="small" 
-                color="primary"
-                variant="outlined"
-              />
-            }
+            subheader={sensor.deviceClass || 'Sensor'}
           />
-          
-          <CardContent sx={{ flexGrow: 1, textAlign: 'center' }}>
-            <Box sx={{ mb: 2 }}>
-              {getIconForDeviceClass(sensor.deviceClass)}
-            </Box>
-            
-            <Typography 
-              variant="h4" 
-              component="div" 
-              sx={{ 
-                fontWeight: 'bold',
-                mb: 1,
+
+          <CardContent sx={{ flexGrow: 1 }}>
+            <Typography
+              variant="h3"
+              component="div"
+              sx={{
+                fontWeight: 700,
                 color: sensor.numericValue !== null ? 'text.primary' : 'text.secondary'
               }}
             >
               {formatValue(sensor.numericValue, sensor.unitOfMeasurement)}
             </Typography>
-            
-            {sensor.numericValue === null && sensor.value && (
-              <Typography variant="h6" color="text.secondary">
-                {sensor.value}
-              </Typography>
-            )}
-            
-            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-              Last updated: {sensor.lastUpdated.toLocaleTimeString()}
-            </Typography>
           </CardContent>
+
+          <CardActions sx={{ p: 2, pt: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            {sensor.stateClass && (
+              <Chip label={sensor.stateClass} size="small" />
+            )}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
+              <Box
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  bgcolor: sensor.isConnected ? 'success.main' : 'error.main'
+                }}
+              />
+              <Typography variant="caption">
+                {sensor.isConnected ? 'Online' : 'Offline'}
+              </Typography>
+            </Box>
+          </CardActions>
         </Card>
       )}
     </Sensor>
   )
 }
+
+export default SensorCard

@@ -12,33 +12,23 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  FormControlLabel,
-  Button,
-  Box,
   Stack,
-  Chip
+  Box,
+  FormControlLabel
 } from '@mui/material'
-import { Air } from '@mui/icons-material'
+import FeatureChip from '../ui/FeatureChip'
 
 interface FanCardProps {
   entityId: string
   name: string
 }
 
-export const FanCard = ({ entityId, name }: FanCardProps) => {
+const FanCard = ({ entityId, name }: FanCardProps) => {
   return (
     <Fan entityId={entityId}>
       {(fan) => (
         <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <CardHeader
-            avatar={
-              <Air 
-                sx={{ 
-                  color: fan.isOn ? 'primary.main' : 'text.disabled',
-                  fontSize: 32
-                }} 
-              />
-            }
             title={
               <Typography variant="h6" component="h2">
                 {name}
@@ -46,14 +36,13 @@ export const FanCard = ({ entityId, name }: FanCardProps) => {
             }
             subheader={fan.isOn ? 'On' : 'Off'}
             action={
-              <Switch 
+              <Switch
                 checked={fan.isOn}
                 onChange={fan.toggle}
-                color="primary"
               />
             }
           />
-          
+
           {fan.isOn && (
             <CardContent sx={{ flexGrow: 1 }}>
               <Stack spacing={3}>
@@ -68,7 +57,6 @@ export const FanCard = ({ entityId, name }: FanCardProps) => {
                       min={0}
                       max={100}
                       valueLabelDisplay="auto"
-                      valueLabelFormat={(value) => `${value}%`}
                     />
                   </Box>
                 )}
@@ -78,8 +66,8 @@ export const FanCard = ({ entityId, name }: FanCardProps) => {
                     <InputLabel>Preset Mode</InputLabel>
                     <Select
                       value={fan.presetMode || (fan.availablePresetModes[0] || '')}
-                      label="Preset Mode"
                       onChange={(e) => fan.setPresetMode(e.target.value)}
+                      label="Preset Mode"
                     >
                       {fan.availablePresetModes.map(preset => (
                         <MenuItem key={preset} value={preset}>{preset}</MenuItem>
@@ -94,7 +82,6 @@ export const FanCard = ({ entityId, name }: FanCardProps) => {
                       <Switch
                         checked={fan.isOscillating || false}
                         onChange={(e) => fan.setOscillating(e.target.checked)}
-                        color="primary"
                       />
                     }
                     label="Oscillating"
@@ -106,8 +93,8 @@ export const FanCard = ({ entityId, name }: FanCardProps) => {
                     <InputLabel>Direction</InputLabel>
                     <Select
                       value={fan.direction || 'forward'}
-                      label="Direction"
                       onChange={(e) => fan.setDirection(e.target.value as 'forward' | 'reverse')}
+                      label="Direction"
                     >
                       <MenuItem value="forward">Forward</MenuItem>
                       <MenuItem value="reverse">Reverse</MenuItem>
@@ -118,22 +105,34 @@ export const FanCard = ({ entityId, name }: FanCardProps) => {
             </CardContent>
           )}
 
-          <CardActions sx={{ p: 2, pt: 0, flexDirection: 'column', alignItems: 'stretch' }}>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 1 }}>
-              {fan.supportsSetSpeed && <Chip label="Speed Control" size="small" />}
-              {fan.supportsOscillate && <Chip label="Oscillation" size="small" />}
-              {fan.supportsDirection && <Chip label="Direction" size="small" />}
-              {fan.supportsPresetMode && <Chip label="Preset Modes" size="small" />}
+          <CardActions sx={{ p: 2, pt: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Stack direction="row" spacing={0.5} flexWrap="wrap">
+              {fan.supportsSetSpeed && <FeatureChip label="Speed" />}
+              {fan.supportsOscillate && <FeatureChip label="Oscillate" />}
+              {fan.supportsDirection && <FeatureChip label="Direction" />}
+              {fan.supportsPresetMode && <FeatureChip label="Presets" />}
               {!fan.supportsSetSpeed && !fan.supportsOscillate && !fan.supportsDirection && !fan.supportsPresetMode && (
-                <Chip label="Basic On/Off" size="small" />
+                <FeatureChip label="Basic On/Off" />
               )}
+            </Stack>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
+              <Box
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  bgcolor: fan.isConnected ? 'success.main' : 'error.main'
+                }}
+              />
+              <Typography variant="caption">
+                {fan.isConnected ? 'Online' : 'Offline'}
+              </Typography>
             </Box>
-            <Typography variant="caption" color="text.secondary">
-              Last updated: {fan.lastUpdated.toLocaleTimeString()}
-            </Typography>
           </CardActions>
         </Card>
       )}
     </Fan>
   )
 }
+
+export default FanCard

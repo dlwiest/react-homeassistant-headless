@@ -1,9 +1,10 @@
 import React from 'react'
-import { Switch as HomeAssistantSwitch } from 'hass-react'
+import { Switch as SwitchEntity } from 'hass-react'
 import {
   Card,
   CardHeader,
   CardContent,
+  CardActions,
   Typography,
   Switch,
   Box
@@ -12,12 +13,11 @@ import {
 interface SwitchCardProps {
   entityId: string
   name: string
-  icon?: string
 }
 
-export const SwitchCard = ({ entityId, name, icon = '🔌' }: SwitchCardProps) => {
+const SwitchCard = ({ entityId, name }: SwitchCardProps) => {
   return (
-    <HomeAssistantSwitch entityId={entityId}>
+    <SwitchEntity entityId={entityId}>
       {(switchEntity) => (
         <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
           <CardHeader
@@ -28,32 +28,38 @@ export const SwitchCard = ({ entityId, name, icon = '🔌' }: SwitchCardProps) =
             }
             subheader={switchEntity.isOn ? 'On' : 'Off'}
             action={
-              <Switch 
+              <Switch
                 checked={switchEntity.isOn}
                 onChange={switchEntity.toggle}
-                color="primary"
               />
             }
           />
-          
-          <CardContent sx={{ flexGrow: 1, textAlign: 'center' }}>
-            <Box
-              sx={{
-                fontSize: '4rem',
-                opacity: switchEntity.isOn ? 1 : 0.3,
-                transition: 'opacity 0.3s ease',
-                my: 2
-              }}
-            >
-              {icon}
-            </Box>
-            
+
+          <CardContent sx={{ flexGrow: 1 }}>
             <Typography variant="body2" color="text.secondary">
               Last changed: {switchEntity.lastChanged.toLocaleTimeString()}
             </Typography>
           </CardContent>
+
+          <CardActions sx={{ p: 2, pt: 0 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto' }}>
+              <Box
+                sx={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  bgcolor: switchEntity.isConnected ? 'success.main' : 'error.main'
+                }}
+              />
+              <Typography variant="caption">
+                {switchEntity.isConnected ? 'Online' : 'Offline'}
+              </Typography>
+            </Box>
+          </CardActions>
         </Card>
       )}
-    </HomeAssistantSwitch>
+    </SwitchEntity>
   )
 }
+
+export default SwitchCard
