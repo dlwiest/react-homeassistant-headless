@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/react'
 import { StreamPlayer } from '../StreamPlayer'
 import type { StreamState } from '../../../types'
 
@@ -294,7 +294,7 @@ describe('Camera.StreamPlayer', () => {
         type: null as any
       }
 
-      const { container } = render(<StreamPlayer stream={streamState} />)
+      render(<StreamPlayer stream={streamState} />)
       // Should render video by default for non-mjpeg types
       expect(document.querySelector('video')).toBeInTheDocument()
     })

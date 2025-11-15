@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { renderHook, act, waitFor } from '@testing-library/react'
+import { renderHook, act } from '@testing-library/react'
 import { CameraFeatures } from '../../types'
 import { createMockEntity } from '../../test/utils'
 import { FeatureNotSupportedError } from '../../utils/errors'
