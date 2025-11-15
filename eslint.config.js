@@ -30,7 +30,9 @@ export default [
         sessionStorage: 'readonly',
         URLSearchParams: 'readonly',
         URL: 'readonly',
-        crypto: 'readonly'
+        crypto: 'readonly',
+        JSX: 'readonly',
+        HTMLVideoElement: 'readonly'
       }
     },
     plugins: {
