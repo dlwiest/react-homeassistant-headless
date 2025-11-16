@@ -2,7 +2,7 @@ import React from 'react'
 import { useHAConnection } from 'hass-react'
 import { Box } from '@mui/material'
 
-const ConnectionStatus = () => {
+export const ConnectionStatus = () => {
   const { connected } = useHAConnection()
 
   return (
@@ -40,4 +40,3 @@ const ConnectionStatus = () => {
   )
 }
 
-export default ConnectionStatus

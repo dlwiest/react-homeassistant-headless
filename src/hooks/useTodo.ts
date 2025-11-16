@@ -4,6 +4,7 @@ import type { TodoState, TodoAttributes, TodoItem } from '../types'
 import { TodoFeatures } from '../types'
 import { useState, useEffect, useCallback } from 'react'
 import { checkFeatures } from '../utils/features'
+import { FeatureNotSupportedError } from '../utils/errors'
 
 const validateTodoEntityId = createDomainValidator('todo', 'useTodo')
 
@@ -79,9 +80,9 @@ export function useTodo(entityId: string): TodoState {
   // Add a new todo item
   const addItem = useCallback(async (summary: string) => {
     if (!supportsAddItem) {
-      throw new Error(`Todo list "${normalizedEntityId}" does not support adding items`)
+      throw new FeatureNotSupportedError(normalizedEntityId, 'adding items')
     }
-    
+
     try {
       await callService('todo', 'add_item', {
         item: summary
@@ -97,9 +98,9 @@ export function useTodo(entityId: string): TodoState {
   // Remove a todo item
   const removeItem = useCallback(async (uid: string) => {
     if (!supportsRemoveItem) {
-      throw new Error(`Todo list "${normalizedEntityId}" does not support removing items`)
+      throw new FeatureNotSupportedError(normalizedEntityId, 'removing items')
     }
-    
+
     try {
       await callService('todo', 'remove_item', {
         item: uid
@@ -115,9 +116,9 @@ export function useTodo(entityId: string): TodoState {
   // Update a todo item (toggle checked/unchecked)
   const updateItem = useCallback(async (uid: string, status: 'needs_action' | 'completed') => {
     if (!supportsUpdateItem) {
-      throw new Error(`Todo list "${normalizedEntityId}" does not support updating items`)
+      throw new FeatureNotSupportedError(normalizedEntityId, 'updating items')
     }
-    
+
     try {
       await callService('todo', 'update_item', {
         item: uid,
@@ -143,9 +144,9 @@ export function useTodo(entityId: string): TodoState {
   // Remove all completed items
   const clearCompleted = useCallback(async () => {
     if (!supportsClearCompleted) {
-      throw new Error(`Todo list "${normalizedEntityId}" does not support clearing completed items`)
+      throw new FeatureNotSupportedError(normalizedEntityId, 'clearing completed items')
     }
-    
+
     try {
       await callService('todo', 'remove_completed_items')
       // Refresh items after clearing

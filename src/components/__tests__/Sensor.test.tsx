@@ -2,7 +2,7 @@ import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import Sensor from '../Sensor'
+import { Sensor } from '../Sensor'
 import { useSensor } from '../../hooks/useSensor'
 import type { SensorState } from '../../types'
 
@@ -25,6 +25,7 @@ const createMockSensorEntity = (
   isUnavailable: state === 'unavailable',
   isConnected: true,
   callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
   refresh: vi.fn(),
   value: state === 'unavailable' || state === 'unknown' ? null : 
          (attributes.device_class === 'temperature' || 

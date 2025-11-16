@@ -1,7 +1,7 @@
 import React from 'react'
 import { Chip, ChipProps } from '@mui/material'
 
-const FeatureChip = (props: ChipProps) => {
+export const FeatureChip = (props: ChipProps) => {
   return (
     <Chip
       size="small"
@@ -16,4 +16,3 @@ const FeatureChip = (props: ChipProps) => {
   )
 }
 
-export default FeatureChip

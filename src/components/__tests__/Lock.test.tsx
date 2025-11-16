@@ -2,7 +2,7 @@ import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import Lock from '../Lock'
+import { Lock } from '../Lock'
 import { useLock } from '../../hooks/useLock'
 
 // Mock the useLock hook
@@ -25,6 +25,7 @@ const mockLockState = {
   unlock: vi.fn(),
   open: vi.fn(),
   callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
   refresh: vi.fn(),
   error: undefined
 }

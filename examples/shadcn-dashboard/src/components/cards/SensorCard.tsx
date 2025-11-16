@@ -10,7 +10,7 @@ interface SensorCardProps {
   precision?: number
 }
 
-const SensorCard = ({ entityId, name, precision = 1 }: SensorCardProps) => {
+export const SensorCard = ({ entityId, name, precision = 1 }: SensorCardProps) => {
   const formatValue = (value: string | number | null | undefined, unit?: string) => {
     if (value === null || value === undefined) return 'Unknown'
     if (typeof value === 'number') {
@@ -52,4 +52,3 @@ const SensorCard = ({ entityId, name, precision = 1 }: SensorCardProps) => {
   )
 }
 
-export default SensorCard

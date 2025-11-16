@@ -16,14 +16,14 @@ import {
   Box,
   FormControlLabel
 } from '@mui/material'
-import FeatureChip from '../ui/FeatureChip'
+import { FeatureChip } from '../ui/FeatureChip'
 
 interface FanCardProps {
   entityId: string
   name: string
 }
 
-const FanCard = ({ entityId, name }: FanCardProps) => {
+export const FanCard = ({ entityId, name }: FanCardProps) => {
   return (
     <Fan entityId={entityId}>
       {(fan) => (
@@ -135,4 +135,3 @@ const FanCard = ({ entityId, name }: FanCardProps) => {
   )
 }
 
-export default FanCard

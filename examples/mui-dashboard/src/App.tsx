@@ -18,7 +18,7 @@ import {
   MusicNote,
   Assignment
 } from '@mui/icons-material'
-import ConnectionStatus from './components/ConnectionStatus'
+import { ConnectionStatus } from './components/ConnectionStatus'
 import {
   LightCard,
   SwitchCard,
@@ -696,7 +696,7 @@ const Dashboard = () => {
   )
 }
 
-const App = () => {
+export const App = () => {
   return (
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
@@ -711,4 +711,3 @@ const App = () => {
   )
 }
 
-export default App

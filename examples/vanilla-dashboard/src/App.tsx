@@ -599,7 +599,7 @@ const Dashboard = () => {
   )
 }
 
-const App = () => {
+export const App = () => {
   return (
     <HAProvider
       url="http://homeassistant.local:8123"
@@ -611,4 +611,3 @@ const App = () => {
   )
 }
 
-export default App

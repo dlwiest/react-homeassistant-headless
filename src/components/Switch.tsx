@@ -7,9 +7,7 @@ interface SwitchProps {
   children: (switchEntity: SwitchState) => ReactNode
 }
 
-const Switch = ({ entityId, children }: SwitchProps) => {
+export const Switch = ({ entityId, children }: SwitchProps) => {
   const switchEntity = useSwitch(entityId)
   return <>{children(switchEntity)}</>
 }
-
-export default Switch

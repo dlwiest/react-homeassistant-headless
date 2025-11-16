@@ -2,7 +2,7 @@ import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import Cover from '../Cover'
+import { Cover } from '../Cover'
 import { useCover } from '../../hooks/useCover'
 import type { CoverState } from '../../hooks/useCover'
 
@@ -25,6 +25,7 @@ const createMockCoverEntity = (
   isUnavailable: state === 'unavailable',
   isConnected: true,
   callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
   refresh: vi.fn(),
   isOpen: state === 'open',
   isClosed: state === 'closed',

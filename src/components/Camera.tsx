@@ -24,7 +24,5 @@ export const Camera = ((({ entityId, children }: CameraProps) => {
 Camera.StreamPlayer = StreamPlayer
 Camera.Image = Image
 
-export default Camera
-
 // Export types for compound components
 export type { StreamPlayerProps, ImageProps }

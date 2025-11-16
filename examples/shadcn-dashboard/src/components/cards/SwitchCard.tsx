@@ -9,7 +9,7 @@ interface SwitchCardProps {
   name: string
 }
 
-const SwitchCard = ({ entityId, name }: SwitchCardProps) => {
+export const SwitchCard = ({ entityId, name }: SwitchCardProps) => {
   return (
     <SwitchEntity entityId={entityId}>
       {(switchEntity) => (
@@ -44,4 +44,3 @@ const SwitchCard = ({ entityId, name }: SwitchCardProps) => {
   )
 }
 
-export default SwitchCard

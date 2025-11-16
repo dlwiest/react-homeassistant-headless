@@ -7,9 +7,7 @@ interface CoverProps {
   children: (cover: CoverState) => ReactNode
 }
 
-const Cover = ({ entityId, children }: CoverProps) => {
+export const Cover = ({ entityId, children }: CoverProps) => {
   const cover = useCover(entityId)
   return <>{children(cover)}</>
 }
-
-export default Cover

@@ -5,6 +5,7 @@ import type { ClimateState, ClimateAttributes } from '../types'
 import { ClimateFeatures } from '../types'
 import { createDomainValidator } from '../utils/entityId'
 import { checkFeatures } from '../utils/features'
+import { FeatureNotSupportedError } from '../utils/errors'
 
 const validateClimateEntityId = createDomainValidator('climate', 'useClimate')
 
@@ -40,14 +41,20 @@ export function useClimate(entityId: string): ClimateState {
 
   const setTemperature = useCallback(
     async (temp: number) => {
+      if (!supportsTargetTemperature) {
+        throw new FeatureNotSupportedError(normalizedEntityId, 'target temperature control')
+      }
       temperatureSchema.parse(temp)
       await callService('climate', 'set_temperature', { temperature: temp })
     },
-    [callService]
+    [callService, supportsTargetTemperature, normalizedEntityId]
   )
 
   const setTemperatureRange = useCallback(
     async (low: number, high: number) => {
+      if (!supportsTargetTemperatureRange) {
+        throw new FeatureNotSupportedError(normalizedEntityId, 'target temperature range control')
+      }
       temperatureSchema.parse(low)
       temperatureSchema.parse(high)
       await callService('climate', 'set_temperature', {
@@ -55,23 +62,29 @@ export function useClimate(entityId: string): ClimateState {
         target_temp_high: high,
       })
     },
-    [callService]
+    [callService, supportsTargetTemperatureRange, normalizedEntityId]
   )
 
   const setFanMode = useCallback(
     async (mode: string) => {
+      if (!supportsFanMode) {
+        throw new FeatureNotSupportedError(normalizedEntityId, 'fan mode control')
+      }
       fanModeSchema.parse(mode)
       await callService('climate', 'set_fan_mode', { fan_mode: mode })
     },
-    [callService]
+    [callService, supportsFanMode, normalizedEntityId]
   )
 
   const setPresetMode = useCallback(
     async (preset: string) => {
+      if (!supportsPresetMode) {
+        throw new FeatureNotSupportedError(normalizedEntityId, 'preset mode control')
+      }
       presetModeSchema.parse(preset)
       await callService('climate', 'set_preset_mode', { preset_mode: preset })
     },
-    [callService]
+    [callService, supportsPresetMode, normalizedEntityId]
   )
 
   return {

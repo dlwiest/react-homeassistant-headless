@@ -23,7 +23,7 @@ const ColorInput = styled('input')({
   },
 })
 
-const ColorPicker = ({ color = [255, 255, 255], onChange }: ColorPickerProps) => {
+export const ColorPicker = ({ color = [255, 255, 255], onChange }: ColorPickerProps) => {
   const [r, g, b] = color
 
   const rgbToHex = (r: number, g: number, b: number) => {
@@ -64,4 +64,3 @@ const ColorPicker = ({ color = [255, 255, 255], onChange }: ColorPickerProps) =>
   )
 }
 
-export default ColorPicker

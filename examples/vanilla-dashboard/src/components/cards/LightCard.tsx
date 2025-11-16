@@ -1,15 +1,15 @@
 import React, { useState, useCallback } from 'react'
 import { Light } from 'hass-react'
 import { Card, CardHeader, CardContent, CardFooter } from '../layout/Card'
-import ColorPicker from '../controls/ColorPicker'
-import ColorTempSlider from '../controls/ColorTempSlider'
+import { ColorPicker } from '../controls/ColorPicker'
+import { ColorTempSlider } from '../controls/ColorTempSlider'
 
 interface LightCardProps {
   entityId: string
   name: string
 }
 
-const LightCard = ({ entityId, name }: LightCardProps) => {
+export const LightCard = ({ entityId, name }: LightCardProps) => {
   const [actionError, setActionError] = useState<string | null>(null)
 
   const handleAction = useCallback(async (action: () => Promise<void>, actionName: string) => {
@@ -161,4 +161,3 @@ const LightCard = ({ entityId, name }: LightCardProps) => {
   )
 }
 
-export default LightCard

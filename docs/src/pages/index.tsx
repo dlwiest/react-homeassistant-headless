@@ -13,9 +13,9 @@ const features = [
     description: 'Choose render props for full control or hooks for direct access. Both patterns work seamlessly.',
   },
   {
-    title: 'Lightweight',
+    title: 'Lightweight & Performant',
     icon: '⚡',
-    description: 'Minimal bundle size with few dependencies. Fast and performant by default.',
+    description: 'Built for speed and efficiency. Smart subscription management means you can build complex dashboards without worrying about performance.',
   },
   {
     title: 'Headless Design',

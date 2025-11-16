@@ -2,7 +2,7 @@ import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import Light from '../Light'
+import { Light } from '../Light'
 import { useLight } from '../../hooks/useLight'
 import type { LightState } from '../../types'
 
@@ -25,6 +25,7 @@ const createMockLightEntity = (
   isUnavailable: state === 'unavailable',
   isConnected: true,
   callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
   refresh: vi.fn(),
   isOn: state === 'on',
   brightness: attributes.brightness || 0,

@@ -2,7 +2,7 @@ import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import Switch from '../Switch'
+import { Switch } from '../Switch'
 import { useSwitch } from '../../hooks/useSwitch'
 import type { SwitchState } from '../../hooks/useSwitch'
 
@@ -25,6 +25,7 @@ const createMockSwitchEntity = (
   isUnavailable: state === 'unavailable',
   isConnected: true,
   callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
   refresh: vi.fn(),
   isOn: state === 'on',
   turnOn: vi.fn(),

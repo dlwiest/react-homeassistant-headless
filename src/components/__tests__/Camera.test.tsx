@@ -1,5 +1,7 @@
+import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import '@testing-library/jest-dom'
 import { Camera } from '../Camera'
 
 // Mock the hook
@@ -37,6 +39,13 @@ describe('Camera Component', () => {
     isIdle: true,
     motionDetectionEnabled: false,
     imageUrl: 'http://hass.local:8123/api/camera_proxy/camera.test?token=mock-token&_cb=0',
+    streamState: {
+      isLoading: false,
+      isActive: false,
+      error: null,
+      url: null,
+      type: null
+    },
     accessToken: 'mock-token',
     brand: 'TestBrand',
     model: 'TestModel',
@@ -52,6 +61,12 @@ describe('Camera Component', () => {
     playStream: vi.fn(),
     record: vi.fn(),
     refreshImage: vi.fn(),
+
+    // Stream methods
+    getStreamUrl: vi.fn(),
+    startStream: vi.fn(),
+    stopStream: vi.fn(),
+    retryStream: vi.fn(),
 
     // Apply overrides
     ...overrides

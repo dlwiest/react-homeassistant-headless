@@ -7,7 +7,7 @@ interface TodoCardProps {
   name: string
 }
 
-const TodoCard = ({ entityId, name }: TodoCardProps) => {
+export const TodoCard = ({ entityId, name }: TodoCardProps) => {
   return (
     <Todo entityId={entityId}>
       {(todo) => {
@@ -85,4 +85,3 @@ const TodoCard = ({ entityId, name }: TodoCardProps) => {
   )
 }
 
-export default TodoCard

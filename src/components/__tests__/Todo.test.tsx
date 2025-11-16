@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render } from '@testing-library/react'
+import '@testing-library/jest-dom'
 import { Todo } from '../Todo'
 import { useTodo } from '../../hooks/useTodo'
 
@@ -39,6 +40,7 @@ describe('Todo Component', () => {
       context: { id: '123', parent_id: null, user_id: null },
       error: null,
       callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
       refresh: vi.fn(),
       isUnavailable: false
     }
@@ -86,6 +88,7 @@ describe('Todo Component', () => {
       context: { id: '123', parent_id: null, user_id: null },
       error: null,
       callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
       refresh: vi.fn(),
       isUnavailable: false
     }
@@ -124,6 +127,7 @@ describe('Todo Component', () => {
       context: { id: '123', parent_id: null, user_id: null },
       error: { name: 'EntityError', message: 'Entity not available' },
       callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
       refresh: vi.fn(),
       isUnavailable: true
     }
@@ -164,6 +168,7 @@ describe('Todo Component', () => {
       context: { id: '123', parent_id: null, user_id: null },
       error: null,
       callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
       refresh: vi.fn(),
       isUnavailable: false
     }

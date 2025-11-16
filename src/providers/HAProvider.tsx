@@ -122,7 +122,7 @@ interface HAProviderProps {
   options?: HAConfig['options']
 }
 
-const HAProvider = ({ 
+export const HAProvider = ({ 
   children, 
   url, 
   token, 
@@ -400,5 +400,3 @@ const HAProvider = ({
 
   return <HAContext.Provider value={contextValue}>{children}</HAContext.Provider>
 }
-
-export default HAProvider

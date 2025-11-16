@@ -11,7 +11,7 @@ interface LockCardProps {
   name: string
 }
 
-const LockCard = ({ entityId, name }: LockCardProps) => {
+export const LockCard = ({ entityId, name }: LockCardProps) => {
   return (
     <Lock entityId={entityId}>
       {(lock) => {
@@ -99,4 +99,3 @@ const LockCard = ({ entityId, name }: LockCardProps) => {
   )
 }
 
-export default LockCard

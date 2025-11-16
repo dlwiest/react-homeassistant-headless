@@ -2,7 +2,7 @@ import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import Entity from '../Entity'
+import { Entity } from '../Entity'
 import { useEntity } from '../../hooks/useEntity'
 import type { BaseEntityHook } from '../../types'
 
@@ -25,6 +25,7 @@ const createMockEntity = (
   isUnavailable: state === 'unavailable',
   isConnected: true,
   callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
   refresh: vi.fn()
 })
 

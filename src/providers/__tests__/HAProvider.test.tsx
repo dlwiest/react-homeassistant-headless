@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import '@testing-library/jest-dom'
 import { render, screen, act } from '@testing-library/react'
 import { createConnection, createLongLivedTokenAuth, Auth, Connection } from 'home-assistant-js-websocket'
-import HAProvider, { useHAConnection } from '../HAProvider'
+import { HAProvider, useHAConnection } from '../HAProvider'
 import { useStore } from '../../services/entityStore'
 import type { EntityState } from '../../types'
 
