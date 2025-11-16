@@ -2,7 +2,7 @@ import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import Sensor from '../Sensor'
+import { Sensor } from '../Sensor'
 import { useSensor } from '../../hooks/useSensor'
 import type { SensorState } from '../../types'
 

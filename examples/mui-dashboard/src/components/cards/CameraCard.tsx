@@ -17,7 +17,7 @@ interface CameraCardProps {
   name: string
 }
 
-const CameraCard = ({ entityId, name }: CameraCardProps) => {
+export const CameraCard = ({ entityId, name }: CameraCardProps) => {
   const [streamError, setStreamError] = useState<string | null>(null)
 
   return (
@@ -189,4 +189,3 @@ const CameraCard = ({ entityId, name }: CameraCardProps) => {
   )
 }
 
-export default CameraCard

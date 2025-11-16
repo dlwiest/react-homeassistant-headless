@@ -7,9 +7,7 @@ interface BinarySensorProps {
   children: (binarySensor: BinarySensorState) => ReactNode
 }
 
-const BinarySensor = ({ entityId, children }: BinarySensorProps) => {
+export const BinarySensor = ({ entityId, children }: BinarySensorProps) => {
   const binarySensor = useBinarySensor(entityId)
   return <>{children(binarySensor)}</>
 }
-
-export default BinarySensor

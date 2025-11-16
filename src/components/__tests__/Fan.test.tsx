@@ -2,7 +2,7 @@ import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import Fan from '../Fan'
+import { Fan } from '../Fan'
 import { useFan } from '../../hooks/useFan'
 
 // Mock the useFan hook

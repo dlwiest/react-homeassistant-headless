@@ -47,7 +47,7 @@ const getStateText = (deviceClass?: string, isOn?: boolean) => {
   }
 }
 
-const BinarySensorCard = ({ entityId, name }: BinarySensorCardProps) => {
+export const BinarySensorCard = ({ entityId, name }: BinarySensorCardProps) => {
   return (
     <BinarySensor entityId={entityId}>
       {(binarySensor) => (
@@ -95,4 +95,3 @@ const BinarySensorCard = ({ entityId, name }: BinarySensorCardProps) => {
   )
 }
 
-export default BinarySensorCard

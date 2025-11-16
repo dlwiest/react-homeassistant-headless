@@ -21,7 +21,7 @@ interface MediaPlayerCardProps {
   name: string
 }
 
-const MediaPlayerCard = ({ entityId, name }: MediaPlayerCardProps) => {
+export const MediaPlayerCard = ({ entityId, name }: MediaPlayerCardProps) => {
   return (
     <MediaPlayer entityId={entityId}>
       {({
@@ -213,4 +213,3 @@ const MediaPlayerCard = ({ entityId, name }: MediaPlayerCardProps) => {
   )
 }
 
-export default MediaPlayerCard

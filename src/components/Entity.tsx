@@ -7,9 +7,7 @@ interface EntityProps {
   children: (entity: BaseEntityHook) => ReactNode
 }
 
-const Entity = ({ entityId, children }: EntityProps) => {
+export const Entity = ({ entityId, children }: EntityProps) => {
   const entity = useEntity(entityId)
   return <>{children(entity)}</>
 }
-
-export default Entity

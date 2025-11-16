@@ -18,7 +18,7 @@ interface CoverCardProps {
   name: string
 }
 
-const CoverCard = ({ entityId, name }: CoverCardProps) => {
+export const CoverCard = ({ entityId, name }: CoverCardProps) => {
   return (
     <Cover entityId={entityId}>
       {(cover) => {
@@ -137,4 +137,3 @@ const CoverCard = ({ entityId, name }: CoverCardProps) => {
   )
 }
 
-export default CoverCard

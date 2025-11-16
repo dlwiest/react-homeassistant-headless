@@ -7,9 +7,7 @@ interface SensorProps {
   children: (sensor: SensorState) => ReactNode
 }
 
-const Sensor = ({ entityId, children }: SensorProps) => {
+export const Sensor = ({ entityId, children }: SensorProps) => {
   const sensor = useSensor(entityId)
   return <>{children(sensor)}</>
 }
-
-export default Sensor

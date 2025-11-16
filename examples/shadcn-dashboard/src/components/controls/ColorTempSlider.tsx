@@ -1,4 +1,3 @@
-import React from 'react'
 import { Slider } from '../ui/slider'
 
 interface ColorTempSliderProps {
@@ -8,7 +7,7 @@ interface ColorTempSliderProps {
   max?: number
 }
 
-const ColorTempSlider = ({
+export const ColorTempSlider = ({
   value = 250,
   onChange,
   min = 153,
@@ -60,4 +59,3 @@ const ColorTempSlider = ({
   )
 }
 
-export default ColorTempSlider

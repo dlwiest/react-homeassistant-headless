@@ -2,7 +2,7 @@ import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import BinarySensor from '../BinarySensor'
+import { BinarySensor } from '../BinarySensor'
 import { useBinarySensor } from '../../hooks/useBinarySensor'
 import type { BinarySensorState } from '../../types'
 

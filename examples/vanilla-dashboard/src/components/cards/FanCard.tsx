@@ -7,7 +7,7 @@ interface FanCardProps {
   name: string
 }
 
-const FanCard = ({ entityId, name }: FanCardProps) => {
+export const FanCard = ({ entityId, name }: FanCardProps) => {
   return (
     <Fan entityId={entityId}>
       {(fan) => (
@@ -114,4 +114,3 @@ const FanCard = ({ entityId, name }: FanCardProps) => {
   )
 }
 
-export default FanCard

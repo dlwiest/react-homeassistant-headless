@@ -22,7 +22,7 @@ const getStatusIcon = (status: 'needs_action' | 'completed') => {
     <Circle className="h-4 w-4 text-slate-400" />
 }
 
-const TodoCard = ({ entityId, name }: TodoCardProps) => {
+export const TodoCard = ({ entityId, name }: TodoCardProps) => {
   const [newItemText, setNewItemText] = useState('')
   const [addingItem, setAddingItem] = useState(false)
 
@@ -185,4 +185,3 @@ const TodoCard = ({ entityId, name }: TodoCardProps) => {
   )
 }
 
-export default TodoCard

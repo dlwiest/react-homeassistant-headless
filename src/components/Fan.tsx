@@ -7,9 +7,7 @@ interface FanProps {
   children: (fan: FanState) => ReactNode
 }
 
-const Fan = ({ entityId, children }: FanProps) => {
+export const Fan = ({ entityId, children }: FanProps) => {
   const fan = useFan(entityId)
   return <>{children(fan)}</>
 }
-
-export default Fan

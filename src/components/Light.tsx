@@ -7,9 +7,7 @@ interface LightProps {
   children: (light: LightState) => ReactNode
 }
 
-const Light = ({ entityId, children }: LightProps) => {
+export const Light = ({ entityId, children }: LightProps) => {
   const light = useLight(entityId)
   return <>{children(light)}</>
 }
-
-export default Light

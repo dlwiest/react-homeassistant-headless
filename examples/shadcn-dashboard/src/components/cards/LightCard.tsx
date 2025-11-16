@@ -7,15 +7,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge'
 import { ConnectionIndicator } from '@/components/ui/connection-indicator'
 import { AlertTriangle, WifiOff } from 'lucide-react'
-import ColorPicker from '../controls/ColorPicker'
-import ColorTempSlider from '../controls/ColorTempSlider'
+import { ColorPicker } from '../controls/ColorPicker'
+import { ColorTempSlider } from '../controls/ColorTempSlider'
 
 interface LightCardProps {
   entityId: string
   name: string
 }
 
-const LightCard = ({ entityId, name }: LightCardProps) => {
+export const LightCard = ({ entityId, name }: LightCardProps) => {
   const [actionError, setActionError] = useState<string | null>(null)
 
   // Helper to handle errors from actions
@@ -181,4 +181,3 @@ const LightCard = ({ entityId, name }: LightCardProps) => {
   )
 }
 
-export default LightCard

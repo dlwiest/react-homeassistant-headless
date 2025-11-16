@@ -2,7 +2,7 @@ import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import Cover from '../Cover'
+import { Cover } from '../Cover'
 import { useCover } from '../../hooks/useCover'
 import type { CoverState } from '../../hooks/useCover'
 

@@ -2,7 +2,7 @@ import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import Climate from '../Climate'
+import { Climate } from '../Climate'
 import { useClimate } from '../../hooks/useClimate'
 import type { ClimateState } from '../../types'
 
