@@ -311,8 +311,11 @@ describe('useClimate', () => {
 
     it('should call climate.set_temperature service on setTemperature()', async () => {
       const mockCallService = vi.fn()
+      const attributes = {
+        supported_features: ClimateFeatures.SUPPORT_TARGET_TEMPERATURE
+      }
       mockUseEntity.mockReturnValue({
-        ...createMockClimateEntity(),
+        ...createMockClimateEntity('heat', attributes),
         callService: mockCallService
       })
 
@@ -327,8 +330,11 @@ describe('useClimate', () => {
 
     it('should call climate.set_temperature with range on setTemperatureRange()', async () => {
       const mockCallService = vi.fn()
+      const attributes = {
+        supported_features: ClimateFeatures.SUPPORT_TARGET_TEMPERATURE_RANGE
+      }
       mockUseEntity.mockReturnValue({
-        ...createMockClimateEntity(),
+        ...createMockClimateEntity('auto', attributes),
         callService: mockCallService
       })
 
@@ -346,8 +352,11 @@ describe('useClimate', () => {
 
     it('should call climate.set_fan_mode service on setFanMode()', async () => {
       const mockCallService = vi.fn()
+      const attributes = {
+        supported_features: ClimateFeatures.SUPPORT_FAN_MODE
+      }
       mockUseEntity.mockReturnValue({
-        ...createMockClimateEntity(),
+        ...createMockClimateEntity('cool', attributes),
         callService: mockCallService
       })
 
@@ -362,8 +371,11 @@ describe('useClimate', () => {
 
     it('should call climate.set_preset_mode service on setPresetMode()', async () => {
       const mockCallService = vi.fn()
+      const attributes = {
+        supported_features: ClimateFeatures.SUPPORT_PRESET_MODE
+      }
       mockUseEntity.mockReturnValue({
-        ...createMockClimateEntity(),
+        ...createMockClimateEntity('heat', attributes),
         callService: mockCallService
       })
 
@@ -378,8 +390,14 @@ describe('useClimate', () => {
 
     it('should handle service call errors', async () => {
       const mockCallService = vi.fn().mockRejectedValue(new Error('Service call failed'))
+      const attributes = {
+        supported_features: ClimateFeatures.SUPPORT_TARGET_TEMPERATURE |
+                           ClimateFeatures.SUPPORT_TARGET_TEMPERATURE_RANGE |
+                           ClimateFeatures.SUPPORT_FAN_MODE |
+                           ClimateFeatures.SUPPORT_PRESET_MODE
+      }
       mockUseEntity.mockReturnValue({
-        ...createMockClimateEntity(),
+        ...createMockClimateEntity('heat', attributes),
         callService: mockCallService
       })
 

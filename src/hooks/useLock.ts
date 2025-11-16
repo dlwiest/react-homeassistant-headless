@@ -5,6 +5,7 @@ import type { LockState, LockAttributes } from '../types'
 import { LockFeatures } from '../types'
 import { createDomainValidator } from '../utils/entityId'
 import { hasFeature } from '../utils/features'
+import { FeatureNotSupportedError } from '../utils/errors'
 
 const validateLockEntityId = createDomainValidator('lock', 'useLock')
 
@@ -40,9 +41,9 @@ export function useLock(entityId: string): LockState {
 
   const open = useCallback(async (code?: string) => {
     if (!supportsOpen) {
-      throw new Error(`Lock "${normalizedEntityId}" does not support open operation. Check the lock's supported_features.`)
+      throw new FeatureNotSupportedError(normalizedEntityId, 'open operation')
     }
-    
+
     if (code !== undefined) {
       codeSchema.parse(code)
     }
