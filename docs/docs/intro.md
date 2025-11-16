@@ -76,6 +76,16 @@ function LightControl() {
 
 Both approaches give you the same functionality - choose the pattern you prefer!
 
+## Performance Benefits
+
+hass-react is built for efficiency:
+
+- **Shared subscriptions** - Multiple components watching the same entity automatically share a single WebSocket subscription
+- **Automatic cleanup** - Subscriptions are removed when components unmount, preventing memory leaks
+- **Lazy loading** - Only entities that are actually rendered are subscribed to
+
+This means you can build complex dashboards with dozens of entity displays without worrying about performance or connection overhead.
+
 ## Next Steps
 
 - **[Authentication](/docs/authentication)** - Configure OAuth or token authentication
