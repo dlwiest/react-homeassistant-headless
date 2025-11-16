@@ -77,6 +77,21 @@ export type { MediaPlayerState, MediaPlayerAttributes, MediaPlayerCapabilities, 
 // Constants
 export { LightFeatures, FanFeatures, ClimateFeatures, LockFeatures, TodoFeatures, MediaPlayerFeatures, CameraFeatures } from './types'
 
+// Error handling
+export type { ErrorRetryAction } from './utils/errors'
+export {
+  HomeAssistantError,
+  FeatureNotSupportedError,
+  InvalidParameterError,
+  EntityNotAvailableError,
+  ConnectionError,
+  ServiceCallError,
+  DomainMismatchError,
+  isRetryableError,
+  getUserFriendlyErrorMessage,
+  ErrorCategory,
+  categorizeError
+} from './utils/errors'
 
 // Store (for advanced usage)
 export { useStore, selectEntity } from './services/entityStore'

@@ -2,104 +2,74 @@
 
 Building reliable Home Assistant interfaces requires proper error handling and connection management. hass-react provides comprehensive tools for managing errors and monitoring connection status.
 
-## Connection Status with useHAConnection
-
-The `useHAConnection` hook provides complete access to your Home Assistant connection state:
-
-```tsx
-import { useHAConnection } from 'hass-react';
-
-function ConnectionStatus() {
-  const { 
-    connected, 
-    connecting, 
-    error, 
-    connectionState,
-    retryCount,
-    nextRetryIn,
-    isAutoRetrying,
-    reconnect,
-    config 
-  } = useHAConnection();
-
-  if (connecting) {
-    return <div>Connecting to Home Assistant...</div>;
-  }
-
-  if (error) {
-    return (
-      <div className="error">
-        <p>Connection Error: {error.message}</p>
-        <button onClick={reconnect}>Retry Connection</button>
-      </div>
-    );
-  }
-
-  if (!connected) {
-    return <div>Disconnected from Home Assistant</div>;
-  }
-
-  return (
-    <div className="status">
-      <p>Connected to {config.url}</p>
-      <p>Retry count: {retryCount}</p>
-      {isAutoRetrying && nextRetryIn && (
-        <p>Auto-retry in {Math.ceil(nextRetryIn / 1000)} seconds</p>
-      )}
-    </div>
-  );
-}
-```
-
-## Connection States
-
-The `connectionState` property provides detailed status information:
-
-```tsx
-function DetailedConnectionStatus() {
-  const { connectionState, connected, connecting, error } = useHAConnection();
-
-  const getStatusMessage = () => {
-    switch (connectionState) {
-      case 'idle':
-        return 'Ready to connect';
-      case 'connecting':
-        return 'Establishing connection...';
-      case 'connected':
-        return 'Successfully connected';
-      case 'disconnected':
-        return 'Connection lost';
-      case 'error':
-        return `Connection failed: ${error?.message}`;
-      default:
-        return 'Unknown status';
-    }
-  };
-
-  const getStatusColor = () => {
-    switch (connectionState) {
-      case 'connected':
-        return 'green';
-      case 'connecting':
-        return 'orange';
-      case 'error':
-        return 'red';
-      default:
-        return 'gray';
-    }
-  };
-
-  return (
-    <div style={{ color: getStatusColor() }}>
-      <strong>{getStatusMessage()}</strong>
-    </div>
-  );
-}
-```
-
 ## Error Types and Handling
 
-hass-react provides specific error types to help you handle different scenarios appropriately:
+hass-react provides specific error types to help you handle different scenarios appropriately. All custom errors extend `HomeAssistantError` and include:
+
+- **message**: Technical error message for logging/debugging
+- **userMessage**: User-friendly message safe to display in UI
+- **recoverable**: Whether the error can be retried (used by automatic retry logic)
+- **retryAction**: Suggested action to take (`'retry'`, `'check_entity'`, `'check_network'`, `'check_config'`, `'contact_admin'`, or `'none'`)
+- **code**: Unique error code for programmatic handling
+- **context**: Additional error context data
+
+### Displaying User-Friendly Error Messages
+
+```tsx
+import { getUserFriendlyErrorMessage } from 'hass-react';
+
+function LightControl() {
+  const light = useLight('light.living_room');
+  const [error, setError] = useState(null);
+
+  const handleToggle = async () => {
+    try {
+      await light.toggle();
+      setError(null);
+    } catch (err) {
+      // Display user-friendly message in UI
+      setError(getUserFriendlyErrorMessage(err));
+      // Log technical details for debugging
+      console.error('Toggle failed:', err.message, err.context);
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={handleToggle}>Toggle Light</button>
+      {error && <div className="error">{error}</div>}
+    </div>
+  );
+}
+```
+
+### Automatic Retry for Recoverable Errors
+
+Service calls automatically retry recoverable errors with exponential backoff. You can configure retry behavior in `HAProvider`:
+
+```tsx
+<HAProvider
+  url="http://homeassistant.local:8123"
+  options={{
+    serviceRetry: {
+      maxAttempts: 3,              // Maximum retry attempts (default: 3)
+      baseDelay: 1000,             // Initial delay in ms (default: 1000)
+      exponentialBackoff: true,    // Use exponential backoff (default: true)
+      maxDelay: 10000              // Maximum delay in ms (default: 10000)
+    }
+  }}
+>
+  <App />
+</HAProvider>
+```
+
+The retry logic automatically handles:
+- Network timeouts
+- Temporary service unavailability (503, 502 errors)
+- Connection errors
+- Any error where `error.recoverable === true`
+
+Non-retryable errors (like feature not supported, invalid parameters) fail immediately.
 
 ### Connection Errors
 
@@ -125,12 +95,8 @@ function LightControl() {
 
   return (
     <div>
-      <button onClick={handleToggle}>
-        Toggle Light
-      </button>
-      {error && (
-        <div className="error">{error}</div>
-      )}
+      <button onClick={handleToggle}>Toggle Light</button>
+      {error && <div className="error">{error}</div>}
     </div>
   );
 }
@@ -201,76 +167,115 @@ function SmartLightControl() {
       <button onClick={() => light.toggle()}>
         {light.isOn ? 'Turn Off' : 'Turn On'}
       </button>
-      
+
       {light.supportsRgb && (
         <button onClick={() => handleColorChange([255, 0, 0])}>
           Set Red
         </button>
       )}
-      
+
       {error && <div className="error">{error}</div>}
     </div>
   );
 }
 ```
 
-## Error Recovery Patterns
+## Monitoring Connection Status
 
-### Automatic Retry with Exponential Backoff
+Many errors are related to connection state. The `useHAConnection` hook provides complete access to your Home Assistant connection state:
 
 ```tsx
-function RetryableServiceCall() {
-  const light = useLight('light.bedroom');
-  const [isRetrying, setIsRetrying] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
+import { useHAConnection } from 'hass-react';
 
-  const callServiceWithRetry = async (action, maxRetries = 3) => {
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-      try {
-        setIsRetrying(attempt > 0);
-        setRetryCount(attempt);
-        
-        await action();
-        
-        // Success - reset state
-        setIsRetrying(false);
-        setRetryCount(0);
-        return;
-        
-      } catch (error) {
-        const isLastAttempt = attempt === maxRetries - 1;
-        
-        if (isLastAttempt) {
-          setIsRetrying(false);
-          throw error; // Final failure
-        }
-        
-        // Wait before retry with exponential backoff
-        const delay = Math.pow(2, attempt) * 1000;
-        await new Promise(resolve => setTimeout(resolve, delay));
-      }
-    }
-  };
+function ConnectionStatus() {
+  const {
+    connected,
+    connecting,
+    error,
+    connectionState,
+    retryCount,
+    nextRetryIn,
+    isAutoRetrying,
+    reconnect,
+    config
+  } = useHAConnection();
 
-  const handleAction = async () => {
-    try {
-      await callServiceWithRetry(() => light.toggle());
-    } catch (error) {
-      console.error('Failed after all retries:', error);
-    }
-  };
+  if (connecting) {
+    return <div>Connecting to Home Assistant...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="error">
+        <p>Connection Error: {error.message}</p>
+        <button onClick={reconnect}>Retry Connection</button>
+      </div>
+    );
+  }
+
+  if (!connected) {
+    return <div>Disconnected from Home Assistant</div>;
+  }
 
   return (
-    <div>
-      <button onClick={handleAction} disabled={isRetrying}>
-        {isRetrying ? `Retrying... (${retryCount + 1}/3)` : 'Toggle Light'}
-      </button>
+    <div className="status">
+      <p>Connected to {config.url}</p>
+      <p>Retry count: {retryCount}</p>
+      {isAutoRetrying && nextRetryIn && (
+        <p>Auto-retry in {Math.ceil(nextRetryIn / 1000)} seconds</p>
+      )}
     </div>
   );
 }
 ```
 
-### Connection Recovery UI
+### Connection States
+
+The `connectionState` property provides detailed status information:
+
+```tsx
+function DetailedConnectionStatus() {
+  const { connectionState, connected, connecting, error } = useHAConnection();
+
+  const getStatusMessage = () => {
+    switch (connectionState) {
+      case 'idle':
+        return 'Ready to connect';
+      case 'connecting':
+        return 'Establishing connection...';
+      case 'connected':
+        return 'Successfully connected';
+      case 'disconnected':
+        return 'Connection lost';
+      case 'error':
+        return `Connection failed: ${error?.message}`;
+      default:
+        return 'Unknown status';
+    }
+  };
+
+  const getStatusColor = () => {
+    switch (connectionState) {
+      case 'connected':
+        return 'green';
+      case 'connecting':
+        return 'orange';
+      case 'error':
+        return 'red';
+      default:
+        return 'gray';
+    }
+  };
+
+  return (
+    <div style={{ color: getStatusColor() }}>
+      <strong>{getStatusMessage()}</strong>
+    </div>
+  );
+}
+```
+
+## Connection Recovery UI
 
 ```tsx
 function App() {
@@ -281,13 +286,13 @@ function App() {
       <div className="connection-lost">
         <h2>Connection Lost</h2>
         <p>Unable to connect to Home Assistant</p>
-        
+
         {error && (
           <div className="error-details">
             <p>Error: {error.message}</p>
           </div>
         )}
-        
+
         {isAutoRetrying ? (
           <div className="auto-retry">
             <p>Auto-retrying in {Math.ceil((nextRetryIn || 0) / 1000)} seconds...</p>
@@ -321,7 +326,7 @@ function ErrorFallback({ error, resetErrorBoundary }) {
         <summary>Error details</summary>
         <pre>{error.message}</pre>
       </details>
-      
+
       {!connected ? (
         <div>
           <p>You appear to be disconnected from Home Assistant.</p>
@@ -366,7 +371,7 @@ function MyComponent() {
 ```tsx
 function EntityDisplay({ entityId }) {
   const entity = useEntity(entityId);
-  
+
   if (entity.error) {
     return (
       <div className="entity-error">
