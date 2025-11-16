@@ -25,6 +25,7 @@ const createMockSensorEntity = (
   isUnavailable: state === 'unavailable',
   isConnected: true,
   callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
   refresh: vi.fn(),
   value: state === 'unavailable' || state === 'unknown' ? null : 
          (attributes.device_class === 'temperature' || 

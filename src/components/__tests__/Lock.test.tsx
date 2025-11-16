@@ -25,6 +25,7 @@ const mockLockState = {
   unlock: vi.fn(),
   open: vi.fn(),
   callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
   refresh: vi.fn(),
   error: undefined
 }

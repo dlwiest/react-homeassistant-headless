@@ -21,6 +21,7 @@ const createMockClimateEntity = (
   isUnavailable: state === 'unavailable',
   isConnected: true,
   callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
   refresh: vi.fn(),
   // Add required ClimateState properties
   currentTemperature: attributes.current_temperature,

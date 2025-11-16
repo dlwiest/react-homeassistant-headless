@@ -25,6 +25,7 @@ const createMockCoverEntity = (
   isUnavailable: state === 'unavailable',
   isConnected: true,
   callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
   refresh: vi.fn(),
   isOpen: state === 'open',
   isClosed: state === 'closed',

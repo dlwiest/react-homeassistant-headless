@@ -16,6 +16,7 @@ const createMockEntityResponse = (state: string = 'on', attributes: Record<strin
   isUnavailable: state === 'unavailable',
   isConnected: true,
   callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
   refresh: vi.fn()
 })
 

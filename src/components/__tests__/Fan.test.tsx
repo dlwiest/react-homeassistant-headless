@@ -34,6 +34,7 @@ const mockFanState = {
   setOscillating: vi.fn(),
   setDirection: vi.fn(),
   callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
   refresh: vi.fn(),
   error: undefined
 }

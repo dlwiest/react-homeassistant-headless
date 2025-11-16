@@ -25,6 +25,7 @@ const createMockBinarySensorEntity = (
   isUnavailable: state === 'unavailable',
   isConnected: true,
   callService: vi.fn(),
+  callServiceWithResponse: vi.fn(),
   refresh: vi.fn(),
   isOn: state === 'on',
   isOff: state === 'off',
