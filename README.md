@@ -23,7 +23,6 @@ hass-react is built for efficiency with intelligent subscription management:
 
 - **Shared Subscriptions** - Multiple components watching the same entity share a single WebSocket subscription, reducing network overhead
 - **Automatic Cleanup** - Subscriptions are automatically removed when no components need them, preventing memory leaks
-- **Lazy Loading** - Only entities actually being used are subscribed to, minimizing unnecessary data transfer
 - **Optimized Re-renders** - Zustand-powered state management ensures components only re-render when their specific entity data changes
 
 This means you can build complex dashboards with dozens of entity displays without worrying about performance degradation or connection overhead.
