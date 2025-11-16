@@ -13,22 +13,26 @@ interface WebSocketSubscription {
 interface EntityStore {
   // Current entity states indexed by entity_id
   entities: Map<string, EntityState>
-  
+
   // Component callbacks that want updates for each entity
   componentSubscriptions: Map<string, Set<() => void>>
-  
+
   // Active WebSocket subscriptions for each entity
   websocketSubscriptions: Map<string, WebSocketSubscription>
-  
+
   // All entities that any component has requested
   registeredEntities: Set<string>
-  
+
+  // Subscription errors for each entity
+  subscriptionErrors: Map<string, Error>
+
   // Current Home Assistant WebSocket connection
   connection: Connection | null
 
   // Actions
   setConnection: (connection: Connection | null) => void
   updateEntity: (entityId: string, state: EntityState) => void
+  setSubscriptionError: (entityId: string, error: Error | null) => void
   registerEntity: (entityId: string, callback: () => void) => void
   unregisterEntity: (entityId: string, callback: () => void) => void
   batchUpdate: (updates: Array<[string, EntityState]>) => void
@@ -41,6 +45,7 @@ export const useStore = create<EntityStore>()(
     componentSubscriptions: new Map(),
     websocketSubscriptions: new Map(),
     registeredEntities: new Set(),
+    subscriptionErrors: new Map(),
     connection: null,
 
     // Update the WebSocket connection and resubscribe to all registered entities
@@ -100,6 +105,19 @@ export const useStore = create<EntityStore>()(
       if (subs) {
         subs.forEach((callback) => callback())
       }
+    },
+
+    // Set or clear subscription error for an entity
+    setSubscriptionError: (entityId, error) => {
+      set((store) => {
+        const newErrors = new Map(store.subscriptionErrors)
+        if (error) {
+          newErrors.set(entityId, error)
+        } else {
+          newErrors.delete(entityId)
+        }
+        return { subscriptionErrors: newErrors }
+      })
     },
 
     // Register a component's interest in an entity (called on component mount)
@@ -195,12 +213,13 @@ export const useStore = create<EntityStore>()(
     clear: () => {
       // Unsubscribe all WebSocket subscriptions
       get().websocketSubscriptions.forEach(sub => sub.unsubscribe())
-      
+
       set({
         entities: new Map(),
         componentSubscriptions: new Map(),
         websocketSubscriptions: new Map(),
         registeredEntities: new Set(),
+        subscriptionErrors: new Map(),
         connection: null,
       })
     },
@@ -220,7 +239,7 @@ async function subscribeToEntity(
     const states = await connection.sendMessagePromise<EntityState[]>({
       type: 'get_states',
     })
-    
+
     const entity = states.find((s: EntityState) => s.entity_id === entityId)
     if (entity) {
       get().updateEntity(entityId, entity)
@@ -228,9 +247,14 @@ async function subscribeToEntity(
 
     // Set up WebSocket subscription for real-time updates
     await subscribeToEntityUpdates(connection, entityId, get, set)
-    
+
+    // Clear any previous subscription errors
+    get().setSubscriptionError(entityId, null)
+
   } catch (error) {
     console.error(`Failed to subscribe to entity ${entityId}:`, error)
+    // Expose error to hooks so they can display it to users
+    get().setSubscriptionError(entityId, error as Error)
   }
 }
 
@@ -252,16 +276,19 @@ async function subscribeToEntityUpdates(
       },
       'state_changed'
     )
-    
+
     // Store the subscription so we can clean it up later
     set((store) => {
       const newWsSubs = new Map(store.websocketSubscriptions)
       newWsSubs.set(entityId, { unsubscribe })
       return { websocketSubscriptions: newWsSubs }
     })
-    
+
   } catch (error) {
     console.error(`Failed to subscribe to entity updates ${entityId}:`, error)
+    // Expose error to hooks so they can display it to users
+    get().setSubscriptionError(entityId, error as Error)
+    throw error // Re-throw so caller (subscribeToEntity) can handle it
   }
 }
 

@@ -28,8 +28,17 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEn
   // Get current entity state
   const entity = useStore((state) => state.entities.get(entityId))
 
-  // Handle entity availability errors
+  // Get subscription errors from store
+  const subscriptionError = useStore((state) => state.subscriptionErrors.get(entityId))
+
+  // Handle subscription and entity availability errors
   useEffect(() => {
+    // Subscription errors take priority over availability errors
+    if (subscriptionError) {
+      setError(subscriptionError)
+      return
+    }
+
     if (connected && entityId) {
       if (!entity) {
         // Wait for entities to populate before marking as error
@@ -51,7 +60,7 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEn
       setError(null)
     }
     return undefined
-  }, [connected, entity, entityId])
+  }, [connected, entity, entityId, subscriptionError])
 
   const callService = useCallback(
     async (domain: string, service: string, data?: object) => {

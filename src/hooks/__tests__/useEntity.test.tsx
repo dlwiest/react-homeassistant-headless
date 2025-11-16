@@ -9,6 +9,7 @@ import type { Connection } from 'home-assistant-js-websocket'
 
 // Mock the HAProvider and entityStore
 const mockEntities = new Map()
+const mockSubscriptionErrors = new Map()
 const mockRegisterEntity = vi.fn()
 const mockUnregisterEntity = vi.fn()
 const mockUpdateEntity = vi.fn()
@@ -21,6 +22,7 @@ vi.mock('../../services/entityStore', () => {
       if (typeof selector === 'function') {
         const mockState = {
           entities: mockEntities,
+          subscriptionErrors: mockSubscriptionErrors,
           registerEntity: mockRegisterEntity,
           unregisterEntity: mockUnregisterEntity,
           updateEntity: mockUpdateEntity,
@@ -87,7 +89,8 @@ describe('useEntity', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     mockEntities.clear()
-    
+    mockSubscriptionErrors.clear()
+
     // Reset all mock functions
     mockRegisterEntity.mockClear()
     mockUnregisterEntity.mockClear()
@@ -406,6 +409,64 @@ describe('useEntity', () => {
       expect(consoleSpy).not.toHaveBeenCalled()
 
       consoleSpy.mockRestore()
+    })
+  })
+
+  describe('Subscription Error Handling', () => {
+    it('should expose subscription errors from store', () => {
+      const entityId = 'light.living_room'
+      const subscriptionError = new Error('WebSocket subscription failed')
+
+      // Set up subscription error in mock store
+      mockSubscriptionErrors.set(entityId, subscriptionError)
+
+      const { result } = renderHook(() => useEntity(entityId), {
+        wrapper: TestWrapper
+      })
+
+      expect(result.current.error).toBe(subscriptionError)
+    })
+
+    it('should prioritize subscription errors over availability errors', async () => {
+      const entityId = 'light.living_room'
+      const subscriptionError = new Error('WebSocket subscription failed')
+
+      // Set up subscription error
+      mockSubscriptionErrors.set(entityId, subscriptionError)
+
+      // Set up unavailable entity
+      const unavailableEntity = createMockEntity(entityId, 'unavailable')
+      mockEntities.set(entityId, unavailableEntity)
+
+      const { result } = renderHook(() => useEntity(entityId), {
+        wrapper: TestWrapper
+      })
+
+      // Subscription error should take priority
+      expect(result.current.error).toBe(subscriptionError)
+    })
+
+    it('should clear error when subscription error is removed', () => {
+      const entityId = 'light.living_room'
+      const subscriptionError = new Error('WebSocket subscription failed')
+
+      // Start with subscription error
+      mockSubscriptionErrors.set(entityId, subscriptionError)
+
+      const { result, rerender } = renderHook(() => useEntity(entityId), {
+        wrapper: TestWrapper
+      })
+
+      expect(result.current.error).toBe(subscriptionError)
+
+      // Clear subscription error and add available entity
+      mockSubscriptionErrors.delete(entityId)
+      const availableEntity = createMockEntity(entityId, 'on')
+      mockEntities.set(entityId, availableEntity)
+
+      rerender()
+
+      expect(result.current.error).toBeUndefined()
     })
   })
 
