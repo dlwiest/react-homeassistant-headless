@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { subscribeWithSelector } from 'zustand/middleware'
 import type { EntityState, StateChangedEvent } from '../types'
 import type { Connection } from 'home-assistant-js-websocket'
+import { withRetry } from '../utils/retry'
 
 // Central store for managing Home Assistant entity states and WebSocket subscriptions
 // Handles automatic subscription/unsubscription as React components mount/unmount
@@ -235,18 +236,24 @@ async function subscribeToEntity(
   set: (partial: Partial<EntityStore> | ((state: EntityStore) => Partial<EntityStore>)) => void
 ) {
   try {
-    // Get current state from Home Assistant
-    const states = await connection.sendMessagePromise<EntityState[]>({
-      type: 'get_states',
+    await withRetry(async () => {
+      // Get current state from Home Assistant
+      const states = await connection.sendMessagePromise<EntityState[]>({
+        type: 'get_states',
+      })
+
+      const entity = states.find((s: EntityState) => s.entity_id === entityId)
+      if (entity) {
+        get().updateEntity(entityId, entity)
+      }
+
+      // Set up WebSocket subscription for real-time updates
+      await subscribeToEntityUpdates(connection, entityId, get, set)
+    }, {
+      maxAttempts: 3,
+      baseDelay: 1000,
+      exponentialBackoff: true
     })
-
-    const entity = states.find((s: EntityState) => s.entity_id === entityId)
-    if (entity) {
-      get().updateEntity(entityId, entity)
-    }
-
-    // Set up WebSocket subscription for real-time updates
-    await subscribeToEntityUpdates(connection, entityId, get, set)
 
     // Clear any previous subscription errors
     get().setSubscriptionError(entityId, null)
