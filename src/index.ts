@@ -20,6 +20,7 @@ export { useFan } from './hooks/useFan'
 export { useLock } from './hooks/useLock'
 export { useMediaPlayer } from './hooks/useMediaPlayer'
 export { useCamera } from './hooks/useCamera'
+export { useNumber } from './hooks/useNumber'
 
 // Headless components
 export { Light } from './components/Light'
@@ -34,6 +35,7 @@ export { Fan } from './components/Fan'
 export { Lock } from './components/Lock'
 export { MediaPlayer } from './components/MediaPlayer'
 export { Camera } from './components/Camera'
+export { Number } from './components/Number'
 export type { StreamPlayerProps } from './components/Camera/StreamPlayer'
 export type { ImageProps as CameraImageProps } from './components/Camera/Image'
 
@@ -58,10 +60,12 @@ export type {
   FanAttributes,
   FanTurnOnParams,
   FanDirection,
-  LockState, 
+  LockState,
   LockAttributes,
-  HAConfig, 
-  ConnectionStatus, 
+  NumberState,
+  NumberAttributes,
+  HAConfig,
+  ConnectionStatus,
   BaseEntityHook
 } from './types'
 export type {

@@ -8,13 +8,14 @@ A React library for building custom Home Assistant interfaces. Headless componen
 
 ## Features
 
-- **Headless & Unstyled** - Works with any UI library or custom CSS
-- **Real-time Updates** - Fully managed WebSocket connection
+- **Headless & Unstyled** - Use with any UI library or vanilla CSS
+- **Hassle-free Real-time Updates** - Fully managed WebSocket connection with intelligent subscription management
+- **Optimized Re-renders** - Zustand-powered state ensures components only re-render when their entity data changes
 - **Full TypeScript Support** - Complete type definitions for all supported entities
 - **OAuth & Token Auth** - Flexible authentication with connection state tracking
-- **Error Handling** - Informative, standardized error types and (optional) automatic retry for network errors
+- **Robust Error Handling** - Informative error types with optional automatic retry for network errors
 - **Mock Mode** - Develop and test without a real Home Assistant instance
-- **Most HA Entities Supported** - Lights, climate, media players, sensors, and more
+- **12+ Entity Types** - Lights, climate, cameras, media players, sensors, and more
 - **Camera Streaming** - HLS and MJPEG stream support with static images
 
 ## Performance & Architecture
@@ -35,31 +36,60 @@ npm install hass-react
 
 ## Quick Start
 
-```jsx
-import { HAProvider, Light } from 'hass-react'
+Use headless components with render props or hooks - both give you full control over the UI:
 
+```jsx
+import { HAProvider, Light, useLight } from 'hass-react'
+
+// Component approach - render props
+function LightCard() {
+  return (
+    <Light entityId="light.living_room">
+      {({ isOn, brightness, toggle, setBrightness }) => (
+        <div>
+          <h3>Living Room</h3>
+          <button onClick={toggle}>{isOn ? 'ON' : 'OFF'}</button>
+          {isOn && (
+            <input
+              type="range"
+              min="0"
+              max="255"
+              value={brightness}
+              onChange={(e) => setBrightness(parseInt(e.target.value))}
+            />
+          )}
+        </div>
+      )}
+    </Light>
+  )
+}
+
+// Hook approach - same data, different API
+function LightCard() {
+  const light = useLight('light.living_room')
+
+  return (
+    <div>
+      <h3>Living Room</h3>
+      <button onClick={light.toggle}>{light.isOn ? 'ON' : 'OFF'}</button>
+      {light.isOn && (
+        <input
+          type="range"
+          min="0"
+          max="255"
+          value={light.brightness}
+          onChange={(e) => light.setBrightness(parseInt(e.target.value))}
+        />
+      )}
+    </div>
+  )
+}
+
+// Wrap your app with HAProvider
 function App() {
   return (
     <HAProvider url="http://homeassistant.local:8123">
-      <Light entityId="light.living_room">
-        {({ isOn, brightness, toggle, setBrightness }) => (
-          <div>
-            <h3>Living Room Light</h3>
-            <button onClick={toggle}>
-              {isOn ? 'ON' : 'OFF'}
-            </button>
-            {isOn && (
-              <input
-                type="range"
-                min="0"
-                max="255"
-                value={brightness}
-                onChange={(e) => setBrightness(parseInt(e.target.value))}
-              />
-            )}
-          </div>
-        )}
-      </Light>
+      <LightCard />
     </HAProvider>
   )
 }
@@ -72,26 +102,15 @@ function App() {
 ### Key Topics
 - **[Getting Started](https://hass-react.com/docs/intro)** - Setup and basic usage
 - **[Authentication](https://hass-react.com/docs/authentication)** - OAuth and token configuration  
-- **[Entity Documentation](https://hass-react.com/docs/entities/light)** - All 10+ supported entity types
+- **[Entity Documentation](https://hass-react.com/docs/entities/light)** - All 12+ supported entity types
 - **[Error Handling](https://hass-react.com/docs/error-handling)** - Connection status and error patterns
 - **[Development & Testing](https://hass-react.com/docs/development-testing)** - Mock mode and testing utilities
 
 ## Supported Entity Types
 
-- **Lights** - Brightness, color, effects, and more
-- **Climate** - Thermostats and HVAC controls
-- **Media Players** - Playback, volume, source selection
-- **Cameras** - Live streaming (HLS/MJPEG) and static image snapshots
-- **Switches** - Simple on/off controls
-- **Sensors** - Temperature, humidity, and other measurements
-- **Binary Sensors** - Door/window sensors, motion detectors
-- **Fans** - Speed, oscillation, direction controls
-- **Locks** - Lock, unlock, and open functionality
-- **Covers** - Blinds, garage doors, curtains
-- **Todo Lists** - Task management and shopping lists
-- **More on the Way!**
+12+ entity types including lights, climate, cameras, media players, sensors, fans, locks, covers, numbers, and more.
 
-[→ See all entity documentation](https://hass-react.com/docs/entities/light)
+[→ See full entity documentation](https://hass-react.com/docs/entities/light)
 
 ## Examples
 

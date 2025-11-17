@@ -61,7 +61,13 @@ export function mockServiceCall(
         service, currentState, newAttributes, params
       ))
       break
-      
+
+    case 'number':
+      ({ state: newState, attributes: newAttributes } = mockNumberService(
+        service, currentState, newAttributes, params
+      ))
+      break
+
     default:
       // For unknown domains, just handle basic toggle/turn_on/turn_off
       ({ state: newState, attributes: newAttributes } = mockBasicService(
@@ -253,30 +259,58 @@ function mockClimateService(
   switch (service) {
     case 'set_hvac_mode': {
       const hvacMode = params.hvac_mode as string
-      return { 
+      return {
         state: hvacMode,
         attributes: { ...attributes, hvac_mode: hvacMode }
       }
     }
-    
+
     case 'set_temperature':
-      return { 
+      return {
         state: currentState,
         attributes: { ...attributes, temperature: params.temperature as number }
       }
-    
+
     case 'turn_on':
-      return { 
+      return {
         state: (attributes.hvac_mode as string) || 'heat',
         attributes
       }
-    
+
     case 'turn_off':
-      return { 
+      return {
         state: 'off',
         attributes
       }
-    
+
+    default:
+      return { state: currentState, attributes }
+  }
+}
+
+// Mock number-specific services
+function mockNumberService(
+  service: string,
+  currentState: string,
+  attributes: Record<string, unknown>,
+  params: Record<string, unknown>
+): MockStateTransition {
+  switch (service) {
+    case 'set_value': {
+      const value = params.value as number
+      // Clamp to min/max if they exist
+      const min = attributes.min as number | undefined
+      const max = attributes.max as number | undefined
+      let clampedValue = value
+      if (min !== undefined) clampedValue = Math.max(min, clampedValue)
+      if (max !== undefined) clampedValue = Math.min(max, clampedValue)
+
+      return {
+        state: clampedValue.toString(),
+        attributes
+      }
+    }
+
     default:
       return { state: currentState, attributes }
   }
