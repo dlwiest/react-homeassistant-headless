@@ -14,7 +14,7 @@ export function useNumber(entityId: string): NumberState {
   const entity = useEntity<NumberAttributes>(normalizedEntityId)
   const { attributes, state, callService } = entity
 
-  // Parse current value from state
+  // Parse current value from state (fallback to 0 for unavailable/unknown states)
   const value = parseFloat(state) || 0
 
   // Extract configuration with defaults

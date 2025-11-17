@@ -59,14 +59,14 @@ export const ClimateCard = ({ entityId, name }: ClimateCardProps) => {
               <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 2 }}>
                 <IconButton
                   onClick={() => climate.setTemperature((climate.targetTemperature ?? climate.minTemp) - 1)}
-                  disabled={!climate.targetTemperature || climate.targetTemperature <= climate.minTemp}
+                  disabled={climate.targetTemperature == null || climate.targetTemperature <= climate.minTemp}
                   color="primary"
                 >
                   <Remove />
                 </IconButton>
                 <IconButton
                   onClick={() => climate.setTemperature((climate.targetTemperature ?? climate.maxTemp) + 1)}
-                  disabled={!climate.targetTemperature || climate.targetTemperature >= climate.maxTemp}
+                  disabled={climate.targetTemperature == null || climate.targetTemperature >= climate.maxTemp}
                   color="primary"
                 >
                   <Add />

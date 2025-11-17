@@ -39,14 +39,14 @@ export const ClimateCard = ({ entityId, name }: ClimateCardProps) => {
               <div className="button-group">
                 <button
                   onClick={() => climate.setTemperature((climate.targetTemperature ?? climate.minTemp) - 1)}
-                  disabled={!climate.targetTemperature || climate.targetTemperature <= climate.minTemp}
+                  disabled={climate.targetTemperature == null || climate.targetTemperature <= climate.minTemp}
                   className="btn btn-secondary"
                 >
                   - Lower
                 </button>
                 <button
                   onClick={() => climate.setTemperature((climate.targetTemperature ?? climate.maxTemp) + 1)}
-                  disabled={!climate.targetTemperature || climate.targetTemperature >= climate.maxTemp}
+                  disabled={climate.targetTemperature == null || climate.targetTemperature >= climate.maxTemp}
                   className="btn btn-secondary"
                 >
                   + Raise

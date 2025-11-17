@@ -46,7 +46,7 @@ export const ClimateCard = ({ entityId, name }: ClimateCardProps) => {
                   size="icon"
                   variant="outline"
                   onClick={() => climate.setTemperature((climate.targetTemperature ?? climate.minTemp) - 1)}
-                  disabled={!climate.targetTemperature || climate.targetTemperature <= climate.minTemp}
+                  disabled={climate.targetTemperature == null || climate.targetTemperature <= climate.minTemp}
                 >
                   <Minus className="h-4 w-4" />
                 </Button>
@@ -54,7 +54,7 @@ export const ClimateCard = ({ entityId, name }: ClimateCardProps) => {
                   size="icon"
                   variant="outline"
                   onClick={() => climate.setTemperature((climate.targetTemperature ?? climate.maxTemp) + 1)}
-                  disabled={!climate.targetTemperature || climate.targetTemperature >= climate.maxTemp}
+                  disabled={climate.targetTemperature == null || climate.targetTemperature >= climate.maxTemp}
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
