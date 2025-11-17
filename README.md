@@ -8,25 +8,15 @@ A React library for building custom Home Assistant interfaces. Headless componen
 
 ## Features
 
-- **Headless & Unstyled** - Use with any UI library or vanilla CSS
-- **Hassle-Free Real-time Updates** - Fully managed WebSocket connection with intelligent subscription management
+- **Headless & Unstyled** - Use with any UI library or custom CSS
+- **Easy Real-time Updates** - Fully managed WebSocket connection with intelligent subscription management
 - **Optimized Re-renders** - Components only re-render when their entity data changes
 - **Full TypeScript Support** - Complete type definitions for all supported entities
 - **OAuth & Token Auth** - Flexible authentication with connection state tracking
 - **Robust Error Handling** - Informative error types with optional automatic retry for network errors
-- **Mock Mode** - Develop and test without a real Home Assistant instance
+- **Mock Mode** - Develop and test without need for a live Home Assistant instance
 - **12+ Entity Types** - Lights, climate, cameras, media players, sensors, and more
 - **Camera Streaming** - HLS and MJPEG stream support with static images
-
-## Performance & Architecture
-
-hass-react is built for efficiency with intelligent subscription management:
-
-- **Shared Subscriptions** - Multiple components watching the same entity share a single WebSocket subscription, reducing network overhead
-- **Automatic Cleanup** - Subscriptions are automatically removed when no components need them, preventing memory leaks
-- **Optimized Re-renders** - Zustand-powered state management ensures components only re-render when their specific entity data changes
-
-This means you can build complex dashboards with dozens of entity displays without worrying about performance degradation or connection overhead.
 
 ## Installation
 
