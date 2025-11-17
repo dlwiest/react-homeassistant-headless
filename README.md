@@ -8,25 +8,17 @@ A React library for building custom Home Assistant interfaces. Headless componen
 
 ## Features
 
-- **Headless & Unstyled** - Works with any UI library or custom CSS
-- **Real-time Updates** - Fully managed WebSocket connection
+- **Headless & Unstyled** - Bring your own UI library or custom CSS
+- **Real-time Updates** - Fully managed WebSocket connection with intelligent subscription management
+- **Shared Subscriptions** - Multiple components watching the same entity share a single subscription, reducing overhead
+- **Automatic Cleanup** - Subscriptions removed when unused, preventing memory leaks
+- **Optimized Re-renders** - Zustand-powered state ensures components only re-render when their entity data changes
 - **Full TypeScript Support** - Complete type definitions for all supported entities
 - **OAuth & Token Auth** - Flexible authentication with connection state tracking
-- **Error Handling** - Informative, standardized error types and (optional) automatic retry for network errors
+- **Error Handling** - Informative error types with optional automatic retry for network errors
 - **Mock Mode** - Develop and test without a real Home Assistant instance
-- **Most HA Entities Supported** - Lights, climate, media players, sensors, and more
+- **12+ Entity Types** - Lights, climate, cameras, media players, sensors, and more
 - **Camera Streaming** - HLS and MJPEG stream support with static images
-
-## Performance & Architecture
-
-hass-react is built for efficiency with intelligent subscription management:
-
-- **Shared Subscriptions** - Multiple components watching the same entity share a single WebSocket subscription, reducing network overhead
-- **Automatic Cleanup** - Subscriptions are automatically removed when no components need them, preventing memory leaks
-- **Lazy Loading** - Only entities actually being used are subscribed to, minimizing unnecessary data transfer
-- **Optimized Re-renders** - Zustand-powered state management ensures components only re-render when their specific entity data changes
-
-This means you can build complex dashboards with dozens of entity displays without worrying about performance degradation or connection overhead.
 
 ## Installation
 
@@ -36,31 +28,60 @@ npm install hass-react
 
 ## Quick Start
 
-```jsx
-import { HAProvider, Light } from 'hass-react'
+Use headless components with render props or hooks - both give you full control over the UI:
 
+```jsx
+import { HAProvider, Light, useLight } from 'hass-react'
+
+// Component approach - render props
+function LightCard() {
+  return (
+    <Light entityId="light.living_room">
+      {({ isOn, brightness, toggle, setBrightness }) => (
+        <div>
+          <h3>Living Room</h3>
+          <button onClick={toggle}>{isOn ? 'ON' : 'OFF'}</button>
+          {isOn && (
+            <input
+              type="range"
+              min="0"
+              max="255"
+              value={brightness}
+              onChange={(e) => setBrightness(parseInt(e.target.value))}
+            />
+          )}
+        </div>
+      )}
+    </Light>
+  )
+}
+
+// Hook approach - same data, different API
+function LightCard() {
+  const light = useLight('light.living_room')
+
+  return (
+    <div>
+      <h3>Living Room</h3>
+      <button onClick={light.toggle}>{light.isOn ? 'ON' : 'OFF'}</button>
+      {light.isOn && (
+        <input
+          type="range"
+          min="0"
+          max="255"
+          value={light.brightness}
+          onChange={(e) => light.setBrightness(parseInt(e.target.value))}
+        />
+      )}
+    </div>
+  )
+}
+
+// Wrap your app with HAProvider
 function App() {
   return (
     <HAProvider url="http://homeassistant.local:8123">
-      <Light entityId="light.living_room">
-        {({ isOn, brightness, toggle, setBrightness }) => (
-          <div>
-            <h3>Living Room Light</h3>
-            <button onClick={toggle}>
-              {isOn ? 'ON' : 'OFF'}
-            </button>
-            {isOn && (
-              <input
-                type="range"
-                min="0"
-                max="255"
-                value={brightness}
-                onChange={(e) => setBrightness(parseInt(e.target.value))}
-              />
-            )}
-          </div>
-        )}
-      </Light>
+      <LightCard />
     </HAProvider>
   )
 }
@@ -89,10 +110,11 @@ function App() {
 - **Fans** - Speed, oscillation, direction controls
 - **Locks** - Lock, unlock, and open functionality
 - **Covers** - Blinds, garage doors, curtains
+- **Numbers** - Numeric input controls with min/max/step
 - **Todo Lists** - Task management and shopping lists
 - **More on the Way!**
 
-[→ See all entity documentation](https://hass-react.com/docs/entities/light)
+[→ See full entity documentation](https://hass-react.com/docs/entities/light)
 
 ## Examples
 

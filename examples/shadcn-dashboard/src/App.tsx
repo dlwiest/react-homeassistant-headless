@@ -1,6 +1,6 @@
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
-import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard } from './components/cards'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs'
 import { Lightbulb, Thermometer, Shield, Music, ListTodo } from 'lucide-react'
 import './styles/dashboard.css'
@@ -358,6 +358,59 @@ const mockData = {
     context: { id: 'context-26', parent_id: null, user_id: null }
   },
 
+  // Climate
+  'climate.living_room': {
+    entity_id: 'climate.living_room',
+    state: 'heat',
+    attributes: {
+      friendly_name: 'Living Room Thermostat',
+      temperature: 72,
+      current_temperature: 70,
+      hvac_modes: ['off', 'heat', 'cool', 'heat_cool', 'auto'],
+      hvac_mode: 'heat',
+      fan_modes: ['auto', 'low', 'medium', 'high'],
+      fan_mode: 'auto',
+      min_temp: 50,
+      max_temp: 90,
+      supported_features: 27,
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-27', parent_id: null, user_id: null }
+  },
+
+  // Numbers
+  'number.speaker_volume': {
+    entity_id: 'number.speaker_volume',
+    state: '65',
+    attributes: {
+      friendly_name: 'Speaker Volume',
+      min: 0,
+      max: 100,
+      step: 1,
+      mode: 'slider',
+      unit_of_measurement: '%',
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-28', parent_id: null, user_id: null }
+  },
+  'number.brightness_threshold': {
+    entity_id: 'number.brightness_threshold',
+    state: '50',
+    attributes: {
+      friendly_name: 'Auto-Light Brightness Threshold',
+      min: 0,
+      max: 100,
+      step: 1,
+      mode: 'slider',
+      unit_of_measurement: '%',
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-29', parent_id: null, user_id: null }
+  },
+
   // Media Players
   'media_player.living_room_speaker': {
     entity_id: 'media_player.living_room_speaker',
@@ -378,7 +431,7 @@ const mockData = {
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
-    context: { id: 'context-27', parent_id: null, user_id: null }
+    context: { id: 'context-30', parent_id: null, user_id: null }
   },
   'media_player.kitchen_display': {
     entity_id: 'media_player.kitchen_display',
@@ -396,7 +449,7 @@ const mockData = {
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
-    context: { id: 'context-28', parent_id: null, user_id: null }
+    context: { id: 'context-31', parent_id: null, user_id: null }
   },
   'media_player.bedroom_tv': {
     entity_id: 'media_player.bedroom_tv',
@@ -411,7 +464,7 @@ const mockData = {
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
-    context: { id: 'context-29', parent_id: null, user_id: null }
+    context: { id: 'context-32', parent_id: null, user_id: null }
   },
 }
 
@@ -504,6 +557,13 @@ const Dashboard = () => {
           {/* Climate & Environment Tab */}
           <TabsContent value="climate" className="space-y-6">
             <section>
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Climate Control</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <ClimateCard entityId="climate.living_room" name="Living Room Thermostat" />
+              </div>
+            </section>
+
+            <section>
               <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Sensors</h2>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 <SensorCard
@@ -535,6 +595,14 @@ const Dashboard = () => {
                 <BinarySensorCard entityId="binary_sensor.front_door" name="Front Door" />
                 <BinarySensorCard entityId="binary_sensor.motion_sensor" name="Living Room Motion" />
                 <BinarySensorCard entityId="binary_sensor.bedroom_window" name="Bedroom Window" />
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Numbers</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <NumberCard entityId="number.speaker_volume" name="Speaker Volume" />
+                <NumberCard entityId="number.brightness_threshold" name="Auto-Light Threshold" />
               </div>
             </section>
           </TabsContent>

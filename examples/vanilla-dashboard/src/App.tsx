@@ -1,7 +1,7 @@
 import React from 'react'
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
-import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard } from './components/cards'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs'
 import { Lightbulb, Thermometer, Shield, Music, ListTodo } from 'lucide-react'
 import './styles/dashboard.css'
@@ -360,6 +360,60 @@ const mockData = {
     context: { id: 'context-26', parent_id: null, user_id: null }
   },
 
+  // Climate entities
+  'climate.living_room': {
+    entity_id: 'climate.living_room',
+    state: 'heat',
+    attributes: {
+      friendly_name: 'Living Room Thermostat',
+      current_temperature: 70,
+      temperature: 72,
+      min_temp: 50,
+      max_temp: 90,
+      hvac_modes: ['off', 'heat', 'cool', 'auto'],
+      hvac_mode: 'heat',
+      fan_modes: ['auto', 'low', 'medium', 'high'],
+      fan_mode: 'auto',
+      supported_features: 27, // Temperature + fan mode + HVAC mode
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-27', parent_id: null, user_id: null }
+  },
+
+  // Number entities
+  'number.speaker_volume': {
+    entity_id: 'number.speaker_volume',
+    state: '65',
+    attributes: {
+      friendly_name: 'Speaker Volume',
+      min: 0,
+      max: 100,
+      step: 1,
+      unit_of_measurement: '%',
+      mode: 'slider',
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-28', parent_id: null, user_id: null }
+  },
+  'number.brightness_threshold': {
+    entity_id: 'number.brightness_threshold',
+    state: '50',
+    attributes: {
+      friendly_name: 'Brightness Threshold',
+      min: 0,
+      max: 100,
+      step: 1,
+      unit_of_measurement: '%',
+      mode: 'box',
+      device_class: 'illuminance'
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-29', parent_id: null, user_id: null }
+  },
+
   // Media Players
   'media_player.living_room_speaker': {
     entity_id: 'media_player.living_room_speaker',
@@ -380,7 +434,7 @@ const mockData = {
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
-    context: { id: 'context-27', parent_id: null, user_id: null }
+    context: { id: 'context-30', parent_id: null, user_id: null }
   },
   'media_player.kitchen_display': {
     entity_id: 'media_player.kitchen_display',
@@ -398,7 +452,7 @@ const mockData = {
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
-    context: { id: 'context-28', parent_id: null, user_id: null }
+    context: { id: 'context-31', parent_id: null, user_id: null }
   },
   'media_player.bedroom_tv': {
     entity_id: 'media_player.bedroom_tv',
@@ -413,7 +467,7 @@ const mockData = {
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
-    context: { id: 'context-29', parent_id: null, user_id: null }
+    context: { id: 'context-32', parent_id: null, user_id: null }
   },
 }
 
@@ -488,6 +542,13 @@ const Dashboard = () => {
           {/* Climate & Environment Tab */}
           <TabsContent value="climate" className="space-y-6">
             <section>
+              <h2 className="section-title">Climate Control</h2>
+              <div className="dashboard-grid">
+                <ClimateCard entityId="climate.living_room" name="Living Room Thermostat" />
+              </div>
+            </section>
+
+            <section>
               <h2 className="section-title">Sensors</h2>
               <div className="dashboard-grid">
                 <SensorCard
@@ -519,6 +580,14 @@ const Dashboard = () => {
                 <BinarySensorCard entityId="binary_sensor.front_door" name="Front Door" />
                 <BinarySensorCard entityId="binary_sensor.motion_sensor" name="Living Room Motion" />
                 <BinarySensorCard entityId="binary_sensor.bedroom_window" name="Bedroom Window" />
+              </div>
+            </section>
+
+            <section>
+              <h2 className="section-title">Numbers</h2>
+              <div className="dashboard-grid">
+                <NumberCard entityId="number.speaker_volume" name="Speaker Volume" />
+                <NumberCard entityId="number.brightness_threshold" name="Brightness Threshold" />
               </div>
             </section>
           </TabsContent>

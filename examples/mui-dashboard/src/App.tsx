@@ -29,7 +29,9 @@ import {
   LockCard,
   CoverCard,
   MediaPlayerCard,
-  CameraCard
+  CameraCard,
+  NumberCard,
+  ClimateCard
 } from './components/cards'
 
 // Create dark MUI theme
@@ -365,6 +367,27 @@ const mockData = {
     context: { id: 'context-23', parent_id: null, user_id: null }
   },
 
+  // Climate
+  'climate.living_room': {
+    entity_id: 'climate.living_room',
+    state: 'heat',
+    attributes: {
+      friendly_name: 'Living Room Thermostat',
+      temperature: 72,
+      current_temperature: 70,
+      hvac_modes: ['off', 'heat', 'cool', 'heat_cool', 'auto'],
+      hvac_mode: 'heat',
+      fan_modes: ['auto', 'low', 'medium', 'high'],
+      fan_mode: 'auto',
+      min_temp: 50,
+      max_temp: 90,
+      supported_features: 27,
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-24', parent_id: null, user_id: null }
+  },
+
   // Cameras
   'camera.front_door': {
     entity_id: 'camera.front_door',
@@ -412,6 +435,38 @@ const mockData = {
     context: { id: 'context-26', parent_id: null, user_id: null }
   },
 
+  // Numbers
+  'number.speaker_volume': {
+    entity_id: 'number.speaker_volume',
+    state: '65',
+    attributes: {
+      friendly_name: 'Speaker Volume',
+      min: 0,
+      max: 100,
+      step: 1,
+      mode: 'slider',
+      unit_of_measurement: '%',
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-27', parent_id: null, user_id: null }
+  },
+  'number.brightness_threshold': {
+    entity_id: 'number.brightness_threshold',
+    state: '50',
+    attributes: {
+      friendly_name: 'Auto-Light Brightness Threshold',
+      min: 0,
+      max: 100,
+      step: 1,
+      mode: 'slider',
+      unit_of_measurement: '%',
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-27a', parent_id: null, user_id: null }
+  },
+
   // Media Players
   'media_player.living_room_speaker': {
     entity_id: 'media_player.living_room_speaker',
@@ -431,7 +486,7 @@ const mockData = {
     },
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
-    context: { id: 'context-27', parent_id: null, user_id: null }
+    context: { id: 'context-28', parent_id: null, user_id: null }
   },
   'media_player.kitchen_display': {
     entity_id: 'media_player.kitchen_display',
@@ -533,7 +588,7 @@ const Dashboard = () => {
             sx={{ borderBottom: 1, borderColor: 'divider' }}
           >
             <Tab icon={<Lightbulb />} label="Lighting & Power" iconPosition="start" />
-            <Tab icon={<Thermostat />} label="Climate" iconPosition="start" />
+            <Tab icon={<Thermostat />} label="Climate & Environment" iconPosition="start" />
             <Tab icon={<Shield />} label="Security" iconPosition="start" />
             <Tab icon={<MusicNote />} label="Entertainment" iconPosition="start" />
             <Tab icon={<Assignment />} label="Productivity" iconPosition="start" />
@@ -576,8 +631,17 @@ const Dashboard = () => {
           </Box>
         </TabPanel>
 
-        {/* Climate Tab */}
+        {/* Climate & Environment Tab */}
         <TabPanel value={tabValue} index={1}>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Climate Control
+            </Typography>
+            <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', maxWidth: '100%', '@media (min-width: 1200px)': { gridTemplateColumns: 'repeat(3, 1fr)' } }}>
+              <ClimateCard entityId="climate.living_room" name="Living Room Thermostat" />
+            </Box>
+          </Box>
+
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6" gutterBottom>
               Sensors
@@ -598,6 +662,16 @@ const Dashboard = () => {
               <BinarySensorCard entityId="binary_sensor.front_door" name="Front Door" />
               <BinarySensorCard entityId="binary_sensor.motion_sensor" name="Living Room Motion" />
               <BinarySensorCard entityId="binary_sensor.bedroom_window" name="Bedroom Window" />
+            </Box>
+          </Box>
+
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Numbers
+            </Typography>
+            <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', maxWidth: '100%', '@media (min-width: 1200px)': { gridTemplateColumns: 'repeat(3, 1fr)' } }}>
+              <NumberCard entityId="number.speaker_volume" name="Speaker Volume" />
+              <NumberCard entityId="number.brightness_threshold" name="Auto-Light Threshold" />
             </Box>
           </Box>
         </TabPanel>
