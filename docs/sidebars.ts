@@ -24,6 +24,7 @@ const sidebars: SidebarsConfig = {
             'entities/climate',
             'entities/sensor',
             'entities/binary-sensor',
+            'entities/number',
           ],
         },
         {
