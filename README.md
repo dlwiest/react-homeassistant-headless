@@ -94,25 +94,13 @@ function App() {
 ### Key Topics
 - **[Getting Started](https://hass-react.com/docs/intro)** - Setup and basic usage
 - **[Authentication](https://hass-react.com/docs/authentication)** - OAuth and token configuration  
-- **[Entity Documentation](https://hass-react.com/docs/entities/light)** - All 10+ supported entity types
+- **[Entity Documentation](https://hass-react.com/docs/entities/light)** - All 12+ supported entity types
 - **[Error Handling](https://hass-react.com/docs/error-handling)** - Connection status and error patterns
 - **[Development & Testing](https://hass-react.com/docs/development-testing)** - Mock mode and testing utilities
 
 ## Supported Entity Types
 
-- **Lights** - Brightness, color, effects, and more
-- **Climate** - Thermostats and HVAC controls
-- **Media Players** - Playback, volume, source selection
-- **Cameras** - Live streaming (HLS/MJPEG) and static image snapshots
-- **Switches** - Simple on/off controls
-- **Sensors** - Temperature, humidity, and other measurements
-- **Binary Sensors** - Door/window sensors, motion detectors
-- **Fans** - Speed, oscillation, direction controls
-- **Locks** - Lock, unlock, and open functionality
-- **Covers** - Blinds, garage doors, curtains
-- **Numbers** - Numeric input controls with min/max/step
-- **Todo Lists** - Task management and shopping lists
-- **More on the Way!**
+12+ entity types including lights, climate, cameras, media players, sensors, fans, locks, covers, numbers, and more.
 
 [→ See full entity documentation](https://hass-react.com/docs/entities/light)
 
