@@ -57,7 +57,7 @@ The Number component provides these props to your render function:
 - **`step`** (`number`) - Step increment/decrement size
 - **`unit`** (`string | undefined`) - Unit of measurement (e.g., "%", "°F")
 - **`deviceClass`** (`string | undefined`) - Device class (e.g., "temperature", "humidity")
-- **`mode`** (`'auto' | 'box' | 'slider' | undefined`) - UI mode hint from Home Assistant
+- **`mode`** (`'auto' | 'box' | 'slider'`) - UI mode hint from Home Assistant (defaults to `'auto'`)
 
 #### Control Methods
 - **`setValue(value: number)`** - Set the value (validates min/max/step)
@@ -284,7 +284,7 @@ function VolumeControl({ entityId }) {
         setError(`Value must be at least ${min}${unit}`)
       } else if (num > max) {
         setError(`Value must be at most ${max}${unit}`)
-      } else if ((num - min) % step !== 0) {
+      } else if (Math.abs((num - min) % step) > 1e-8) {
         setError(`Value must be in increments of ${step}${unit}`)
       } else {
         setError('')
@@ -316,7 +316,7 @@ function VolumeControl({ entityId }) {
 
 ## Notes
 
-- The `setValue` method automatically validates against min/max values and step increments using Zod validation
-- Invalid values will throw an error with a descriptive message
+- The `setValue` method automatically validates that the value is a valid number using Zod validation and clamps it to min/max bounds
+- Invalid values (NaN, Infinity, etc.) will throw an error with a descriptive message
 - The `increment` and `decrement` methods respect the `step` property and won't exceed min/max bounds
 - Number entities are commonly used for volume controls, temperature settings, brightness thresholds, and other numeric configurations

@@ -37,16 +37,14 @@ export function useNumber(entityId: string): NumberState {
   )
 
   const increment = useCallback(async () => {
-    const currentValue = parseFloat(state) || 0
-    const newValue = Math.min(max, currentValue + step)
+    const newValue = Math.min(max, value + step)
     await setValue(newValue)
-  }, [state, step, max, setValue])
+  }, [value, step, max, setValue])
 
   const decrement = useCallback(async () => {
-    const currentValue = parseFloat(state) || 0
-    const newValue = Math.max(min, currentValue - step)
+    const newValue = Math.max(min, value - step)
     await setValue(newValue)
-  }, [state, step, min, setValue])
+  }, [value, step, min, setValue])
 
   return {
     ...entity,
