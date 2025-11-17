@@ -9,7 +9,7 @@ A React library for building custom Home Assistant interfaces. Headless componen
 ## Features
 
 - **Headless & Unstyled** - Use with any UI library or vanilla CSS
-- **Hassle-free Real-time Updates** - Fully managed WebSocket connection with intelligent subscription management
+- **Hassle-Free Real-time Updates** - Fully managed WebSocket connection with intelligent subscription management
 - **Optimized Re-renders** - Zustand-powered state ensures components only re-render when their entity data changes
 - **Full TypeScript Support** - Complete type definitions for all supported entities
 - **OAuth & Token Auth** - Flexible authentication with connection state tracking
