@@ -119,18 +119,20 @@ interface HAProviderProps {
   redirectUri?: string
   mockMode?: boolean
   mockData?: Record<string, EntityState>
+  mockUser?: HAConfig['mockUser']
   options?: HAConfig['options']
 }
 
-export const HAProvider = ({ 
-  children, 
-  url, 
-  token, 
-  authMode = 'auto', 
-  redirectUri, 
-  mockMode = false, 
-  mockData, 
-  options = {} 
+export const HAProvider = ({
+  children,
+  url,
+  token,
+  authMode = 'auto',
+  redirectUri,
+  mockMode = false,
+  mockData,
+  mockUser,
+  options = {}
 }: HAProviderProps) => {
   const [state, dispatch] = useReducer(connectionReducer, {
     type: 'idle',
@@ -395,7 +397,7 @@ export const HAProvider = ({
                    options.autoReconnect !== false && 
                    !!nextRetryIn,
     lastConnectedAt,
-    config: { url, token, authMode, redirectUri, mockMode, mockData, options },
+    config: { url, token, authMode, redirectUri, mockMode, mockData, mockUser, options },
   }
 
   return <HAContext.Provider value={contextValue}>{children}</HAContext.Provider>
