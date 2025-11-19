@@ -126,8 +126,19 @@ describe('useVacuum', () => {
       const { result } = renderHook(() => useVacuum('vacuum.test'))
 
       expect(result.current.isDocked).toBe(true)
-      expect(result.current.isCharging).toBe(true)
+      expect(result.current.isCharging).toBe(false)
       expect(result.current.isCleaning).toBe(false)
+    })
+
+    it('should detect charging state based on status attribute', () => {
+      mockUseEntity.mockReturnValue(
+        createMockVacuumEntity('docked', { status: 'Charging' })
+      )
+
+      const { result } = renderHook(() => useVacuum('vacuum.test'))
+
+      expect(result.current.isDocked).toBe(true)
+      expect(result.current.isCharging).toBe(true)
     })
 
     it('should detect cleaning state', () => {

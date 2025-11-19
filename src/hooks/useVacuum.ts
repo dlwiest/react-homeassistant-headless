@@ -49,7 +49,7 @@ export function useVacuum(entityId: string): VacuumState {
   const availableFanSpeeds = attributes.fan_speed_list || []
 
   // State booleans based on state string
-  const isCharging = state === 'docked' || status?.toLowerCase().includes('charging') || false
+  const isCharging = status?.toLowerCase().includes('charging') || false
   const isDocked = state === 'docked'
   const isCleaning = state === 'cleaning' || state === 'on'
   const isReturning = state === 'returning'
