@@ -216,38 +216,26 @@ The `useClimate` hook returns an object with all the same properties and methods
 
 ```tsx
 <Climate entityId="climate.master_bedroom">
-  {({ 
+  {({
     currentTemperature, targetTemperature, humidity, mode, fanMode, presetMode,
     supportsTargetTemperature, supportsFanMode, supportsPresetMode,
     supportedModes, supportedFanModes, supportedPresetModes,
     setMode, setTemperature, setFanMode, setPresetMode,
     minTemp, maxTemp, attributes
   }) => (
-    <div style={{ 
-      padding: '1rem', 
-      border: '1px solid #ccc', 
-      borderRadius: '8px' 
-    }}>
+    <div>
       <h3>{attributes.friendly_name}</h3>
-      
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', 
-        gap: '1rem',
-        marginBottom: '1rem'
-      }}>
+      <div>
         <div>
           <strong>Current Temp</strong>
           <p>{currentTemperature}°F</p>
         </div>
-        
         {supportsTargetTemperature && (
           <div>
             <strong>Target Temp</strong>
             <p>{targetTemperature}°F</p>
           </div>
         )}
-        
         {humidity !== undefined && (
           <div>
             <strong>Humidity</strong>
@@ -255,14 +243,10 @@ The `useClimate` hook returns an object with all the same properties and methods
           </div>
         )}
       </div>
-      
-      <div style={{ marginBottom: '1rem' }}>
+
+      <div>
         <label>HVAC Mode:</label>
-        <select 
-          value={mode} 
-          onChange={(e) => setMode(e.target.value)}
-          style={{ marginLeft: '0.5rem' }}
-        >
+        <select value={mode} onChange={(e) => setMode(e.target.value)}>
           {supportedModes.map(modeOption => (
             <option key={modeOption} value={modeOption}>
               {modeOption.charAt(0).toUpperCase() + modeOption.slice(1)}
@@ -270,32 +254,28 @@ The `useClimate` hook returns an object with all the same properties and methods
           ))}
         </select>
       </div>
-      
+
       {supportsTargetTemperature && mode !== 'off' && (
-        <div style={{ marginBottom: '1rem' }}>
+        <div>
           <label>Temperature: {targetTemperature}°F</label>
           <input
             type="range"
-            min={minTemp} max={maxTemp}
+            min={minTemp}
+            max={maxTemp}
             value={targetTemperature || minTemp}
             onChange={(e) => setTemperature(parseInt(e.target.value))}
-            style={{ width: '100%' }}
           />
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <div>
             <span>{minTemp}°F</span>
             <span>{maxTemp}°F</span>
           </div>
         </div>
       )}
-      
+
       {supportsFanMode && supportedFanModes.length > 0 && (
-        <div style={{ marginBottom: '1rem' }}>
+        <div>
           <label>Fan Mode:</label>
-          <select 
-            value={fanMode || ''} 
-            onChange={(e) => setFanMode(e.target.value)}
-            style={{ marginLeft: '0.5rem' }}
-          >
+          <select value={fanMode || ''} onChange={(e) => setFanMode(e.target.value)}>
             {supportedFanModes.map(fan => (
               <option key={fan} value={fan}>
                 {fan.charAt(0).toUpperCase() + fan.slice(1)}
@@ -304,15 +284,11 @@ The `useClimate` hook returns an object with all the same properties and methods
           </select>
         </div>
       )}
-      
+
       {supportsPresetMode && supportedPresetModes.length > 0 && (
         <div>
           <label>Preset:</label>
-          <select 
-            value={presetMode || ''} 
-            onChange={(e) => setPresetMode(e.target.value)}
-            style={{ marginLeft: '0.5rem' }}
-          >
+          <select value={presetMode || ''} onChange={(e) => setPresetMode(e.target.value)}>
             <option value="">None</option>
             {supportedPresetModes.map(preset => (
               <option key={preset} value={preset}>
@@ -331,53 +307,34 @@ The `useClimate` hook returns an object with all the same properties and methods
 
 ```tsx
 <Climate entityId="climate.office">
-  {({ 
+  {({
     currentTemperature, targetTemperature, mode,
     setTemperature, setMode, supportsTargetTemperature,
     attributes
   }) => {
     const quickTemps = [68, 70, 72, 74, 76]
-    
+
     return (
       <div>
         <h3>{attributes.friendly_name}</h3>
-        
-        <div style={{ marginBottom: '1rem' }}>
+        <div>
           <p>Current: {currentTemperature}°F</p>
           <p>Target: {targetTemperature}°F</p>
           <p>Mode: {mode}</p>
         </div>
-        
-        <div style={{ marginBottom: '1rem' }}>
-          <button 
-            onClick={() => setMode(mode === 'off' ? 'heat' : 'off')}
-            style={{
-              backgroundColor: mode === 'off' ? '#4CAF50' : '#f44336',
-              color: 'white',
-              border: 'none',
-              padding: '0.5rem 1rem',
-              borderRadius: '4px'
-            }}
-          >
-            {mode === 'off' ? 'Turn On' : 'Turn Off'}
-          </button>
-        </div>
-        
+
+        <button onClick={() => setMode(mode === 'off' ? 'heat' : 'off')}>
+          {mode === 'off' ? 'Turn On' : 'Turn Off'}
+        </button>
+
         {supportsTargetTemperature && mode !== 'off' && (
           <div>
             <p>Quick Set:</p>
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <div>
               {quickTemps.map(temp => (
                 <button
                   key={temp}
                   onClick={() => setTemperature(temp)}
-                  style={{
-                    padding: '0.5rem',
-                    backgroundColor: targetTemperature === temp ? '#2196F3' : '#f0f0f0',
-                    color: targetTemperature === temp ? 'white' : 'black',
-                    border: 'none',
-                    borderRadius: '4px'
-                  }}
                 >
                   {temp}°F
                 </button>
@@ -398,72 +355,57 @@ import { useClimate } from 'hass-react'
 
 function ThermostatCard({ entityId }) {
   const climate = useClimate(entityId)
-  
+
   return (
     <div>
       <h3>{climate.attributes.friendly_name}</h3>
-      
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
-        marginBottom: '1rem'
-      }}>
+      <div>
         <div>
           <strong>{climate.currentTemperature}°F</strong>
-          <br />
-          <small>Current</small>
+          <div>Current</div>
         </div>
-        
         {climate.supportsTargetTemperature && (
           <div>
             <strong>{climate.targetTemperature}°F</strong>
-            <br />
-            <small>Target</small>
+            <div>Target</div>
           </div>
         )}
-        
         <div>
           <strong>{climate.mode}</strong>
-          <br />
-          <small>Mode</small>
+          <div>Mode</div>
         </div>
       </div>
-      
-      <div style={{ display: 'flex', gap: '0.5rem' }}>
-        <button 
+
+      <div>
+        <button
           onClick={() => climate.setMode('heat')}
           disabled={climate.mode === 'heat'}
         >
           Heat
         </button>
-        <button 
+        <button
           onClick={() => climate.setMode('cool')}
           disabled={climate.mode === 'cool'}
         >
           Cool
         </button>
-        <button 
+        <button
           onClick={() => climate.setMode('off')}
           disabled={climate.mode === 'off'}
         >
           Off
         </button>
       </div>
-      
+
       {climate.supportsTargetTemperature && climate.mode !== 'off' && (
-        <div style={{ marginTop: '1rem' }}>
-          <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-            <button onClick={() => climate.setTemperature((climate.targetTemperature || 70) - 1)}>
-              -
-            </button>
-            <span style={{ minWidth: '60px', textAlign: 'center' }}>
-              {climate.targetTemperature}°F
-            </span>
-            <button onClick={() => climate.setTemperature((climate.targetTemperature || 70) + 1)}>
-              +
-            </button>
-          </div>
+        <div>
+          <button onClick={() => climate.setTemperature((climate.targetTemperature || 70) - 1)}>
+            -
+          </button>
+          <span>{climate.targetTemperature}°F</span>
+          <button onClick={() => climate.setTemperature((climate.targetTemperature || 70) + 1)}>
+            +
+          </button>
         </div>
       )}
     </div>

@@ -33,7 +33,8 @@ import {
   CameraCard,
   NumberCard,
   ClimateCard,
-  WeatherCard
+  WeatherCard,
+  VacuumCard
 } from './components/cards'
 
 // Create dark MUI theme
@@ -494,6 +495,23 @@ const mockData = {
     context: { id: 'context-30', parent_id: null, user_id: null }
   },
 
+  // Vacuum
+  'vacuum.roborock_s7': {
+    entity_id: 'vacuum.roborock_s7',
+    state: 'docked',
+    attributes: {
+      friendly_name: 'Roborock S7',
+      battery_level: 85,
+      fan_speed: 'balanced',
+      fan_speed_list: ['silent', 'standard', 'balanced', 'turbo', 'max'],
+      status: 'Charging',
+      supported_features: 14204,
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-31', parent_id: null, user_id: null }
+  },
+
   // Media Players
   'media_player.living_room_speaker': {
     entity_id: 'media_player.living_room_speaker',
@@ -766,6 +784,15 @@ const Dashboard = () => {
 
         {/* Productivity Tab */}
         <TabPanel value={tabValue} index={4}>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Vacuum
+            </Typography>
+            <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', maxWidth: '100%', '@media (min-width: 1200px)': { gridTemplateColumns: 'repeat(3, 1fr)' } }}>
+              <VacuumCard entityId="vacuum.roborock_s7" name="Roborock S7" />
+            </Box>
+          </Box>
+
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6" gutterBottom>
               Todo Lists

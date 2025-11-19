@@ -2,7 +2,7 @@ import React from 'react'
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
 import { UserGreeting } from './components/layout/UserGreeting'
-import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard, WeatherCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard, WeatherCard, VacuumCard } from './components/cards'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs'
 import { Lightbulb, Thermometer, Shield, Music, ListTodo } from 'lucide-react'
 import './styles/dashboard.css'
@@ -495,6 +495,23 @@ const mockData = {
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-33', parent_id: null, user_id: null }
   },
+
+  // Vacuum
+  'vacuum.roborock': {
+    entity_id: 'vacuum.roborock',
+    state: 'cleaning',
+    attributes: {
+      friendly_name: 'Roborock S7',
+      battery_level: 85,
+      fan_speed: 'Turbo',
+      fan_speed_list: ['Silent', 'Standard', 'Medium', 'Turbo'],
+      status: 'Cleaning living room',
+      supported_features: 14204, // Start, Pause, Stop, Return Home, Fan Speed, Locate, Clean Spot
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-34', parent_id: null, user_id: null }
+  },
 }
 
 const Dashboard = () => {
@@ -671,6 +688,13 @@ const Dashboard = () => {
 
           {/* Productivity Tab */}
           <TabsContent value="productivity" className="space-y-6">
+            <section>
+              <h2 className="section-title">Vacuum Cleaners</h2>
+              <div className="dashboard-grid">
+                <VacuumCard entityId="vacuum.roborock" name="Roborock S7" />
+              </div>
+            </section>
+
             <section>
               <h2 className="section-title">Todo Lists</h2>
               <div className="dashboard-grid">

@@ -15,7 +15,7 @@ A React library for building custom Home Assistant interfaces. Headless componen
 - **OAuth & Token Auth** - Flexible authentication with connection state tracking
 - **Robust Error Handling** - Informative error types with optional automatic retry for network errors
 - **Mock Mode** - Develop and test without need for a live Home Assistant instance
-- **13+ Entity Types** - Lights, climate, weather, cameras, media players, sensors, and more
+- **14+ Entity Types** - Lights, climate, weather, cameras, media players, vacuums, sensors, and more
 - **Camera Streaming** - HLS and MJPEG stream support with static images
 
 ## Installation
@@ -92,7 +92,7 @@ function App() {
 ### Key Topics
 - **[Getting Started](https://hass-react.com/docs/intro)** - Setup and basic usage
 - **[Authentication](https://hass-react.com/docs/authentication)** - OAuth and token configuration  
-- **[Entity Documentation](https://hass-react.com/docs/entities/light)** - All 13 supported entity types
+- **[Entity Documentation](https://hass-react.com/docs/entities/light)** - All 14 supported entity types
 - **[Error Handling](https://hass-react.com/docs/error-handling)** - Connection status and error patterns
 - **[Development & Testing](https://hass-react.com/docs/development-testing)** - Mock mode and testing utilities
 

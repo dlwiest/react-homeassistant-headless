@@ -167,48 +167,38 @@ The `useFan` hook returns an object with all the same properties and methods as 
 
 ```tsx
 <Fan entityId="fan.master_bedroom">
-  {({ 
+  {({
     isOn, percentage, presetMode, isOscillating, direction,
     supportsSetSpeed, supportsPresetMode, supportsOscillate, supportsDirection,
     availablePresetModes,
     toggle, setPercentage, setPresetMode, setOscillating, setDirection,
     attributes
   }) => (
-    <div style={{ 
-      padding: '1rem', 
-      border: '1px solid #ccc', 
-      borderRadius: '8px' 
-    }}>
+    <div>
       <h3>{attributes.friendly_name}</h3>
-      
-      <div style={{ marginBottom: '1rem' }}>
-        <button onClick={toggle} style={{ marginRight: '0.5rem' }}>
-          {isOn ? 'Turn Off' : 'Turn On'}
-        </button>
+      <div>
+        <button onClick={toggle}>{isOn ? 'Turn Off' : 'Turn On'}</button>
         <span>Status: {isOn ? 'ON' : 'OFF'}</span>
       </div>
-      
+
       {isOn && supportsSetSpeed && (
-        <div style={{ marginBottom: '1rem' }}>
+        <div>
           <label>Speed: {percentage}%</label>
           <input
             type="range"
-            min="0" max="100" step="10"
+            min="0"
+            max="100"
+            step="10"
             value={percentage}
             onChange={(e) => setPercentage(parseInt(e.target.value))}
-            style={{ width: '100%' }}
           />
         </div>
       )}
-      
+
       {isOn && supportsPresetMode && availablePresetModes.length > 0 && (
-        <div style={{ marginBottom: '1rem' }}>
+        <div>
           <label>Preset Mode:</label>
-          <select 
-            value={presetMode || ''} 
-            onChange={(e) => setPresetMode(e.target.value)}
-            style={{ marginLeft: '0.5rem' }}
-          >
+          <select value={presetMode || ''} onChange={(e) => setPresetMode(e.target.value)}>
             <option value="">Manual</option>
             {availablePresetModes.map(mode => (
               <option key={mode} value={mode}>{mode}</option>
@@ -216,9 +206,9 @@ The `useFan` hook returns an object with all the same properties and methods as 
           </select>
         </div>
       )}
-      
+
       {isOn && supportsOscillate && (
-        <div style={{ marginBottom: '1rem' }}>
+        <div>
           <label>
             <input
               type="checkbox"
@@ -229,15 +219,11 @@ The `useFan` hook returns an object with all the same properties and methods as 
           </label>
         </div>
       )}
-      
+
       {isOn && supportsDirection && (
         <div>
           <label>Direction:</label>
-          <select 
-            value={direction} 
-            onChange={(e) => setDirection(e.target.value)}
-            style={{ marginLeft: '0.5rem' }}
-          >
+          <select value={direction} onChange={(e) => setDirection(e.target.value)}>
             <option value="forward">Forward</option>
             <option value="reverse">Reverse</option>
           </select>
@@ -254,29 +240,18 @@ The `useFan` hook returns an object with all the same properties and methods as 
 <Fan entityId="fan.office">
   {({ isOn, percentage, toggle, setPercentage, supportsSetSpeed, attributes }) => {
     const speedLevels = [0, 25, 50, 75, 100]
-    
+
     return (
       <div>
         <h3>{attributes.friendly_name}</h3>
-        
-        <button onClick={toggle} style={{ marginBottom: '1rem' }}>
-          {isOn ? 'Turn Off' : 'Turn On'}
-        </button>
-        
+        <button onClick={toggle}>{isOn ? 'Turn Off' : 'Turn On'}</button>
+
         {supportsSetSpeed && (
           <div>
             <p>Speed: {percentage}%</p>
             <div>
               {speedLevels.map(speed => (
-                <button
-                  key={speed}
-                  onClick={() => setPercentage(speed)}
-                  style={{
-                    margin: '0.25rem',
-                    backgroundColor: percentage === speed ? '#4CAF50' : '#f0f0f0',
-                    color: percentage === speed ? 'white' : 'black'
-                  }}
-                >
+                <button key={speed} onClick={() => setPercentage(speed)}>
                   {speed === 0 ? 'Off' : `${speed}%`}
                 </button>
               ))}
@@ -296,36 +271,31 @@ import { useFan } from 'hass-react'
 
 function FanCard({ entityId }) {
   const fan = useFan(entityId)
-  
+
   return (
     <div>
       <h3>{fan.attributes.friendly_name}</h3>
-      
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <div>
         <button onClick={fan.toggle}>
           {fan.isOn ? 'OFF' : 'ON'}
         </button>
-        
+
         {fan.isOn && (
           <>
             <span>{fan.percentage}%</span>
-            
+
             {fan.supportsSetSpeed && (
               <input
                 type="range"
-                min="0" max="100"
+                min="0"
+                max="100"
                 value={fan.percentage}
                 onChange={(e) => fan.setPercentage(parseInt(e.target.value))}
               />
             )}
-            
+
             {fan.supportsOscillate && (
-              <button 
-                onClick={() => fan.setOscillating(!fan.isOscillating)}
-                style={{ 
-                  backgroundColor: fan.isOscillating ? '#2196F3' : '#f0f0f0' 
-                }}
-              >
+              <button onClick={() => fan.setOscillating(!fan.isOscillating)}>
                 Oscillate
               </button>
             )}
