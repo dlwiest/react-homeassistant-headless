@@ -49,6 +49,7 @@ const sidebars: SidebarsConfig = {
           label: 'Productivity',
           items: [
             'entities/todo',
+            'entities/vacuum',
           ],
         },
       ],

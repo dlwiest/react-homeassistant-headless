@@ -100,24 +100,12 @@ The `useWeather` hook returns an object with all the same properties and methods
 ```tsx
 <Weather entityId="weather.home">
   {({ condition, temperature, temperatureUnit, humidity, attributes }) => (
-    <div style={{
-      padding: '1rem',
-      border: '1px solid #ccc',
-      borderRadius: '8px'
-    }}>
+    <div>
       <h3>{attributes.friendly_name}</h3>
-
-      <div style={{ textAlign: 'center', marginBottom: '1rem' }}>
-        <p style={{ fontSize: '2rem', margin: 0, textTransform: 'capitalize' }}>
-          {condition.replace('-', ' ')}
-        </p>
-        {temperature !== null && (
-          <p style={{ fontSize: '3rem', margin: 0, fontWeight: 'bold' }}>
-            {temperature}{temperatureUnit}
-          </p>
-        )}
-      </div>
-
+      <p>{condition.replace('-', ' ')}</p>
+      {temperature !== null && (
+        <p>{temperature}{temperatureUnit}</p>
+      )}
       {humidity !== null && (
         <p>Humidity: {humidity}%</p>
       )}
@@ -144,66 +132,42 @@ The `useWeather` hook returns an object with all the same properties and methods
     }
 
     return (
-      <div style={{
-        padding: '1.5rem',
-        border: '1px solid #ddd',
-        borderRadius: '12px',
-        backgroundColor: '#f9f9f9'
-      }}>
+      <div>
         <h2>{attributes.friendly_name}</h2>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '1rem',
-          marginTop: '1rem'
-        }}>
-          <div>
-            <h4>Condition</h4>
-            <p style={{ fontSize: '1.2rem', textTransform: 'capitalize' }}>
-              {condition.replace('-', ' ')}
-            </p>
-          </div>
-
-          {temperature !== null && (
-            <div>
-              <h4>Temperature</h4>
-              <p style={{ fontSize: '1.2rem' }}>
-                {temperature}{temperatureUnit}
-              </p>
-            </div>
-          )}
-
-          {apparentTemperature !== null && (
-            <div>
-              <h4>Feels Like</h4>
-              <p>{apparentTemperature}{temperatureUnit}</p>
-            </div>
-          )}
-
-          {humidity !== null && (
-            <div>
-              <h4>Humidity</h4>
-              <p>{humidity}%</p>
-            </div>
-          )}
-
-          {pressure !== null && (
-            <div>
-              <h4>Pressure</h4>
-              <p>{pressure} {pressureUnit}</p>
-            </div>
-          )}
-
-          {windSpeed !== null && (
-            <div>
-              <h4>Wind</h4>
-              <p>
-                {windSpeed} {windSpeedUnit} {getWindDirection(windBearing)}
-              </p>
-            </div>
-          )}
+        <div>
+          <h4>Condition</h4>
+          <p>{condition.replace('-', ' ')}</p>
         </div>
+        {temperature !== null && (
+          <div>
+            <h4>Temperature</h4>
+            <p>{temperature}{temperatureUnit}</p>
+          </div>
+        )}
+        {apparentTemperature !== null && (
+          <div>
+            <h4>Feels Like</h4>
+            <p>{apparentTemperature}{temperatureUnit}</p>
+          </div>
+        )}
+        {humidity !== null && (
+          <div>
+            <h4>Humidity</h4>
+            <p>{humidity}%</p>
+          </div>
+        )}
+        {pressure !== null && (
+          <div>
+            <h4>Pressure</h4>
+            <p>{pressure} {pressureUnit}</p>
+          </div>
+        )}
+        {windSpeed !== null && (
+          <div>
+            <h4>Wind</h4>
+            <p>{windSpeed} {windSpeedUnit} {getWindDirection(windBearing)}</p>
+          </div>
+        )}
       </div>
     )
   }}
@@ -240,49 +204,25 @@ const getWeatherIcon = (condition) => {
     humidity, windSpeed, windSpeedUnit,
     attributes
   }) => (
-    <div style={{
-      padding: '2rem',
-      textAlign: 'center',
-      border: '2px solid #e0e0e0',
-      borderRadius: '16px'
-    }}>
+    <div>
       <h3>{attributes.friendly_name}</h3>
-
-      <div style={{ fontSize: '5rem', margin: '1rem 0' }}>
-        {getWeatherIcon(condition)}
-      </div>
-
-      <p style={{ fontSize: '1.5rem', textTransform: 'capitalize' }}>
-        {condition.replace('-', ' ')}
-      </p>
-
+      <div>{getWeatherIcon(condition)}</div>
+      <p>{condition.replace('-', ' ')}</p>
       {temperature !== null && (
-        <p style={{ fontSize: '3rem', fontWeight: 'bold', margin: '0.5rem 0' }}>
-          {temperature}{temperatureUnit}
-        </p>
+        <p>{temperature}{temperatureUnit}</p>
       )}
-
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-around',
-        marginTop: '1.5rem',
-        fontSize: '0.9rem',
-        color: '#666'
-      }}>
-        {humidity !== null && (
-          <div>
-            <div>Humidity</div>
-            <strong>{humidity}%</strong>
-          </div>
-        )}
-
-        {windSpeed !== null && (
-          <div>
-            <div>Wind</div>
-            <strong>{windSpeed} {windSpeedUnit}</strong>
-          </div>
-        )}
-      </div>
+      {humidity !== null && (
+        <div>
+          <div>Humidity</div>
+          <div>{humidity}%</div>
+        </div>
+      )}
+      {windSpeed !== null && (
+        <div>
+          <div>Wind</div>
+          <div>{windSpeed} {windSpeedUnit}</div>
+        </div>
+      )}
     </div>
   )}
 </Weather>
@@ -293,28 +233,13 @@ const getWeatherIcon = (condition) => {
 ```tsx
 <Weather entityId="weather.home">
   {({ condition, temperature, temperatureUnit, humidity, windSpeed, windSpeedUnit }) => (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-      padding: '0.75rem',
-      backgroundColor: '#f5f5f5',
-      borderRadius: '8px'
-    }}>
-      <div style={{ fontSize: '2rem' }}>
-        {getWeatherIcon(condition)}
+    <div>
+      <div>{getWeatherIcon(condition)}</div>
+      <div>
+        {temperature !== null && <div>{temperature}{temperatureUnit}</div>}
+        <div>{condition.replace('-', ' ')}</div>
       </div>
-
-      <div style={{ flex: 1 }}>
-        <div style={{ fontWeight: 'bold' }}>
-          {temperature !== null && `${temperature}${temperatureUnit}`}
-        </div>
-        <div style={{ fontSize: '0.85rem', color: '#666', textTransform: 'capitalize' }}>
-          {condition.replace('-', ' ')}
-        </div>
-      </div>
-
-      <div style={{ fontSize: '0.85rem', textAlign: 'right' }}>
+      <div>
         {humidity !== null && <div>💧 {humidity}%</div>}
         {windSpeed !== null && <div>💨 {windSpeed} {windSpeedUnit}</div>}
       </div>
@@ -343,68 +268,29 @@ function WeatherCard({ entityId }) {
   }
 
   return (
-    <div style={{
-      padding: '1.5rem',
-      border: '1px solid #ddd',
-      borderRadius: '12px'
-    }}>
+    <div>
       <h3>{weather.attributes.friendly_name}</h3>
-
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1rem',
-        marginTop: '1rem'
-      }}>
-        <div style={{ fontSize: '3rem' }}>
-          {getWeatherEmoji(weather.condition)}
-        </div>
-
+      <div>
+        <div>{getWeatherEmoji(weather.condition)}</div>
         <div>
           {weather.temperature !== null && (
-            <div style={{ fontSize: '2rem', fontWeight: 'bold' }}>
-              {weather.temperature}{weather.temperatureUnit}
-            </div>
+            <div>{weather.temperature}{weather.temperatureUnit}</div>
           )}
-          <div style={{ textTransform: 'capitalize' }}>
-            {weather.condition.replace('-', ' ')}
-          </div>
+          <div>{weather.condition.replace('-', ' ')}</div>
         </div>
       </div>
-
-      <div style={{
-        marginTop: '1rem',
-        display: 'grid',
-        gridTemplateColumns: 'repeat(2, 1fr)',
-        gap: '0.5rem',
-        fontSize: '0.9rem'
-      }}>
+      <div>
         {weather.humidity !== null && (
-          <div>
-            <span style={{ color: '#666' }}>Humidity: </span>
-            <strong>{weather.humidity}%</strong>
-          </div>
+          <div>Humidity: {weather.humidity}%</div>
         )}
-
         {weather.pressure !== null && (
-          <div>
-            <span style={{ color: '#666' }}>Pressure: </span>
-            <strong>{weather.pressure} {weather.pressureUnit}</strong>
-          </div>
+          <div>Pressure: {weather.pressure} {weather.pressureUnit}</div>
         )}
-
         {weather.windSpeed !== null && (
-          <div>
-            <span style={{ color: '#666' }}>Wind: </span>
-            <strong>{weather.windSpeed} {weather.windSpeedUnit}</strong>
-          </div>
+          <div>Wind: {weather.windSpeed} {weather.windSpeedUnit}</div>
         )}
-
         {weather.apparentTemperature !== null && (
-          <div>
-            <span style={{ color: '#666' }}>Feels Like: </span>
-            <strong>{weather.apparentTemperature}{weather.temperatureUnit}</strong>
-          </div>
+          <div>Feels Like: {weather.apparentTemperature}{weather.temperatureUnit}</div>
         )}
       </div>
     </div>
@@ -425,11 +311,7 @@ function WeatherDashboard() {
   ]
 
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-      gap: '1rem'
-    }}>
+    <div>
       {locations.map(location => (
         <WeatherLocation key={location.id} entityId={location.id} />
       ))}
@@ -441,29 +323,16 @@ function WeatherLocation({ entityId }) {
   const weather = useWeather(entityId)
 
   return (
-    <div style={{
-      padding: '1rem',
-      border: '1px solid #ddd',
-      borderRadius: '8px',
-      backgroundColor: 'white'
-    }}>
+    <div>
       <h4>{weather.attributes.friendly_name}</h4>
-
-      <div style={{ textAlign: 'center', margin: '1rem 0' }}>
+      <div>
         {weather.temperature !== null && (
-          <div style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>
-            {weather.temperature}{weather.temperatureUnit}
-          </div>
+          <div>{weather.temperature}{weather.temperatureUnit}</div>
         )}
-        <div style={{ textTransform: 'capitalize', color: '#666' }}>
-          {weather.condition.replace('-', ' ')}
-        </div>
+        <div>{weather.condition.replace('-', ' ')}</div>
       </div>
-
       {weather.humidity !== null && (
-        <div style={{ fontSize: '0.9rem' }}>
-          Humidity: {weather.humidity}%
-        </div>
+        <div>Humidity: {weather.humidity}%</div>
       )}
     </div>
   )

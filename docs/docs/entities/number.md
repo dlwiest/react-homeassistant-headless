@@ -115,35 +115,18 @@ The `useNumber` hook returns an object with all the same properties and methods 
 ```tsx
 <Number entityId="number.thermostat_offset">
   {({ value, increment, decrement, min, max, unit, attributes }) => (
-    <div style={{
-      padding: '1rem',
-      border: '1px solid #ccc',
-      borderRadius: '8px'
-    }}>
+    <div>
       <h3>{attributes.friendly_name}</h3>
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1rem',
-        fontSize: '1.5rem'
-      }}>
-        <button
-          onClick={decrement}
-          disabled={value <= min}
-        >
+      <div>
+        <button onClick={decrement} disabled={value <= min}>
           -
         </button>
         <span>{value}{unit}</span>
-        <button
-          onClick={increment}
-          disabled={value >= max}
-        >
+        <button onClick={increment} disabled={value >= max}>
           +
         </button>
       </div>
-      <p style={{ fontSize: '0.875rem', color: '#666' }}>
-        Range: {min} - {max}{unit}
-      </p>
+      <p>Range: {min} - {max}{unit}</p>
     </div>
   )}
 </Number>
@@ -156,8 +139,6 @@ The `useNumber` hook returns an object with all the same properties and methods 
   {({ value, setValue, increment, decrement, min, max, step, unit }) => (
     <div>
       <h4>Brightness Threshold</h4>
-
-      {/* Slider */}
       <input
         type="range"
         min={min}
@@ -165,22 +146,12 @@ The `useNumber` hook returns an object with all the same properties and methods 
         step={step}
         value={value}
         onChange={(e) => setValue(parseFloat(e.target.value))}
-        style={{ width: '100%' }}
       />
-
-      {/* Value display and buttons */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginTop: '0.5rem'
-      }}>
+      <div>
         <span>{min}{unit}</span>
         <div>
           <button onClick={decrement}>-</button>
-          <span style={{ margin: '0 1rem' }}>
-            {value}{unit}
-          </span>
+          <span>{value}{unit}</span>
           <button onClick={increment}>+</button>
         </div>
         <span>{max}{unit}</span>
@@ -205,12 +176,6 @@ The `useNumber` hook returns an object with all the same properties and methods 
         step={step}
         value={value}
         onChange={(e) => setValue(parseFloat(e.target.value))}
-        style={{
-          padding: '0.5rem',
-          fontSize: '1rem',
-          border: '1px solid #ccc',
-          borderRadius: '4px'
-        }}
       />
     </div>
   )}
@@ -228,8 +193,6 @@ function VolumeControl({ entityId }) {
   return (
     <div>
       <h3>{volume.attributes.friendly_name}</h3>
-
-      {/* Range slider */}
       <input
         type="range"
         min={volume.min}
@@ -237,28 +200,13 @@ function VolumeControl({ entityId }) {
         step={volume.step}
         value={volume.value}
         onChange={(e) => volume.setValue(parseFloat(e.target.value))}
-        style={{ width: '100%' }}
       />
-
-      {/* Current value */}
-      <p style={{ textAlign: 'center', fontSize: '1.5rem' }}>
-        {volume.value}{volume.unit}
-      </p>
-
-      {/* Quick controls */}
-      <div style={{ display: 'flex', gap: '0.5rem' }}>
-        <button onClick={() => volume.setValue(volume.min)}>
-          Min
-        </button>
-        <button onClick={volume.decrement}>
-          -
-        </button>
-        <button onClick={volume.increment}>
-          +
-        </button>
-        <button onClick={() => volume.setValue(volume.max)}>
-          Max
-        </button>
+      <p>{volume.value}{volume.unit}</p>
+      <div>
+        <button onClick={() => volume.setValue(volume.min)}>Min</button>
+        <button onClick={volume.decrement}>-</button>
+        <button onClick={volume.increment}>+</button>
+        <button onClick={() => volume.setValue(volume.max)}>Max</button>
       </div>
     </div>
   )
@@ -303,11 +251,7 @@ function VolumeControl({ entityId }) {
           max={max}
           step={step}
         />
-        {error && (
-          <p style={{ color: 'red', fontSize: '0.875rem' }}>
-            {error}
-          </p>
-        )}
+        {error && <p>{error}</p>}
       </div>
     )
   }}
