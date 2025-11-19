@@ -22,6 +22,7 @@ export { useLock } from './hooks/useLock'
 export { useMediaPlayer } from './hooks/useMediaPlayer'
 export { useCamera } from './hooks/useCamera'
 export { useNumber } from './hooks/useNumber'
+export { useWeather } from './hooks/useWeather'
 
 // Headless components
 export { Light } from './components/Light'
@@ -37,6 +38,7 @@ export { Lock } from './components/Lock'
 export { MediaPlayer } from './components/MediaPlayer'
 export { Camera } from './components/Camera'
 export { Number } from './components/Number'
+export { Weather } from './components/Weather'
 export type { StreamPlayerProps } from './components/Camera/StreamPlayer'
 export type { ImageProps as CameraImageProps } from './components/Camera/Image'
 
@@ -65,6 +67,9 @@ export type {
   LockAttributes,
   NumberState,
   NumberAttributes,
+  WeatherState,
+  WeatherAttributes,
+  WeatherCondition,
   CurrentUser,
   HAConfig,
   ConnectionStatus,
