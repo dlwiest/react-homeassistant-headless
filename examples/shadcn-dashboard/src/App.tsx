@@ -1,7 +1,7 @@
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
 import { UserGreeting } from './components/layout/UserGreeting'
-import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard, WeatherCard } from './components/cards'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs'
 import { Lightbulb, Thermometer, Shield, Music, ListTodo } from 'lucide-react'
 import './styles/dashboard.css'
@@ -467,6 +467,31 @@ const mockData = {
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-32', parent_id: null, user_id: null }
   },
+
+  // Weather
+  'weather.home': {
+    entity_id: 'weather.home',
+    state: 'sunny',
+    attributes: {
+      friendly_name: 'Home Weather',
+      temperature: 72,
+      temperature_unit: '°F',
+      humidity: 45,
+      pressure: 29.92,
+      pressure_unit: 'inHg',
+      wind_speed: 8,
+      wind_speed_unit: 'mph',
+      wind_bearing: 180,
+      visibility: 10,
+      visibility_unit: 'mi',
+      cloud_coverage: 15,
+      dew_point: 48,
+      apparent_temperature: 70,
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-33', parent_id: null, user_id: null }
+  },
 }
 
 const Dashboard = () => {
@@ -560,6 +585,13 @@ const Dashboard = () => {
 
           {/* Climate & Environment Tab */}
           <TabsContent value="climate" className="space-y-6">
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Weather</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <WeatherCard entityId="weather.home" name="Current Weather" />
+              </div>
+            </section>
+
             <section>
               <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Climate Control</h2>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
