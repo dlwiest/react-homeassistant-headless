@@ -45,6 +45,44 @@ body, html {
   margin: 0;
 }
 
+/* User Greeting */
+.user-greeting {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(71, 85, 105, 0.5);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.greeting-text {
+  color: rgb(203, 213, 225);
+  font-weight: 500;
+}
+
+.user-badge {
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.user-badge.admin {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: rgb(96, 165, 250);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.user-badge.owner {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: rgb(52, 211, 153);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
 .dashboard-container {
   max-width: 1280px;
   margin: 0 auto;

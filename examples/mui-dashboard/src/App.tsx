@@ -19,6 +19,7 @@ import {
   Assignment
 } from '@mui/icons-material'
 import { ConnectionStatus } from './components/ConnectionStatus'
+import { UserGreeting } from './components/layout/UserGreeting'
 import {
   LightCard,
   SwitchCard,
@@ -573,7 +574,10 @@ const Dashboard = () => {
                 Manage your connected devices
               </Typography>
             </Box>
-            <ConnectionStatus />
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+              <UserGreeting />
+              <ConnectionStatus />
+            </Box>
           </Box>
         </Container>
       </Box>
@@ -778,6 +782,15 @@ export const App = () => {
         url="http://homeassistant.local:8123"
         mockMode={true}
         mockData={mockData}
+        mockUser={{
+          id: 'demo-user-123',
+          name: 'Demo User',
+          is_owner: true,
+          is_admin: true,
+          local_only: false,
+          system_generated: false,
+          group_ids: ['system-users', 'system-admin']
+        }}
       >
         <Dashboard />
       </HAProvider>
