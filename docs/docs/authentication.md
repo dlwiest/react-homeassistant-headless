@@ -178,3 +178,107 @@ function CustomAuth() {
 **OAuth redirect issues**
 - Ensure your app URL is whitelisted in Home Assistant
 - Check browser console for CORS or redirect errors
+
+## Current User Information
+
+The `useCurrentUser` hook provides information about the currently authenticated user. This is especially useful for:
+- Displaying personalized greetings
+- Conditional rendering based on user roles (admin/owner)
+- Logging and analytics
+- Multi-user applications
+
+### Basic Usage
+
+```tsx
+import { useCurrentUser } from 'hass-react'
+
+function UserGreeting() {
+  const user = useCurrentUser()
+
+  if (!user) {
+    return null // Not yet loaded or no user
+  }
+
+  return (
+    <div>
+      <h2>Hello, {user.name}!</h2>
+      {user.is_admin && <span>Admin</span>}
+      {user.is_owner && <span>Owner</span>}
+    </div>
+  )
+}
+```
+
+### User Properties
+
+The hook returns a `CurrentUser` object with the following properties:
+
+```typescript
+interface CurrentUser {
+  id: string                  // Unique user identifier
+  name: string                // Display name
+  is_owner: boolean           // True if user owns the Home Assistant instance
+  is_admin: boolean           // True if user has admin privileges
+  local_only: boolean         // True if user can only auth from local network
+  system_generated: boolean   // True if user was created by the system
+  group_ids: string[]         // Array of group IDs the user belongs to
+}
+```
+
+### Conditional Rendering by Role
+
+Use the user information to show/hide features based on permissions:
+
+```tsx
+function AdminPanel() {
+  const user = useCurrentUser()
+
+  // Only show admin panel to admins
+  if (!user?.is_admin) {
+    return <p>Access denied</p>
+  }
+
+  return (
+    <div>
+      <h2>Admin Panel</h2>
+      {/* Admin-only controls */}
+    </div>
+  )
+}
+```
+
+### Authentication Method Compatibility
+
+The `useCurrentUser` hook works with both authentication methods:
+
+- **OAuth**: Returns full user information for the authenticated user
+- **Long-lived Token**: Returns user information associated with the token
+
+The hook returns `null` when:
+- Not yet connected to Home Assistant
+- User information hasn't loaded
+- An error occurred fetching user data
+
+### Mock Mode
+
+In mock mode, you can provide custom user data for development and testing:
+
+```tsx
+<HAProvider
+  url="http://homeassistant.local:8123"
+  mockMode={true}
+  mockUser={{
+    id: 'test-user-123',
+    name: 'Test User',
+    is_owner: true,
+    is_admin: true,
+    local_only: false,
+    system_generated: false,
+    group_ids: ['test-group']
+  }}
+>
+  <YourApp />
+</HAProvider>
+```
+
+If no `mockUser` is provided, mock mode uses a default mock user with admin and owner privileges.

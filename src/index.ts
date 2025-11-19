@@ -3,6 +3,7 @@ export { HAProvider, useHAConnection } from './providers/HAProvider'
 
 // Auth
 export { useAuth } from './hooks/useAuth'
+export { useCurrentUser } from './hooks/useCurrentUser'
 
 // Base hooks
 export { useEntity } from './hooks/useEntity'
@@ -64,6 +65,7 @@ export type {
   LockAttributes,
   NumberState,
   NumberAttributes,
+  CurrentUser,
   HAConfig,
   ConnectionStatus,
   BaseEntityHook

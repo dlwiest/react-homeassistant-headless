@@ -5,6 +5,7 @@ export interface HAConfig {
   redirectUri?: string
   mockMode?: boolean
   mockData?: Record<string, EntityState>
+  mockUser?: CurrentUser
   options?: {
     reconnectInterval?: number
     reconnectAttempts?: number
@@ -17,6 +18,17 @@ export interface HAConfig {
       maxDelay?: number
     }
   }
+}
+
+// Current user information (from auth/current_user)
+export interface CurrentUser {
+  id: string
+  name: string
+  is_owner: boolean
+  is_admin: boolean
+  local_only: boolean
+  system_generated: boolean
+  group_ids: string[]
 }
 
 export interface ConnectionStatus {

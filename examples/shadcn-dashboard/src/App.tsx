@@ -1,5 +1,6 @@
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
+import { UserGreeting } from './components/layout/UserGreeting'
 import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard } from './components/cards'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs'
 import { Lightbulb, Thermometer, Shield, Music, ListTodo } from 'lucide-react'
@@ -478,7 +479,10 @@ const Dashboard = () => {
               <h1 className="text-2xl sm:text-3xl font-bold text-white">Smart Home</h1>
               <p className="text-sm text-slate-400">Manage your connected devices</p>
             </div>
-            <ConnectionStatus />
+            <div className="flex items-center gap-4">
+              <UserGreeting />
+              <ConnectionStatus />
+            </div>
           </div>
         </div>
       </header>
@@ -686,10 +690,19 @@ const Dashboard = () => {
 
 export const App = () => {
   return (
-    <HAProvider 
-      url="http://homeassistant.local:8123" 
-      mockMode={true} 
+    <HAProvider
+      url="http://homeassistant.local:8123"
+      mockMode={true}
       mockData={mockData}
+      mockUser={{
+        id: 'demo-user-123',
+        name: 'Demo User',
+        is_owner: true,
+        is_admin: true,
+        local_only: false,
+        system_generated: false,
+        group_ids: ['system-users', 'system-admin']
+      }}
     >
       <Dashboard />
     </HAProvider>
