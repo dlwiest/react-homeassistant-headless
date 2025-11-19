@@ -26,20 +26,32 @@ export function useCurrentUser(): CurrentUser | null {
       return
     }
 
+    // Track if component is still mounted to prevent state updates after unmount
+    let isMounted = true
+
     // Fetch current user info from Home Assistant
     const fetchUser = async () => {
       try {
         const result = await connection.sendMessagePromise({
           type: 'auth/current_user',
         })
-        setUser(result as CurrentUser)
+        if (isMounted) {
+          setUser(result as CurrentUser)
+        }
       } catch (error) {
-        console.error('Failed to fetch current user:', error)
-        setUser(null)
+        if (isMounted) {
+          console.error('Failed to fetch current user:', error)
+          setUser(null)
+        }
       }
     }
 
     fetchUser()
+
+    // Cleanup function to prevent state updates after unmount
+    return () => {
+      isMounted = false
+    }
   }, [connection, config.mockMode, config.mockUser])
 
   return user
