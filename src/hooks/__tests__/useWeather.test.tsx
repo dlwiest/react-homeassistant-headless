@@ -38,6 +38,41 @@ describe('useWeather', () => {
     vi.clearAllMocks()
   })
 
+  describe('Entity ID Validation', () => {
+    it('should warn when using wrong domain', () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      renderHook(() => useWeather('sensor.temperature'))
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('useWeather: Entity "sensor.temperature" has domain "sensor" but expects "weather" domain')
+      )
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should accept entity ID with weather domain', () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      renderHook(() => useWeather('weather.home'))
+
+      expect(consoleSpy).not.toHaveBeenCalled()
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should auto-prefix entity ID without domain', () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      renderHook(() => useWeather('home'))
+
+      expect(mockUseEntity).toHaveBeenCalledWith('weather.home')
+      expect(consoleSpy).not.toHaveBeenCalled()
+
+      consoleSpy.mockRestore()
+    })
+  })
+
   describe('Basic Weather Properties', () => {
     it('should return current weather condition', () => {
       const attributes = {

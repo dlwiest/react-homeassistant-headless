@@ -1,12 +1,11 @@
 import { useEntity } from './useEntity'
+import { createDomainValidator } from '../utils/entityId'
 import type { WeatherState, WeatherAttributes, WeatherCondition } from '../types'
 
-function ensureWeatherEntityId(entityId: string): string {
-  return entityId.includes('.') ? entityId : `weather.${entityId}`
-}
+const validateWeatherEntityId = createDomainValidator('weather', 'useWeather')
 
 export function useWeather(entityId: string): WeatherState {
-  const normalizedEntityId = ensureWeatherEntityId(entityId)
+  const normalizedEntityId = validateWeatherEntityId(entityId)
   const entity = useEntity<WeatherAttributes>(normalizedEntityId)
   const { attributes, state } = entity
 
