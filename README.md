@@ -31,7 +31,7 @@ Use headless components with render props or hooks - both give you full control 
 ```jsx
 import { HAProvider, Light, useLight } from 'hass-react'
 
-// Component approach - render props
+// As a component
 function LightCard() {
   return (
     <Light entityId="light.living_room">
@@ -54,7 +54,7 @@ function LightCard() {
   )
 }
 
-// Hook approach - same data, different API
+// As a hook
 function LightCard() {
   const light = useLight('light.living_room')
 
@@ -92,7 +92,7 @@ function App() {
 ### Key Topics
 - **[Getting Started](https://hass-react.com/docs/intro)** - Setup and basic usage
 - **[Authentication](https://hass-react.com/docs/authentication)** - OAuth and token configuration  
-- **[Entity Documentation](https://hass-react.com/docs/entities/light)** - All 13+ supported entity types
+- **[Entity Documentation](https://hass-react.com/docs/entities/light)** - All 13 supported entity types
 - **[Error Handling](https://hass-react.com/docs/error-handling)** - Connection status and error patterns
 - **[Development & Testing](https://hass-react.com/docs/development-testing)** - Mock mode and testing utilities
 
