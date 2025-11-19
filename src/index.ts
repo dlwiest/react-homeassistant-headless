@@ -23,6 +23,7 @@ export { useMediaPlayer } from './hooks/useMediaPlayer'
 export { useCamera } from './hooks/useCamera'
 export { useNumber } from './hooks/useNumber'
 export { useWeather } from './hooks/useWeather'
+export { useVacuum } from './hooks/useVacuum'
 
 // Headless components
 export { Light } from './components/Light'
@@ -39,6 +40,7 @@ export { MediaPlayer } from './components/MediaPlayer'
 export { Camera } from './components/Camera'
 export { Number } from './components/Number'
 export { Weather } from './components/Weather'
+export { Vacuum } from './components/Vacuum'
 export type { StreamPlayerProps } from './components/Camera/StreamPlayer'
 export type { ImageProps as CameraImageProps } from './components/Camera/Image'
 
@@ -70,6 +72,8 @@ export type {
   WeatherState,
   WeatherAttributes,
   WeatherCondition,
+  VacuumState,
+  VacuumAttributes,
   CurrentUser,
   HAConfig,
   ConnectionStatus,
@@ -86,7 +90,7 @@ export type { CoverState } from './hooks/useCover'
 export type { MediaPlayerState, MediaPlayerAttributes, MediaPlayerCapabilities, CameraState, CameraAttributes, CameraCapabilities, StreamState, StreamOptions, StreamType } from './types'
 
 // Constants
-export { LightFeatures, FanFeatures, ClimateFeatures, LockFeatures, TodoFeatures, MediaPlayerFeatures, CameraFeatures } from './types'
+export { LightFeatures, FanFeatures, ClimateFeatures, LockFeatures, TodoFeatures, MediaPlayerFeatures, CameraFeatures, VacuumFeatures } from './types'
 
 // Error handling
 export type { ErrorRetryAction } from './utils/errors'

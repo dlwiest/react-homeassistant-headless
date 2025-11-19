@@ -22,6 +22,7 @@ const sidebars: SidebarsConfig = {
           label: 'Climate & Environment',
           items: [
             'entities/climate',
+            'entities/weather',
             'entities/sensor',
             'entities/binary-sensor',
             'entities/number',
