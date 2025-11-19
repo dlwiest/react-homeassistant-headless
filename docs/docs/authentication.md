@@ -161,24 +161,6 @@ function CustomAuth() {
 }
 ```
 
-## Troubleshooting
-
-### Common Issues
-
-**"Authentication failed"**
-- Check that your Home Assistant URL is correct and accessible
-- Ensure Home Assistant is running and reachable from your app
-- For tokens: verify the token hasn't expired or been revoked
-
-**"Connection refused"**
-- Check the Home Assistant URL (including port 8123)
-- Verify your network connection
-- Check if Home Assistant is behind a firewall or proxy
-
-**OAuth redirect issues**
-- Ensure your app URL is whitelisted in Home Assistant
-- Check browser console for CORS or redirect errors
-
 ## Current User Information
 
 The `useCurrentUser` hook provides information about the currently authenticated user. This is especially useful for:
@@ -282,3 +264,21 @@ In mock mode, you can provide custom user data for development and testing:
 ```
 
 If no `mockUser` is provided, mock mode uses a default mock user with admin and owner privileges.
+
+## Troubleshooting
+
+### Common Issues
+
+**"Authentication failed"**
+- Check that your Home Assistant URL is correct and accessible
+- Ensure Home Assistant is running and reachable from your app
+- For tokens: verify the token hasn't expired or been revoked
+
+**"Connection refused"**
+- Check the Home Assistant URL (including port 8123)
+- Verify your network connection
+- Check if Home Assistant is behind a firewall or proxy
+
+**OAuth redirect issues**
+- Ensure your app URL is whitelisted in Home Assistant
+- Check browser console for CORS or redirect errors
