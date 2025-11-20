@@ -34,7 +34,8 @@ import {
   NumberCard,
   ClimateCard,
   WeatherCard,
-  VacuumCard
+  VacuumCard,
+  CalendarCard
 } from './components/cards'
 
 // Create dark MUI theme
@@ -512,6 +513,25 @@ const mockData = {
     context: { id: 'context-31', parent_id: null, user_id: null }
   },
 
+  // Calendar
+  'calendar.personal': {
+    entity_id: 'calendar.personal',
+    state: 'on',
+    attributes: {
+      friendly_name: 'Personal Calendar',
+      message: 'Team Standup',
+      all_day: false,
+      start_time: new Date(Date.now() - 60 * 60 * 1000).toISOString().slice(0, 19),
+      end_time: new Date(Date.now() + 60 * 60 * 1000).toISOString().slice(0, 19),
+      location: 'Conference Room A',
+      description: 'Daily team sync',
+      supported_features: 7, // CREATE | DELETE | UPDATE
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-32', parent_id: null, user_id: null }
+  },
+
   // Media Players
   'media_player.living_room_speaker': {
     entity_id: 'media_player.living_room_speaker',
@@ -800,6 +820,15 @@ const Dashboard = () => {
             <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', maxWidth: '100%', '@media (min-width: 1200px)': { gridTemplateColumns: 'repeat(3, 1fr)' } }}>
               <TodoCard entityId="todo.shopping_list" name="Shopping List" />
               <TodoCard entityId="todo.weekend_projects" name="Weekend Projects" />
+            </Box>
+          </Box>
+
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Calendar
+            </Typography>
+            <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', maxWidth: '100%', '@media (min-width: 1200px)': { gridTemplateColumns: 'repeat(3, 1fr)' } }}>
+              <CalendarCard entityId="calendar.personal" name="Personal Calendar" />
             </Box>
           </Box>
         </TabPanel>

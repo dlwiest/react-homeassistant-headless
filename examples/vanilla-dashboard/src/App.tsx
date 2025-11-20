@@ -2,7 +2,7 @@ import React from 'react'
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
 import { UserGreeting } from './components/layout/UserGreeting'
-import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard, WeatherCard, VacuumCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard, WeatherCard, VacuumCard, CalendarCard } from './components/cards'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs'
 import { Lightbulb, Thermometer, Shield, Music, ListTodo } from 'lucide-react'
 import './styles/dashboard.css'
@@ -312,6 +312,25 @@ const mockData = {
     last_changed: '2024-01-01T12:00:00.000Z',
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-23', parent_id: null, user_id: null }
+  },
+
+  // Calendar
+  'calendar.personal': {
+    entity_id: 'calendar.personal',
+    state: 'on', // Event currently happening
+    attributes: {
+      friendly_name: 'Personal Calendar',
+      message: 'Team Standup',
+      all_day: false,
+      start_time: new Date(Date.now() - 60 * 60 * 1000).toISOString().slice(0, 19),
+      end_time: new Date(Date.now() + 60 * 60 * 1000).toISOString().slice(0, 19),
+      location: 'Conference Room A',
+      description: 'Daily team sync',
+      supported_features: 7, // CREATE_EVENT (1) + DELETE_EVENT (2) + UPDATE_EVENT (4)
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-24', parent_id: null, user_id: null }
   },
 
   // Cameras
@@ -700,6 +719,13 @@ const Dashboard = () => {
               <div className="dashboard-grid">
                 <TodoCard entityId="todo.shopping_list" name="Shopping List" />
                 <TodoCard entityId="todo.weekend_projects" name="Weekend Projects" />
+              </div>
+            </section>
+
+            <section>
+              <h2 className="section-title">Calendar</h2>
+              <div className="dashboard-grid">
+                <CalendarCard entityId="calendar.personal" name="Personal Calendar" />
               </div>
             </section>
           </TabsContent>
