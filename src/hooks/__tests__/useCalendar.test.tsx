@@ -384,7 +384,7 @@ describe('useCalendar', () => {
         await result.current.deleteEvent('event-uid-123')
       })
 
-      expect(mockCallService).toHaveBeenCalledWith('calendar', 'remove_event', {
+      expect(mockCallService).toHaveBeenCalledWith('calendar', 'delete_event', {
         entity_id: 'calendar.test',
         uid: 'event-uid-123',
         recurrence_range: undefined
@@ -423,7 +423,7 @@ describe('useCalendar', () => {
 
       expect(mockCallService).toHaveBeenCalledWith(
         'calendar',
-        'remove_event',
+        'delete_event',
         expect.objectContaining({
           recurrence_range: 'THIS_AND_FUTURE'
         })

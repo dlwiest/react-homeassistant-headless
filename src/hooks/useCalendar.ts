@@ -111,7 +111,7 @@ export function useCalendar(entityId: string): CalendarState {
 
       z.string().parse(uid)
 
-      await callService('calendar', 'remove_event', {
+      await callService('calendar', 'delete_event', {
         entity_id: normalizedEntityId,
         uid,
         recurrence_range: recurrenceRange,
