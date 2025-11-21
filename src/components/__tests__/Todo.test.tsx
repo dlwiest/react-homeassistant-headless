@@ -1,3 +1,4 @@
+import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render } from '@testing-library/react'
 import '@testing-library/jest-dom'
@@ -38,11 +39,14 @@ describe('Todo Component', () => {
       lastChanged: new Date('2024-01-01T12:00:00Z'),
       lastUpdated: new Date('2024-01-01T12:30:00Z'),
       context: { id: '123', parent_id: null, user_id: null },
-      error: null,
-      callService: vi.fn(),
-  callServiceWithResponse: vi.fn(),
+      error: undefined,
       refresh: vi.fn(),
-      isUnavailable: false
+      isUnavailable: false,
+      addItem: vi.fn(),
+      removeItem: vi.fn(),
+      updateItem: vi.fn(),
+      toggleItem: vi.fn(),
+      clearCompleted: vi.fn()
     }
 
     mockUseTodo.mockReturnValue(mockTodoState)
@@ -86,11 +90,14 @@ describe('Todo Component', () => {
       lastChanged: new Date(),
       lastUpdated: new Date(),
       context: { id: '123', parent_id: null, user_id: null },
-      error: null,
-      callService: vi.fn(),
-  callServiceWithResponse: vi.fn(),
+      error: undefined,
       refresh: vi.fn(),
-      isUnavailable: false
+      isUnavailable: false,
+      addItem: vi.fn(),
+      removeItem: vi.fn(),
+      updateItem: vi.fn(),
+      toggleItem: vi.fn(),
+      clearCompleted: vi.fn()
     }
 
     mockUseTodo.mockReturnValue(mockTodoState)
@@ -126,10 +133,13 @@ describe('Todo Component', () => {
       lastUpdated: new Date(),
       context: { id: '123', parent_id: null, user_id: null },
       error: { name: 'EntityError', message: 'Entity not available' },
-      callService: vi.fn(),
-  callServiceWithResponse: vi.fn(),
       refresh: vi.fn(),
-      isUnavailable: true
+      isUnavailable: true,
+      addItem: vi.fn(),
+      removeItem: vi.fn(),
+      updateItem: vi.fn(),
+      toggleItem: vi.fn(),
+      clearCompleted: vi.fn()
     }
 
     mockUseTodo.mockReturnValue(mockTodoState)
@@ -151,7 +161,7 @@ describe('Todo Component', () => {
     const mockTodoState = {
       entityId: 'todo.test_list',
       state: '2',
-      attributes: { 
+      attributes: {
         friendly_name: 'Test List',
         items: [{ uid: '1', summary: 'Test item', status: 'needs_action' as const }],
         supported_features: 15
@@ -166,11 +176,14 @@ describe('Todo Component', () => {
       lastChanged: new Date('2024-01-01T12:00:00Z'),
       lastUpdated: new Date('2024-01-01T12:30:00Z'),
       context: { id: '123', parent_id: null, user_id: null },
-      error: null,
-      callService: vi.fn(),
-  callServiceWithResponse: vi.fn(),
+      error: undefined,
       refresh: vi.fn(),
-      isUnavailable: false
+      isUnavailable: false,
+      addItem: vi.fn(),
+      removeItem: vi.fn(),
+      updateItem: vi.fn(),
+      toggleItem: vi.fn(),
+      clearCompleted: vi.fn()
     }
 
     mockUseTodo.mockReturnValue(mockTodoState)

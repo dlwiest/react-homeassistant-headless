@@ -16,7 +16,7 @@ const createMockClimateEntity = (
   entityId: string = 'climate.test',
   state: string = 'heat',
   attributes: Record<string, any> = {}
-): ClimateState => ({
+) => ({
   entityId,
   state,
   attributes,

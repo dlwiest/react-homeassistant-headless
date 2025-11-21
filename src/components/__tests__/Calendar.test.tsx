@@ -1,3 +1,4 @@
+import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render } from '@testing-library/react'
 import '@testing-library/jest-dom'
@@ -49,9 +50,7 @@ describe('Calendar Component', () => {
       lastChanged: new Date('2024-01-01T12:00:00Z'),
       lastUpdated: new Date('2024-01-01T12:30:00Z'),
       context: { id: '123', parent_id: null, user_id: null },
-      error: null,
-      callService: vi.fn(),
-      callServiceWithResponse: vi.fn(),
+      error: undefined,
       refresh: vi.fn(),
       isUnavailable: false,
       getEvents: vi.fn(),
@@ -107,9 +106,7 @@ describe('Calendar Component', () => {
       lastChanged: new Date(),
       lastUpdated: new Date(),
       context: { id: '123', parent_id: null, user_id: null },
-      error: null,
-      callService: vi.fn(),
-      callServiceWithResponse: vi.fn(),
+      error: undefined,
       refresh: vi.fn(),
       isUnavailable: false,
       getEvents: vi.fn(),
@@ -217,9 +214,7 @@ describe('Calendar Component', () => {
       lastChanged: new Date('2024-01-01T12:00:00Z'),
       lastUpdated: new Date('2024-01-01T12:30:00Z'),
       context: { id: '123', parent_id: null, user_id: null },
-      error: null,
-      callService: vi.fn(),
-      callServiceWithResponse: vi.fn(),
+      error: undefined,
       refresh: vi.fn(),
       isUnavailable: false,
       getEvents: vi.fn(),
@@ -287,9 +282,7 @@ describe('Calendar Component', () => {
       lastChanged: new Date(),
       lastUpdated: new Date(),
       context: { id: '123', parent_id: null, user_id: null },
-      error: null,
-      callService: vi.fn(),
-      callServiceWithResponse: vi.fn(),
+      error: undefined,
       refresh: vi.fn(),
       isUnavailable: false,
       getEvents: vi.fn(),

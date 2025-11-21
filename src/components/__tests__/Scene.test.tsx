@@ -1,3 +1,4 @@
+import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render } from '@testing-library/react'
 import '@testing-library/jest-dom'
@@ -26,9 +27,7 @@ describe('Scene Component', () => {
       lastChanged: new Date('2024-01-01T12:00:00Z'),
       lastUpdated: new Date('2024-01-01T12:30:00Z'),
       context: { id: '123', parent_id: null, user_id: null },
-      error: null,
-      callService: vi.fn(),
-      callServiceWithResponse: vi.fn(),
+      error: undefined,
       refresh: vi.fn(),
       isUnavailable: false,
       activate: vi.fn()
@@ -64,9 +63,7 @@ describe('Scene Component', () => {
       lastChanged: new Date(),
       lastUpdated: new Date(),
       context: { id: '123', parent_id: null, user_id: null },
-      error: null,
-      callService: vi.fn(),
-      callServiceWithResponse: vi.fn(),
+      error: undefined,
       refresh: vi.fn(),
       isUnavailable: false,
       activate: mockActivate
@@ -100,8 +97,6 @@ describe('Scene Component', () => {
       lastUpdated: new Date(),
       context: { id: '123', parent_id: null, user_id: null },
       error: { name: 'EntityError', message: 'Scene not available' },
-      callService: vi.fn(),
-      callServiceWithResponse: vi.fn(),
       refresh: vi.fn(),
       isUnavailable: true,
       activate: vi.fn()
@@ -134,9 +129,7 @@ describe('Scene Component', () => {
       lastChanged: new Date('2024-01-01T12:00:00Z'),
       lastUpdated: new Date('2024-01-01T12:30:00Z'),
       context: { id: '123', parent_id: null, user_id: null },
-      error: null,
-      callService: vi.fn(),
-      callServiceWithResponse: vi.fn(),
+      error: undefined,
       refresh: vi.fn(),
       isUnavailable: false,
       activate: vi.fn()
@@ -175,9 +168,7 @@ describe('Scene Component', () => {
       lastChanged: new Date(),
       lastUpdated: new Date(),
       context: { id: '123', parent_id: null, user_id: null },
-      error: null,
-      callService: vi.fn(),
-      callServiceWithResponse: vi.fn(),
+      error: undefined,
       refresh: vi.fn(),
       isUnavailable: false,
       activate: mockActivate

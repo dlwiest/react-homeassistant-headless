@@ -657,9 +657,8 @@ describe('useLight', () => {
       expect(result.current.lastUpdated).toBe(mockEntity.lastUpdated)
       expect(result.current.isUnavailable).toBe(mockEntity.isUnavailable)
       expect(result.current.isConnected).toBe(mockEntity.isConnected)
-      expect(result.current.callService).toBe(mockEntity.callService)
       expect(result.current.refresh).toBe(mockEntity.refresh)
-      
+
       // Plus light-specific properties
       expect(result.current.isOn).toBeDefined()
       expect(result.current.brightness).toBeDefined()

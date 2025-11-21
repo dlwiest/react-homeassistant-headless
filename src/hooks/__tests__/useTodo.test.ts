@@ -36,15 +36,14 @@ describe('useTodo', () => {
     const mockEntityData = {
       entityId: 'todo.shopping_list',
       state: '5',
-      attributes: { 
+      attributes: {
         friendly_name: 'Shopping List',
         supported_features: 15
       },
       isConnected: true,
       lastChanged: new Date(),
       lastUpdated: new Date(),
-      context: { id: '123', parent_id: null, user_id: null },
-      error: null,
+      error: undefined,
       callService: vi.fn(),
       callServiceWithResponse: mockCallServiceWithResponse,
       refresh: vi.fn(),
@@ -79,15 +78,14 @@ describe('useTodo', () => {
     const mockEntityData = {
       entityId: 'todo.empty_list',
       state: '0',
-      attributes: { 
+      attributes: {
         friendly_name: 'Empty List',
         supported_features: 15
       },
       isConnected: true,
       lastChanged: new Date(),
       lastUpdated: new Date(),
-      context: { id: '123', parent_id: null, user_id: null },
-      error: null,
+      error: undefined,
       callService: vi.fn(),
       callServiceWithResponse: mockCallServiceWithResponse,
       refresh: vi.fn(),
@@ -117,8 +115,7 @@ describe('useTodo', () => {
       isConnected: false,
       lastChanged: new Date(),
       lastUpdated: new Date(),
-      context: { id: '123', parent_id: null, user_id: null },
-      error: null,
+      error: undefined,
       callService: vi.fn(),
       callServiceWithResponse: mockCallServiceWithResponse,
       refresh: vi.fn(),
@@ -145,15 +142,14 @@ describe('useTodo', () => {
     const mockEntityData = {
       entityId: 'todo.no_items',
       state: '3',
-      attributes: { 
+      attributes: {
         friendly_name: 'No Items List',
         supported_features: 15
       },
       isConnected: true,
       lastChanged: new Date(),
       lastUpdated: new Date(),
-      context: { id: '123', parent_id: null, user_id: null },
-      error: null,
+      error: undefined,
       callService: vi.fn(),
       callServiceWithResponse: mockCallServiceWithResponse,
       refresh: vi.fn(),
@@ -183,15 +179,14 @@ describe('useTodo', () => {
     const mockEntityData = {
       entityId: 'todo.invalid_state',
       state: 'invalid',
-      attributes: { 
+      attributes: {
         friendly_name: 'Invalid State List',
         supported_features: 15
       },
       isConnected: true,
       lastChanged: new Date(),
       lastUpdated: new Date(),
-      context: { id: '123', parent_id: null, user_id: null },
-      error: null,
+      error: undefined,
       callService: vi.fn(),
       callServiceWithResponse: mockCallServiceWithResponse,
       refresh: vi.fn(),
@@ -222,15 +217,14 @@ describe('useTodo', () => {
     const mockEntityData = {
       entityId: 'todo.test_list',
       state: '2',
-      attributes: { 
+      attributes: {
         friendly_name: 'Test List',
         supported_features: 15
       },
       isConnected: true,
       lastChanged: new Date('2024-01-01T12:00:00Z'),
       lastUpdated: new Date('2024-01-01T12:30:00Z'),
-      context: { id: '123', parent_id: null, user_id: null },
-      error: null,
+      error: undefined,
       callService: vi.fn(),
       callServiceWithResponse: mockCallServiceWithResponse,
       refresh: vi.fn(),
@@ -250,8 +244,7 @@ describe('useTodo', () => {
     expect(result.current.isConnected).toBe(true)
     expect(result.current.lastChanged).toEqual(mockEntityData.lastChanged)
     expect(result.current.lastUpdated).toEqual(mockEntityData.lastUpdated)
-    expect(result.current.context).toEqual(mockEntityData.context)
-    expect(result.current.error).toBeNull()
+    expect(result.current.error).toBeUndefined()
   })
 
   it('should handle todo items with different statuses', async () => {
@@ -280,15 +273,14 @@ describe('useTodo', () => {
     const mockEntityData = {
       entityId: 'todo.mixed_list',
       state: '4',
-      attributes: { 
+      attributes: {
         friendly_name: 'Mixed List',
         supported_features: 15
       },
       isConnected: true,
       lastChanged: new Date(),
       lastUpdated: new Date(),
-      context: { id: '123', parent_id: null, user_id: null },
-      error: null,
+      error: undefined,
       callService: vi.fn(),
       callServiceWithResponse: mockCallServiceWithResponse,
       refresh: vi.fn(),

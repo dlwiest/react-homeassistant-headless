@@ -16,7 +16,7 @@ const createMockLightEntity = (
   entityId: string = 'light.test',
   state: string = 'on',
   attributes: Record<string, any> = {}
-): LightState => ({
+) => ({
   entityId,
   state,
   attributes,

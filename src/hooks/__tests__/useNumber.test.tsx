@@ -277,7 +277,6 @@ describe('useNumber', () => {
       expect(result.current.lastUpdated).toBe(mockEntity.lastUpdated)
       expect(result.current.isUnavailable).toBe(mockEntity.isUnavailable)
       expect(result.current.isConnected).toBe(mockEntity.isConnected)
-      expect(result.current.callService).toBe(mockEntity.callService)
       expect(result.current.refresh).toBe(mockEntity.refresh)
 
       // Plus number-specific properties

@@ -16,7 +16,7 @@ const createMockCoverEntity = (
   entityId: string = 'cover.test',
   state: string = 'closed',
   attributes: Record<string, any> = {}
-): CoverState => ({
+) => ({
   entityId,
   state,
   attributes,
@@ -278,29 +278,6 @@ describe('Cover', () => {
       expect(mockSetPosition).toHaveBeenCalledWith(50)
     })
 
-    it('should support calling generic service', () => {
-      const mockCallService = vi.fn()
-      const mockCoverEntity = createMockCoverEntity('cover.test', 'closed')
-      mockCoverEntity.callService = mockCallService
-      mockUseCover.mockReturnValue(mockCoverEntity)
-
-      const { getByTestId } = render(
-        <Cover entityId="cover.test">
-          {(cover) => (
-            <button 
-              data-testid="service-call" 
-              onClick={() => cover.callService('cover', 'open_cover')}
-            >
-              Service Call
-            </button>
-          )}
-        </Cover>
-      )
-
-      fireEvent.click(getByTestId('service-call'))
-
-      expect(mockCallService).toHaveBeenCalledWith('cover', 'open_cover')
-    })
   })
 
   describe('Children Function Patterns', () => {
