@@ -6,7 +6,13 @@ import { useEntityIdValidation } from '../utils/entityValidation'
 import { EntityNotAvailableError, ConnectionError, ServiceCallError } from '../utils/errors'
 import { withRetry, type RetryOptions } from '../utils/retry'
 
-export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEntityHook<T> {
+// Internal type that includes service call methods for use within entity-specific hooks
+export interface InternalEntityHook<T = Record<string, unknown>> extends BaseEntityHook<T> {
+  callService: (domain: string, service: string, data?: object) => Promise<void>
+  callServiceWithResponse: <R = unknown>(domain: string, service: string, data?: object) => Promise<R>
+}
+
+export function useEntity<T = Record<string, unknown>>(entityId: string): InternalEntityHook<T> {
   const { connection, connected, config } = useHAConnection()
   const registerEntity = useStore((state) => state.registerEntity)
   const unregisterEntity = useStore((state) => state.unregisterEntity)
@@ -172,6 +178,12 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEn
 
   const currentEntity = entity || defaultEntity
 
+  // Internal methods for entity-specific hooks to use
+  const internalMethods = {
+    callService,
+    callServiceWithResponse,
+  }
+
   return {
     entityId,
     state: currentEntity.state,
@@ -181,8 +193,8 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEn
     isUnavailable: currentEntity.state === 'unavailable',
     isConnected: connected,
     error: error || undefined,
-    callService,
-    callServiceWithResponse,
     refresh,
+    // Expose internal methods for entity-specific hooks but not in public type
+    ...internalMethods,
   }
 }

@@ -1,12 +1,12 @@
 import { vi, expect } from 'vitest'
-import type { BaseEntityHook } from '../../types'
+import type { InternalEntityHook } from '../../hooks/useEntity'
 
 // Creates a mock entity for testing purposes
 export function createMockEntity<T = Record<string, unknown>>(
   entityId: string,
   state: string = 'on',
   attributes: T = {} as T
-): BaseEntityHook<T> {
+): InternalEntityHook<T> {
   return {
     entityId,
     state,
@@ -105,7 +105,7 @@ export function createMockEntityWithFeatures<T = Record<string, unknown>>(
   features: number[],
   state: string = 'on',
   additionalAttributes: Partial<T> = {}
-): BaseEntityHook<T> {
+): InternalEntityHook<T> {
   const supportedFeatures = features.reduce((acc, feature) => acc | feature, 0)
   
   return createMockEntity<T>(
@@ -120,13 +120,13 @@ export function createMockEntityWithFeatures<T = Record<string, unknown>>(
 }
 
 // Extracts the mock callService function for assertions
-export function getMockServiceCall(mockEntity: BaseEntityHook) {
+export function getMockServiceCall(mockEntity: InternalEntityHook) {
   return mockEntity.callService as ReturnType<typeof vi.fn>
 }
 
 // Helper to verify service calls with specific parameters
 export function expectServiceCalled(
-  mockEntity: BaseEntityHook,
+  mockEntity: InternalEntityHook,
   domain: string,
   service: string,
   data?: object

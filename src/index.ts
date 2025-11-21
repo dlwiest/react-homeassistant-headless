@@ -8,6 +8,7 @@ export { useCurrentUser } from './hooks/useCurrentUser'
 // Base hooks
 export { useEntity } from './hooks/useEntity'
 export { useEntityGroup } from './hooks/useEntityGroup'
+export { useServiceCall } from './hooks/useServiceCall'
 
 // Entity-specific hooks
 export { useLight } from './hooks/useLight'
