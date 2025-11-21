@@ -4,6 +4,7 @@ import type { BaseEntityHook } from '../core'
 export interface SceneAttributes {
   friendly_name?: string
   icon?: string
+  [key: string]: unknown
 }
 
 export interface SceneState extends BaseEntityHook<SceneAttributes> {

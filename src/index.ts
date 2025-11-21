@@ -26,6 +26,7 @@ export { useWeather } from './hooks/useWeather'
 export { useVacuum } from './hooks/useVacuum'
 export { useCalendar } from './hooks/useCalendar'
 export { useScene } from './hooks/useScene'
+export { useScenes } from './hooks/useScenes'
 
 // Headless components
 export { Light } from './components/Light'
