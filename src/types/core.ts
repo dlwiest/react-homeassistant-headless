@@ -65,7 +65,5 @@ export interface BaseEntityHook<T = Record<string, unknown>> {
   isUnavailable: boolean
   isConnected: boolean
   error?: Error
-  callService: (domain: string, service: string, data?: object) => Promise<void>
-  callServiceWithResponse: <R = unknown>(domain: string, service: string, data?: object) => Promise<R>
   refresh: () => Promise<void>
 }

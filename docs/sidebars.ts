@@ -56,7 +56,14 @@ const sidebars: SidebarsConfig = {
         },
       ],
     },
-    'multiple-entities',
+    {
+      type: 'category',
+      label: 'Advanced Hooks',
+      items: [
+        'advanced/multiple-entities',
+        'advanced/custom-service-calls',
+      ],
+    },
     'error-handling',
     'development-testing',
   ],

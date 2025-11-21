@@ -1,3 +1,7 @@
+---
+sidebar_position: 1
+---
+
 # Working with Multiple Entities
 
 When building dashboards or complex interfaces, you often need to work with multiple entities at once. hass-react provides the `useEntityGroup` hook to efficiently manage collections of entities.
