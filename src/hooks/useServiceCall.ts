@@ -1,7 +1,7 @@
 import { useCallback } from 'react'
 import { useHAConnection } from '../providers/HAProvider'
 import { ConnectionError, ServiceCallError } from '../utils/errors'
-import { withRetry, type RetryOptions } from '../utils/retry'
+import { withRetry, getRetryOptionsFromConfig } from '../utils/retry'
 
 export function useServiceCall() {
   const { connection, config } = useHAConnection()
@@ -13,12 +13,7 @@ export function useServiceCall() {
       }
 
       // Get retry configuration from provider options
-      const retryOptions: RetryOptions = {
-        maxAttempts: config.options?.serviceRetry?.maxAttempts ?? 3,
-        baseDelay: config.options?.serviceRetry?.baseDelay ?? 1000,
-        exponentialBackoff: config.options?.serviceRetry?.exponentialBackoff ?? true,
-        maxDelay: config.options?.serviceRetry?.maxDelay ?? 10000,
-      }
+      const retryOptions = getRetryOptionsFromConfig(config.options?.serviceRetry)
 
       const executeServiceCall = async () => {
         try {
@@ -50,12 +45,7 @@ export function useServiceCall() {
       }
 
       // Get retry configuration from provider options
-      const retryOptions: RetryOptions = {
-        maxAttempts: config.options?.serviceRetry?.maxAttempts ?? 3,
-        baseDelay: config.options?.serviceRetry?.baseDelay ?? 1000,
-        exponentialBackoff: config.options?.serviceRetry?.exponentialBackoff ?? true,
-        maxDelay: config.options?.serviceRetry?.maxDelay ?? 10000,
-      }
+      const retryOptions = getRetryOptionsFromConfig(config.options?.serviceRetry)
 
       const executeServiceCall = async () => {
         try {

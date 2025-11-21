@@ -4,7 +4,7 @@ import { useHAConnection } from '../providers/HAProvider'
 import type { BaseEntityHook, EntityState } from '../types'
 import { useEntityIdValidation } from '../utils/entityValidation'
 import { EntityNotAvailableError, ConnectionError, ServiceCallError } from '../utils/errors'
-import { withRetry, type RetryOptions } from '../utils/retry'
+import { withRetry, getRetryOptionsFromConfig } from '../utils/retry'
 
 // Internal type that includes service call methods for use within entity-specific hooks
 export interface InternalEntityHook<T = Record<string, unknown>> extends BaseEntityHook<T> {
@@ -75,12 +75,7 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): Intern
       }
 
       // Get retry configuration from provider options
-      const retryOptions: RetryOptions = {
-        maxAttempts: config.options?.serviceRetry?.maxAttempts ?? 3,
-        baseDelay: config.options?.serviceRetry?.baseDelay ?? 1000,
-        exponentialBackoff: config.options?.serviceRetry?.exponentialBackoff ?? true,
-        maxDelay: config.options?.serviceRetry?.maxDelay ?? 10000,
-      }
+      const retryOptions = getRetryOptionsFromConfig(config.options?.serviceRetry)
 
       const executeServiceCall = async () => {
         try {
@@ -95,8 +90,8 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): Intern
           })
         } catch (originalError) {
           throw new ServiceCallError(
-            domain, 
-            service, 
+            domain,
+            service,
             originalError instanceof Error ? originalError : new Error(String(originalError)),
             entityId
           )
@@ -116,12 +111,7 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): Intern
       }
 
       // Get retry configuration from provider options
-      const retryOptions: RetryOptions = {
-        maxAttempts: config.options?.serviceRetry?.maxAttempts ?? 3,
-        baseDelay: config.options?.serviceRetry?.baseDelay ?? 1000,
-        exponentialBackoff: config.options?.serviceRetry?.exponentialBackoff ?? true,
-        maxDelay: config.options?.serviceRetry?.maxDelay ?? 10000,
-      }
+      const retryOptions = getRetryOptionsFromConfig(config.options?.serviceRetry)
 
       const executeServiceCall = async () => {
         try {

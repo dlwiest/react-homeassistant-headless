@@ -78,3 +78,20 @@ export function createRetryableFunction<TArgs extends unknown[], TReturn>(
 export function delay(ms: number): Promise<void> {
   return new Promise(resolve => setTimeout(resolve, ms))
 }
+
+// Extracts retry options from HAConfig, falling back to defaults
+export function getRetryOptionsFromConfig(
+  serviceRetry?: {
+    maxAttempts?: number
+    baseDelay?: number
+    exponentialBackoff?: boolean
+    maxDelay?: number
+  }
+): RetryOptions {
+  return {
+    maxAttempts: serviceRetry?.maxAttempts ?? 3,
+    baseDelay: serviceRetry?.baseDelay ?? 1000,
+    exponentialBackoff: serviceRetry?.exponentialBackoff ?? true,
+    maxDelay: serviceRetry?.maxDelay ?? 10000,
+  }
+}
