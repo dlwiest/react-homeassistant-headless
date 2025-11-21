@@ -2,7 +2,7 @@ import React from 'react'
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
 import { UserGreeting } from './components/layout/UserGreeting'
-import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard, WeatherCard, VacuumCard, CalendarCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard, WeatherCard, VacuumCard, CalendarCard, SceneCard } from './components/cards'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs'
 import { Lightbulb, Thermometer, Shield, Music, ListTodo } from 'lucide-react'
 import './styles/dashboard.css'
@@ -333,6 +333,30 @@ const mockData = {
     context: { id: 'context-24', parent_id: null, user_id: null }
   },
 
+  // Scenes
+  'scene.movie_night': {
+    entity_id: 'scene.movie_night',
+    state: 'scening',
+    attributes: {
+      friendly_name: 'Movie Night',
+      icon: 'mdi:movie'
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-25', parent_id: null, user_id: null }
+  },
+  'scene.bright': {
+    entity_id: 'scene.bright',
+    state: 'scening',
+    attributes: {
+      friendly_name: 'Bright',
+      icon: 'mdi:brightness-7'
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-26', parent_id: null, user_id: null }
+  },
+
   // Cameras
   'camera.front_door': {
     entity_id: 'camera.front_door',
@@ -600,6 +624,14 @@ const Dashboard = () => {
               <div className="dashboard-grid">
                 <FanCard entityId="fan.living_room_ceiling" name="Living Room Ceiling Fan" />
                 <FanCard entityId="fan.bedroom_fan" name="Bedroom Fan" />
+              </div>
+            </section>
+
+            <section>
+              <h2 className="section-title">Scenes</h2>
+              <div className="dashboard-grid">
+                <SceneCard entityId="scene.movie_night" name="Movie Night" />
+                <SceneCard entityId="scene.bright" name="Bright" />
               </div>
             </section>
           </TabsContent>

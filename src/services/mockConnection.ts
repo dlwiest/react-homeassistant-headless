@@ -232,13 +232,20 @@ export function createMockConnection(): Partial<Connection> {
           serviceData
         )
 
+        // For scenes, always update last_changed when activated (even though state doesn't change)
+        const shouldUpdateLastChanged = domain === 'scene' && service === 'turn_on'
+          ? true
+          : transition.state !== currentEntity.state
+
+        const newTimestamp = new Date().toISOString()
+
         // Update the entity in the store
         useStore.getState().updateEntity(entityId, {
           ...currentEntity,
           state: transition.state,
           attributes: transition.attributes,
-          last_updated: new Date().toISOString(),
-          last_changed: transition.state !== currentEntity.state ? new Date().toISOString() : currentEntity.last_changed,
+          last_updated: newTimestamp,
+          last_changed: shouldUpdateLastChanged ? newTimestamp : currentEntity.last_changed,
         })
 
         return

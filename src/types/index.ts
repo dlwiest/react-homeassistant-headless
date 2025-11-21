@@ -121,3 +121,9 @@ export type {
 } from './entities/calendar'
 
 export { CalendarFeatures } from './entities/calendar'
+
+// Entity types - Scene
+export type {
+  SceneAttributes,
+  SceneState,
+} from './entities/scene'
