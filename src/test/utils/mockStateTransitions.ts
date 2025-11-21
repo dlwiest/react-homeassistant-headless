@@ -68,6 +68,18 @@ export function mockServiceCall(
       ))
       break
 
+    case 'vacuum':
+      ({ state: newState, attributes: newAttributes } = mockVacuumService(
+        service, currentState, newAttributes, params
+      ))
+      break
+
+    case 'scene':
+      ({ state: newState, attributes: newAttributes } = mockSceneService(
+        service, currentState, newAttributes, params
+      ))
+      break
+
     default:
       // For unknown domains, just handle basic toggle/turn_on/turn_off
       ({ state: newState, attributes: newAttributes } = mockBasicService(
@@ -310,6 +322,82 @@ function mockNumberService(
         attributes
       }
     }
+
+    default:
+      return { state: currentState, attributes }
+  }
+}
+
+// Mock vacuum-specific services
+function mockVacuumService(
+  service: string,
+  currentState: string,
+  attributes: Record<string, unknown>,
+  params: Record<string, unknown>
+): MockStateTransition {
+  switch (service) {
+    case 'start':
+      return {
+        state: 'cleaning',
+        attributes: { ...attributes, status: 'Cleaning' }
+      }
+
+    case 'pause':
+      return {
+        state: 'paused',
+        attributes: { ...attributes, status: 'Paused' }
+      }
+
+    case 'stop':
+      return {
+        state: 'idle',
+        attributes: { ...attributes, status: 'Stopped' }
+      }
+
+    case 'return_to_base':
+      return {
+        state: 'returning',
+        attributes: { ...attributes, status: 'Returning to dock' }
+      }
+
+    case 'set_fan_speed':
+      return {
+        state: currentState,
+        attributes: { ...attributes, fan_speed: params.fan_speed as string }
+      }
+
+    case 'locate':
+      return {
+        state: currentState,
+        attributes: { ...attributes, status: 'Locating...' }
+      }
+
+    case 'clean_spot':
+      return {
+        state: 'cleaning',
+        attributes: { ...attributes, status: 'Spot cleaning' }
+      }
+
+    default:
+      return { state: currentState, attributes }
+  }
+}
+
+// Mock scene-specific services
+function mockSceneService(
+  service: string,
+  currentState: string,
+  attributes: Record<string, unknown>,
+  _params: Record<string, unknown>
+): MockStateTransition {
+  switch (service) {
+    case 'turn_on':
+      // Scenes don't change state when activated, they just trigger actions
+      // The state typically remains as 'scening'
+      return {
+        state: currentState,
+        attributes
+      }
 
     default:
       return { state: currentState, attributes }

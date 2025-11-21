@@ -15,7 +15,7 @@ import type { CameraState } from '../../types'
 describe('Camera Component', () => {
   const mockUseCamera = useCamera as any
 
-  const createMockCameraState = (overrides: Partial<CameraState> = {}): CameraState => ({
+  const createMockCameraState = (overrides: Partial<CameraState> = {}) => ({
     // Base entity properties
     entityId: 'camera.test',
     state: 'idle',

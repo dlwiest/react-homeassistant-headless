@@ -16,7 +16,7 @@ const createMockSwitchEntity = (
   entityId: string = 'switch.test',
   state: string = 'on',
   attributes: Record<string, any> = {}
-): SwitchState => ({
+) => ({
   entityId,
   state,
   attributes,
@@ -197,29 +197,6 @@ describe('Switch', () => {
       expect(mockToggle).toHaveBeenCalled()
     })
 
-    it('should support calling generic service', () => {
-      const mockCallService = vi.fn()
-      const mockSwitchEntity = createMockSwitchEntity('switch.test', 'off')
-      mockSwitchEntity.callService = mockCallService
-      mockUseSwitch.mockReturnValue(mockSwitchEntity)
-
-      const { getByTestId } = render(
-        <Switch entityId="switch.test">
-          {(switchEntity) => (
-            <button 
-              data-testid="service-call" 
-              onClick={() => switchEntity.callService('switch', 'turn_on')}
-            >
-              Service Call
-            </button>
-          )}
-        </Switch>
-      )
-
-      fireEvent.click(getByTestId('service-call'))
-
-      expect(mockCallService).toHaveBeenCalledWith('switch', 'turn_on')
-    })
   })
 
   describe('Children Function Patterns', () => {

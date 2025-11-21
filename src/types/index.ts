@@ -112,3 +112,18 @@ export type {
 } from './entities/vacuum'
 
 export { VacuumFeatures } from './entities/vacuum'
+
+// Entity types - Calendar
+export type {
+  CalendarEvent,
+  CalendarAttributes,
+  CalendarState,
+} from './entities/calendar'
+
+export { CalendarFeatures } from './entities/calendar'
+
+// Entity types - Scene
+export type {
+  SceneAttributes,
+  SceneState,
+} from './entities/scene'

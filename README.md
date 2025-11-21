@@ -15,7 +15,7 @@ A React library for building custom Home Assistant interfaces. Headless componen
 - **OAuth & Token Auth** - Flexible authentication with connection state tracking
 - **Robust Error Handling** - Informative error types with optional automatic retry for network errors
 - **Mock Mode** - Develop and test without need for a live Home Assistant instance
-- **14+ Entity Types** - Lights, climate, weather, cameras, media players, vacuums, sensors, and more
+- **15+ Entity Types** - Lights, climate, cameras, media players, sensors, and more
 - **Camera Streaming** - HLS and MJPEG stream support with static images
 
 ## Installation

@@ -15,6 +15,7 @@ const sidebars: SidebarsConfig = {
             'entities/light',
             'entities/switch',
             'entities/fan',
+            'entities/scene',
           ],
         },
         {
@@ -48,13 +49,21 @@ const sidebars: SidebarsConfig = {
           type: 'category',
           label: 'Productivity',
           items: [
+            'entities/calendar',
             'entities/todo',
             'entities/vacuum',
           ],
         },
       ],
     },
-    'multiple-entities',
+    {
+      type: 'category',
+      label: 'Advanced Hooks',
+      items: [
+        'advanced/multiple-entities',
+        'advanced/custom-service-calls',
+      ],
+    },
     'error-handling',
     'development-testing',
   ],

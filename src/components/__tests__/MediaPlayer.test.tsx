@@ -14,7 +14,7 @@ const createMockMediaPlayerEntity = createMockEntityFactory('media_player')
 const mockUseMediaPlayer = useMediaPlayer as any
 
 // Create a comprehensive mock MediaPlayer state
-const createMockMediaPlayerState = (overrides: Partial<MediaPlayerState> = {}): MediaPlayerState => {
+const createMockMediaPlayerState = (overrides: Partial<MediaPlayerState> = {}) => {
   const baseState = createMockMediaPlayerEntity('test_speaker', 'playing', {
     media_title: 'Test Song',
     media_artist: 'Test Artist',

@@ -2,7 +2,7 @@ import React from 'react'
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
 import { UserGreeting } from './components/layout/UserGreeting'
-import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard, WeatherCard, VacuumCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard, WeatherCard, VacuumCard, CalendarCard, SceneCard } from './components/cards'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs'
 import { Lightbulb, Thermometer, Shield, Music, ListTodo } from 'lucide-react'
 import './styles/dashboard.css'
@@ -314,6 +314,49 @@ const mockData = {
     context: { id: 'context-23', parent_id: null, user_id: null }
   },
 
+  // Calendar
+  'calendar.personal': {
+    entity_id: 'calendar.personal',
+    state: 'on', // Event currently happening
+    attributes: {
+      friendly_name: 'Personal Calendar',
+      message: 'Team Standup',
+      all_day: false,
+      start_time: new Date(Date.now() - 60 * 60 * 1000).toISOString().slice(0, 19),
+      end_time: new Date(Date.now() + 60 * 60 * 1000).toISOString().slice(0, 19),
+      location: 'Conference Room A',
+      description: 'Daily team sync',
+      supported_features: 7, // CREATE_EVENT (1) + DELETE_EVENT (2) + UPDATE_EVENT (4)
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-24', parent_id: null, user_id: null }
+  },
+
+  // Scenes
+  'scene.movie_night': {
+    entity_id: 'scene.movie_night',
+    state: 'scening',
+    attributes: {
+      friendly_name: 'Movie Night',
+      icon: 'mdi:movie'
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-25', parent_id: null, user_id: null }
+  },
+  'scene.bright': {
+    entity_id: 'scene.bright',
+    state: 'scening',
+    attributes: {
+      friendly_name: 'Bright',
+      icon: 'mdi:brightness-7'
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-26', parent_id: null, user_id: null }
+  },
+
   // Cameras
   'camera.front_door': {
     entity_id: 'camera.front_door',
@@ -583,6 +626,14 @@ const Dashboard = () => {
                 <FanCard entityId="fan.bedroom_fan" name="Bedroom Fan" />
               </div>
             </section>
+
+            <section>
+              <h2 className="section-title">Scenes</h2>
+              <div className="dashboard-grid">
+                <SceneCard entityId="scene.movie_night" name="Movie Night" />
+                <SceneCard entityId="scene.bright" name="Bright" />
+              </div>
+            </section>
           </TabsContent>
 
           {/* Climate & Environment Tab */}
@@ -700,6 +751,13 @@ const Dashboard = () => {
               <div className="dashboard-grid">
                 <TodoCard entityId="todo.shopping_list" name="Shopping List" />
                 <TodoCard entityId="todo.weekend_projects" name="Weekend Projects" />
+              </div>
+            </section>
+
+            <section>
+              <h2 className="section-title">Calendar</h2>
+              <div className="dashboard-grid">
+                <CalendarCard entityId="calendar.personal" name="Personal Calendar" />
               </div>
             </section>
           </TabsContent>

@@ -8,6 +8,7 @@ export { useCurrentUser } from './hooks/useCurrentUser'
 // Base hooks
 export { useEntity } from './hooks/useEntity'
 export { useEntityGroup } from './hooks/useEntityGroup'
+export { useServiceCall } from './hooks/useServiceCall'
 
 // Entity-specific hooks
 export { useLight } from './hooks/useLight'
@@ -24,6 +25,9 @@ export { useCamera } from './hooks/useCamera'
 export { useNumber } from './hooks/useNumber'
 export { useWeather } from './hooks/useWeather'
 export { useVacuum } from './hooks/useVacuum'
+export { useCalendar } from './hooks/useCalendar'
+export { useScene } from './hooks/useScene'
+export { useScenes } from './hooks/useScenes'
 
 // Headless components
 export { Light } from './components/Light'
@@ -41,6 +45,8 @@ export { Camera } from './components/Camera'
 export { Number } from './components/Number'
 export { Weather } from './components/Weather'
 export { Vacuum } from './components/Vacuum'
+export { Calendar } from './components/Calendar'
+export { Scene } from './components/Scene'
 export type { StreamPlayerProps } from './components/Camera/StreamPlayer'
 export type { ImageProps as CameraImageProps } from './components/Camera/Image'
 
@@ -74,6 +80,11 @@ export type {
   WeatherCondition,
   VacuumState,
   VacuumAttributes,
+  CalendarState,
+  CalendarAttributes,
+  CalendarEvent,
+  SceneState,
+  SceneAttributes,
   CurrentUser,
   HAConfig,
   ConnectionStatus,
@@ -90,7 +101,7 @@ export type { CoverState } from './hooks/useCover'
 export type { MediaPlayerState, MediaPlayerAttributes, MediaPlayerCapabilities, CameraState, CameraAttributes, CameraCapabilities, StreamState, StreamOptions, StreamType } from './types'
 
 // Constants
-export { LightFeatures, FanFeatures, ClimateFeatures, LockFeatures, TodoFeatures, MediaPlayerFeatures, CameraFeatures, VacuumFeatures } from './types'
+export { LightFeatures, FanFeatures, ClimateFeatures, LockFeatures, TodoFeatures, MediaPlayerFeatures, CameraFeatures, VacuumFeatures, CalendarFeatures } from './types'
 
 // Error handling
 export type { ErrorRetryAction } from './utils/errors'

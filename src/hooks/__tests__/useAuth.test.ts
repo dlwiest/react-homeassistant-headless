@@ -369,8 +369,8 @@ describe('useAuth Hook', () => {
 
     it('should call checkAuth when hassUrl changes', async () => {
       const { rerender } = renderHook(
-        ({ hassUrl }) => useAuth(hassUrl),
-        { initialProps: { hassUrl: null } }
+        ({ hassUrl }: { hassUrl: string | null }) => useAuth(hassUrl),
+        { initialProps: { hassUrl: null as string | null } }
       )
 
       // Initially no calls since hassUrl is null

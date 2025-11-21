@@ -4,9 +4,15 @@ import { useHAConnection } from '../providers/HAProvider'
 import type { BaseEntityHook, EntityState } from '../types'
 import { useEntityIdValidation } from '../utils/entityValidation'
 import { EntityNotAvailableError, ConnectionError, ServiceCallError } from '../utils/errors'
-import { withRetry, type RetryOptions } from '../utils/retry'
+import { withRetry, getRetryOptionsFromConfig } from '../utils/retry'
 
-export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEntityHook<T> {
+// Internal type that includes service call methods for use within entity-specific hooks
+export interface InternalEntityHook<T = Record<string, unknown>> extends BaseEntityHook<T> {
+  callService: (domain: string, service: string, data?: object) => Promise<void>
+  callServiceWithResponse: <R = unknown>(domain: string, service: string, data?: object) => Promise<R>
+}
+
+export function useEntity<T = Record<string, unknown>>(entityId: string): InternalEntityHook<T> {
   const { connection, connected, config } = useHAConnection()
   const registerEntity = useStore((state) => state.registerEntity)
   const unregisterEntity = useStore((state) => state.unregisterEntity)
@@ -69,12 +75,7 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEn
       }
 
       // Get retry configuration from provider options
-      const retryOptions: RetryOptions = {
-        maxAttempts: config.options?.serviceRetry?.maxAttempts ?? 3,
-        baseDelay: config.options?.serviceRetry?.baseDelay ?? 1000,
-        exponentialBackoff: config.options?.serviceRetry?.exponentialBackoff ?? true,
-        maxDelay: config.options?.serviceRetry?.maxDelay ?? 10000,
-      }
+      const retryOptions = getRetryOptionsFromConfig(config.options?.serviceRetry)
 
       const executeServiceCall = async () => {
         try {
@@ -89,8 +90,8 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEn
           })
         } catch (originalError) {
           throw new ServiceCallError(
-            domain, 
-            service, 
+            domain,
+            service,
             originalError instanceof Error ? originalError : new Error(String(originalError)),
             entityId
           )
@@ -110,12 +111,7 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEn
       }
 
       // Get retry configuration from provider options
-      const retryOptions: RetryOptions = {
-        maxAttempts: config.options?.serviceRetry?.maxAttempts ?? 3,
-        baseDelay: config.options?.serviceRetry?.baseDelay ?? 1000,
-        exponentialBackoff: config.options?.serviceRetry?.exponentialBackoff ?? true,
-        maxDelay: config.options?.serviceRetry?.maxDelay ?? 10000,
-      }
+      const retryOptions = getRetryOptionsFromConfig(config.options?.serviceRetry)
 
       const executeServiceCall = async () => {
         try {
@@ -172,6 +168,12 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEn
 
   const currentEntity = entity || defaultEntity
 
+  // Internal methods for entity-specific hooks to use
+  const internalMethods = {
+    callService,
+    callServiceWithResponse,
+  }
+
   return {
     entityId,
     state: currentEntity.state,
@@ -181,8 +183,8 @@ export function useEntity<T = Record<string, unknown>>(entityId: string): BaseEn
     isUnavailable: currentEntity.state === 'unavailable',
     isConnected: connected,
     error: error || undefined,
-    callService,
-    callServiceWithResponse,
     refresh,
+    // Expose internal methods for entity-specific hooks but not in public type
+    ...internalMethods,
   }
 }

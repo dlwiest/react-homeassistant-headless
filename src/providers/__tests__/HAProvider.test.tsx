@@ -107,9 +107,11 @@ describe('HAProvider Clean Implementation', () => {
       componentSubscriptions: new Map<string, Set<() => void>>(),
       websocketSubscriptions: new Map<string, { unsubscribe: () => void }>(),
       registeredEntities: new Set<string>(),
+      subscriptionErrors: new Map<string, Error>(),
       connection: null,
       setConnection: vi.fn(),
       updateEntity: vi.fn(),
+      setSubscriptionError: vi.fn(),
       registerEntity: vi.fn(),
       unregisterEntity: vi.fn(),
       batchUpdate: vi.fn(),
@@ -1766,9 +1768,11 @@ describe('HAProvider Clean Implementation', () => {
         componentSubscriptions: new Map<string, Set<() => void>>(),
         websocketSubscriptions: new Map<string, { unsubscribe: () => void }>(),
         registeredEntities: new Set<string>(),
+        subscriptionErrors: new Map<string, Error>(),
         connection: null,
         setConnection: mockSetConnection,
         updateEntity: vi.fn(),
+        setSubscriptionError: vi.fn(),
         registerEntity: vi.fn(),
         unregisterEntity: vi.fn(),
         batchUpdate: mockBatchUpdate,
@@ -1865,15 +1869,17 @@ describe('HAProvider Clean Implementation', () => {
         componentSubscriptions: new Map<string, Set<() => void>>(),
         websocketSubscriptions: new Map<string, { unsubscribe: () => void }>(),
         registeredEntities: new Set<string>(),
+        subscriptionErrors: new Map<string, Error>(),
         connection: null,
         setConnection: vi.fn(),
         updateEntity: vi.fn(),
+        setSubscriptionError: vi.fn(),
         registerEntity: vi.fn(),
         unregisterEntity: vi.fn(),
         batchUpdate: vi.fn(),
         clear: mockClear
       }
-      
+
       mockUseStore.mockImplementation((selector) => {
         if (typeof selector === 'function') {
           return selector(mockState)
@@ -1941,9 +1947,11 @@ describe('HAProvider Clean Implementation', () => {
         componentSubscriptions: new Map<string, Set<() => void>>(),
         websocketSubscriptions: new Map<string, { unsubscribe: () => void }>(),
         registeredEntities: new Set<string>(),
+        subscriptionErrors: new Map<string, Error>(),
         connection: null,
         setConnection: mockSetConnection,
         updateEntity: vi.fn(),
+        setSubscriptionError: vi.fn(),
         registerEntity: vi.fn(),
         unregisterEntity: vi.fn(),
         batchUpdate: vi.fn(),

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import { useBinarySensor } from '../useBinarySensor'
-import { useEntity } from '../useEntity'
+import { useEntity, type InternalEntityHook } from '../useEntity'
 
 // Mock useEntity since useBinarySensor depends on it
 vi.mock('../useEntity')
@@ -9,8 +9,8 @@ vi.mock('../useEntity')
 // Mock binary sensor entity response
 const createMockBinarySensorEntity = (
   state: string = 'off',
-  attributes: Record<string, any> = {}
-) => ({
+  attributes: Record<string, unknown> = {}
+): InternalEntityHook => ({
   entityId: 'binary_sensor.test',
   state,
   attributes,
@@ -181,7 +181,6 @@ describe('useBinarySensor', () => {
       expect(result.current.lastUpdated).toBe(mockEntity.lastUpdated)
       expect(result.current.isUnavailable).toBe(mockEntity.isUnavailable)
       expect(result.current.isConnected).toBe(mockEntity.isConnected)
-      expect(result.current.callService).toBe(mockEntity.callService)
       expect(result.current.refresh).toBe(mockEntity.refresh)
     })
   })

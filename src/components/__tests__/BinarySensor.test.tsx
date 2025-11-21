@@ -15,8 +15,8 @@ const mockUseBinarySensor = useBinarySensor as any
 const createMockBinarySensorEntity = (
   entityId: string = 'binary_sensor.test',
   state: string = 'off',
-  attributes: Record<string, any> = {}
-): BinarySensorState => ({
+  attributes: Record<string, unknown> = {}
+) => ({
   entityId,
   state,
   attributes,
@@ -29,8 +29,8 @@ const createMockBinarySensorEntity = (
   refresh: vi.fn(),
   isOn: state === 'on',
   isOff: state === 'off',
-  deviceClass: attributes.device_class,
-  icon: attributes.icon
+  deviceClass: attributes.device_class as string | undefined,
+  icon: attributes.icon as string | undefined
 })
 
 describe('BinarySensor', () => {

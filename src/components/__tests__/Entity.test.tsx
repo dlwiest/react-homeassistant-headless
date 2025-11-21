@@ -16,7 +16,7 @@ const createMockEntity = (
   entityId: string = 'sensor.test',
   state: string = 'on',
   attributes: Record<string, any> = {}
-): BaseEntityHook => ({
+) => ({
   entityId,
   state,
   attributes,
@@ -190,11 +190,9 @@ describe('Entity', () => {
       expect(container.textContent).toBe('Room Temperature: 23.5°C')
     })
 
-    it('should support calling entity methods', () => {
-      const mockCallService = vi.fn()
+    it('should support calling refresh method', () => {
       const mockRefresh = vi.fn()
       const mockEntity = createMockEntity('switch.test', 'off')
-      mockEntity.callService = mockCallService
       mockEntity.refresh = mockRefresh
       mockUseEntity.mockReturnValue(mockEntity)
 
@@ -202,9 +200,6 @@ describe('Entity', () => {
         <Entity entityId="switch.test">
           {(entity) => (
             <div>
-              <button data-testid="call-service" onClick={() => entity.callService('switch', 'turn_on')}>
-                Turn On
-              </button>
               <button data-testid="refresh" onClick={() => entity.refresh()}>
                 Refresh
               </button>
@@ -213,10 +208,8 @@ describe('Entity', () => {
         </Entity>
       )
 
-      getByTestId('call-service').click()
       getByTestId('refresh').click()
 
-      expect(mockCallService).toHaveBeenCalledWith('switch', 'turn_on')
       expect(mockRefresh).toHaveBeenCalled()
     })
 

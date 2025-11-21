@@ -16,7 +16,7 @@ const createMockSensorEntity = (
   entityId: string = 'sensor.test',
   state: string = '23.5',
   attributes: Record<string, any> = {}
-): SensorState => ({
+) => ({
   entityId,
   state,
   attributes,

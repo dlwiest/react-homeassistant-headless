@@ -1,5 +1,7 @@
+import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, waitFor } from '@testing-library/react'
+import '@testing-library/jest-dom'
 import { StreamPlayer } from '../StreamPlayer'
 import type { StreamState } from '../../../types'
 
