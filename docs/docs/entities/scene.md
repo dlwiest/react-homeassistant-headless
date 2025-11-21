@@ -297,11 +297,6 @@ function QuickScene() {
 
 ## Notes
 
-- Scenes are typically stateless - activating a scene triggers actions but doesn't change the scene's own state
-- The state is usually 'scening' and doesn't change when activated
+- Scenes are stateless - activating them triggers actions but doesn't change the scene's state
 - `lastChanged` updates each time the scene is activated
-- Transition parameter controls how long it takes for devices to transition to their new states
-- Transition time is in seconds
-- Not specifying a transition uses the default behavior defined in Home Assistant
-- Use `useScenes()` to retrieve all available scenes from your Home Assistant instance
-- The `useScenes` hook fetches scenes on mount and when the connection changes
+- Transition time is specified in seconds
