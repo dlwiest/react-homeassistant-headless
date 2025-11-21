@@ -142,31 +142,24 @@ The `useScenes` hook fetches all scene entities from Home Assistant and returns 
 ```tsx
 function SceneSelector() {
   const scenes = useScenes()
-  const [selectedScene, setSelectedScene] = useState<string>('')
-
-  const handleActivate = async () => {
-    if (!selectedScene) return
-
-    const scene = useScene(selectedScene)
-    await scene.activate()
-  }
 
   return (
     <div>
-      <select
-        value={selectedScene}
-        onChange={(e) => setSelectedScene(e.target.value)}
-      >
-        <option value="">Select a scene...</option>
+      <h3>Select a Scene</h3>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         {scenes.map(scene => (
-          <option key={scene.entity_id} value={scene.entity_id}>
-            {scene.attributes.friendly_name || scene.entity_id}
-          </option>
+          <Scene key={scene.entity_id} entityId={scene.entity_id}>
+            {(sceneState) => (
+              <button
+                onClick={() => sceneState.activate()}
+                disabled={!sceneState.isConnected}
+              >
+                {scene.attributes.friendly_name || scene.entity_id}
+              </button>
+            )}
+          </Scene>
         ))}
-      </select>
-      <button onClick={handleActivate} disabled={!selectedScene}>
-        Activate Scene
-      </button>
+      </div>
     </div>
   )
 }
