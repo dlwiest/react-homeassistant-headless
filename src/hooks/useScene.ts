@@ -11,7 +11,7 @@ export function useScene(entityId: string): SceneState {
   const { callService } = entity
 
   const activate = useCallback(async (transition?: number) => {
-    const serviceData: Record<string, any> = {}
+    const serviceData: Record<string, unknown> = {}
 
     if (transition !== undefined) {
       serviceData.transition = transition
