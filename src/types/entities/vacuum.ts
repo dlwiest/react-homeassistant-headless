@@ -55,5 +55,5 @@ export interface VacuumState extends BaseEntityHook<VacuumAttributes> {
   locate: () => Promise<void>
   cleanSpot: () => Promise<void>
   setFanSpeed: (speed: string) => Promise<void>
-  sendCommand: (command: string, params?: Record<string, any>) => Promise<void>
+  sendCommand: (command: string, params?: Record<string, unknown>) => Promise<void>
 }

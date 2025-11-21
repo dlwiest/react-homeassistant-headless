@@ -119,7 +119,7 @@ export function useVacuum(entityId: string): VacuumState {
   )
 
   const sendCommand = useCallback(
-    async (command: string, params?: Record<string, any>) => {
+    async (command: string, params?: Record<string, unknown>) => {
       commandSchema.parse(command)
       paramsSchema.parse(params)
 
