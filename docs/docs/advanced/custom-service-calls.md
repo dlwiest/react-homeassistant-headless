@@ -194,30 +194,6 @@ function HybridControl() {
 }
 ```
 
-### Read State Without Entity Hook
-
-Use `useSensor` to read any entity's state:
-
-```tsx
-function CustomSwitchControl() {
-  const { callService } = useServiceCall()
-  const sensor = useSensor('switch.my_switch')
-
-  const toggle = async () => {
-    await callService('switch', 'toggle', {
-      entity_id: 'switch.my_switch'
-    })
-  }
-
-  return (
-    <div>
-      <p>Status: {sensor.state}</p>
-      <button onClick={toggle}>Toggle</button>
-    </div>
-  )
-}
-```
-
 ## Error Handling
 
 Service calls include automatic retry logic with exponential backoff:
