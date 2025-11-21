@@ -15,6 +15,7 @@ const sidebars: SidebarsConfig = {
             'entities/light',
             'entities/switch',
             'entities/fan',
+            'entities/scene',
           ],
         },
         {

@@ -25,6 +25,8 @@ export { useNumber } from './hooks/useNumber'
 export { useWeather } from './hooks/useWeather'
 export { useVacuum } from './hooks/useVacuum'
 export { useCalendar } from './hooks/useCalendar'
+export { useScene } from './hooks/useScene'
+export { useScenes } from './hooks/useScenes'
 
 // Headless components
 export { Light } from './components/Light'
@@ -43,6 +45,7 @@ export { Number } from './components/Number'
 export { Weather } from './components/Weather'
 export { Vacuum } from './components/Vacuum'
 export { Calendar } from './components/Calendar'
+export { Scene } from './components/Scene'
 export type { StreamPlayerProps } from './components/Camera/StreamPlayer'
 export type { ImageProps as CameraImageProps } from './components/Camera/Image'
 
@@ -79,6 +82,8 @@ export type {
   CalendarState,
   CalendarAttributes,
   CalendarEvent,
+  SceneState,
+  SceneAttributes,
   CurrentUser,
   HAConfig,
   ConnectionStatus,

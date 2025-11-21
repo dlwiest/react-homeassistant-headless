@@ -74,6 +74,12 @@ export function mockServiceCall(
       ))
       break
 
+    case 'scene':
+      ({ state: newState, attributes: newAttributes } = mockSceneService(
+        service, currentState, newAttributes, params
+      ))
+      break
+
     default:
       // For unknown domains, just handle basic toggle/turn_on/turn_off
       ({ state: newState, attributes: newAttributes } = mockBasicService(
@@ -370,6 +376,27 @@ function mockVacuumService(
       return {
         state: 'cleaning',
         attributes: { ...attributes, status: 'Spot cleaning' }
+      }
+
+    default:
+      return { state: currentState, attributes }
+  }
+}
+
+// Mock scene-specific services
+function mockSceneService(
+  service: string,
+  currentState: string,
+  attributes: Record<string, unknown>,
+  _params: Record<string, unknown>
+): MockStateTransition {
+  switch (service) {
+    case 'turn_on':
+      // Scenes don't change state when activated, they just trigger actions
+      // The state typically remains as 'scening'
+      return {
+        state: currentState,
+        attributes
       }
 
     default:
