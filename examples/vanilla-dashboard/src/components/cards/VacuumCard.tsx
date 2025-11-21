@@ -51,7 +51,6 @@ export const VacuumCard = ({ entityId, name }: VacuumCardProps) => {
                 <select
                   value={vacuum.fanSpeed || ''}
                   onChange={(e) => vacuum.setFanSpeed(e.target.value)}
-                  disabled={!vacuum.isCleaning}
                   className="select-input"
                 >
                   {vacuum.availableFanSpeeds.map((speed) => (

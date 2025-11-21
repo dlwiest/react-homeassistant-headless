@@ -1,29 +1,11 @@
 import { useStore } from './entityStore'
 import type { Connection } from 'home-assistant-js-websocket'
 import { mockServiceCall } from '../test/utils/mockStateTransitions'
+import { mockTodoItems, mockCalendarEvents, type MockTodoItem, type MockCalendarEvent } from './mockData'
 
 interface ServiceData {
   entity_id: string
   [key: string]: string | number | boolean | undefined | Record<string, unknown>
-}
-
-interface MockTodoItem {
-  uid: string
-  summary: string
-  status: 'needs_action' | 'completed'
-  due?: string
-}
-
-// Store mock todo items separately since they're not in attributes
-const mockTodoItems: Record<string, MockTodoItem[]> = {
-  'todo.shopping_list': [
-    { uid: 'shop-1', summary: 'Buy milk', status: 'needs_action' },
-    { uid: 'shop-2', summary: 'Get bread', status: 'completed' }
-  ],
-  'todo.weekend_projects': [
-    { uid: 'proj-1', summary: 'Paint fence', status: 'needs_action' },
-    { uid: 'proj-2', summary: 'Fix garage door', status: 'completed' }
-  ]
 }
 
 interface ServiceCallMessage {
@@ -60,6 +42,21 @@ export function createMockConnection(): Partial<Connection> {
               }
             }
           }
+
+          // Mock response for calendar.get_events service
+          if (domain === 'calendar' && service === 'get_events') {
+            const events = mockCalendarEvents[entityId] || []
+            const startDate = service_data.start_date_time as string
+            const endDate = service_data.end_date_time as string
+
+            // Filter events by date range
+            const filteredEvents = events.filter(event => {
+              return event.start >= startDate && event.start <= endDate
+            })
+
+            return { events: filteredEvents }
+          }
+
           // Return empty object for other services
           return {}
         }
@@ -132,6 +129,87 @@ export function createMockConnection(): Partial<Connection> {
                 useStore.getState().updateEntity(entityId, {
                   ...currentEntity,
                   state: mockTodoItems[entityId].length.toString(),
+                  last_updated: new Date().toISOString()
+                })
+              }
+              return
+            }
+          }
+        }
+
+        // Handle calendar service calls
+        if (domain === 'calendar') {
+          const currentEvents = mockCalendarEvents[entityId] || []
+
+          switch (service) {
+            case 'create_event': {
+              const newEvent: MockCalendarEvent = {
+                uid: `event-${Date.now()}`,
+                start: service_data.start_date_time as string,
+                end: service_data.end_date_time as string,
+                summary: service_data.summary as string,
+                description: service_data.description as string | undefined,
+                location: service_data.location as string | undefined,
+                rrule: service_data.rrule as string | undefined
+              }
+              mockCalendarEvents[entityId] = [...currentEvents, newEvent]
+
+              // Update entity state if event is currently active
+              const now = new Date().toISOString().slice(0, 19)
+              const hasActiveEvent = mockCalendarEvents[entityId].some(
+                e => e.start <= now && e.end >= now
+              )
+
+              const currentEntity = useStore.getState().entities.get(entityId)
+              if (currentEntity) {
+                useStore.getState().updateEntity(entityId, {
+                  ...currentEntity,
+                  state: hasActiveEvent ? 'on' : 'off',
+                  last_updated: new Date().toISOString()
+                })
+              }
+              return
+            }
+
+            case 'update_event': {
+              const uid = service_data.uid as string
+              mockCalendarEvents[entityId] = currentEvents.map(event =>
+                event.uid === uid ? {
+                  ...event,
+                  start: (service_data.start_date_time as string) || event.start,
+                  end: (service_data.end_date_time as string) || event.end,
+                  summary: (service_data.summary as string) || event.summary,
+                  description: service_data.description !== undefined ? (service_data.description as string) : event.description,
+                  location: service_data.location !== undefined ? (service_data.location as string) : event.location,
+                  rrule: service_data.rrule !== undefined ? (service_data.rrule as string) : event.rrule
+                } : event
+              )
+
+              const currentEntity = useStore.getState().entities.get(entityId)
+              if (currentEntity) {
+                useStore.getState().updateEntity(entityId, {
+                  ...currentEntity,
+                  last_updated: new Date().toISOString()
+                })
+              }
+              return
+            }
+
+            case 'remove_event': {
+              const uid = service_data.uid as string
+              mockCalendarEvents[entityId] = currentEvents.filter(event => event.uid !== uid)
+
+              // Update entity state
+              const now = new Date().toISOString().slice(0, 19)
+              const hasActiveEvent = mockCalendarEvents[entityId].some(
+                e => e.start <= now && e.end >= now
+              )
+
+              const currentEntity = useStore.getState().entities.get(entityId)
+              if (currentEntity) {
+                useStore.getState().updateEntity(entityId, {
+                  ...currentEntity,
+                  state: hasActiveEvent ? 'on' : 'off',
                   last_updated: new Date().toISOString()
                 })
               }

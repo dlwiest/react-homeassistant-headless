@@ -56,9 +56,8 @@ export const VacuumCard = ({ entityId, name }: VacuumCardProps) => {
                 <Select
                   value={vacuum.fanSpeed || ''}
                   onValueChange={(value) => vacuum.setFanSpeed(value)}
-                  disabled={!vacuum.isCleaning}
                 >
-                  <SelectTrigger className={`bg-slate-800 border-slate-600/50 ${!vacuum.isCleaning ? 'opacity-50' : ''}`}>
+                  <SelectTrigger className="bg-slate-800 border-slate-600/50">
                     <SelectValue placeholder="Select speed" />
                   </SelectTrigger>
                   <SelectContent>

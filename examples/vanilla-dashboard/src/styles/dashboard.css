@@ -1,4 +1,11 @@
 /* Dashboard Global Styles - Dark Slate Theme */
+:root {
+  --border-light: rgba(71, 85, 105, 0.3);
+  --border-medium: rgba(71, 85, 105, 0.5);
+  --bg-slate: rgba(71, 85, 105, 0.3);
+  --bg-slate-dark: rgba(30, 41, 59, 0.8);
+}
+
 body, html {
   margin: 0;
   padding: 0;
@@ -17,7 +24,7 @@ body, html {
   position: sticky;
   top: 0;
   z-index: 50;
-  border-bottom: 1px solid rgba(71, 85, 105, 0.5);
+  border-bottom: 1px solid var(--border-medium);
   background-color: rgba(15, 23, 42, 0.8);
   backdrop-filter: blur(12px);
 }
@@ -52,7 +59,7 @@ body, html {
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid var(--border-medium);
   border-radius: 0.5rem;
   font-size: 0.875rem;
 }
@@ -96,7 +103,7 @@ body, html {
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid var(--border-medium);
   border-radius: 0.5rem;
   font-size: 0.875rem;
   color: rgb(203, 213, 225);
@@ -199,12 +206,12 @@ body, html {
 /* Base Card Styles - Dark Theme */
 .card {
   min-height: fit-content;
-  background: rgba(30, 41, 59, 0.8);
+  background: var(--bg-slate-dark);
   border-radius: 0.75rem;
   padding: 1.5rem;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid var(--border-medium);
   transition: box-shadow 0.2s ease, border-color 0.2s ease;
   display: flex;
   flex-direction: column;
@@ -248,7 +255,7 @@ body, html {
 .card-footer {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid rgba(71, 85, 105, 0.3);
+  border-top: 1px solid var(--border-light);
   font-size: 0.75rem;
   color: rgb(148, 163, 184);
 }
@@ -293,7 +300,7 @@ body, html {
 .btn-secondary {
   background: rgba(71, 85, 105, 0.5);
   color: rgb(203, 213, 225);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid var(--border-medium);
 }
 
 .btn-secondary:hover:not(:disabled) {
@@ -421,7 +428,7 @@ body, html {
   background-color: rgba(71, 85, 105, 0.5);
   transition: 0.3s;
   border-radius: 1.5rem;
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid var(--border-medium);
 }
 
 .switch-toggle-slider:before {
@@ -528,8 +535,8 @@ body, html {
 }
 
 .lock-button.inactive {
-  background: rgba(71, 85, 105, 0.3);
-  border-color: rgba(71, 85, 105, 0.5);
+  background: var(--bg-slate);
+  border-color: var(--border-medium);
   color: rgb(203, 213, 225);
 }
 
@@ -588,8 +595,8 @@ body, html {
 }
 
 .cover-button.inactive {
-  background: rgba(71, 85, 105, 0.3);
-  border-color: rgba(71, 85, 105, 0.5);
+  background: var(--bg-slate);
+  border-color: var(--border-medium);
   color: rgb(203, 213, 225);
 }
 
@@ -672,8 +679,8 @@ body, html {
 }
 
 .media-button.inactive {
-  background: rgba(71, 85, 105, 0.3);
-  border-color: rgba(71, 85, 105, 0.5);
+  background: var(--bg-slate);
+  border-color: var(--border-medium);
   color: rgb(203, 213, 225);
 }
 
@@ -683,8 +690,8 @@ body, html {
 }
 
 .media-button:not(.active):not(.inactive) {
-  background: rgba(71, 85, 105, 0.3);
-  border-color: rgba(71, 85, 105, 0.5);
+  background: var(--bg-slate);
+  border-color: var(--border-medium);
   color: rgb(203, 213, 225);
 }
 
@@ -707,8 +714,8 @@ body, html {
 .todo-add-button {
   width: 100%;
   padding: 0.75rem;
-  background: rgba(71, 85, 105, 0.3);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  background: var(--bg-slate);
+  border: 1px solid var(--border-medium);
   border-radius: 0.5rem;
   color: rgb(203, 213, 225);
   font-size: 0.875rem;
@@ -792,12 +799,12 @@ body, html {
 
 .todo-footer-button {
   padding: 0.25rem 0.75rem;
-  background: rgba(71, 85, 105, 0.3);
+  background: var(--bg-slate);
   color: rgb(203, 213, 225);
   font-size: 0.75rem;
   border-radius: 9999px;
   font-weight: 500;
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid var(--border-medium);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -817,12 +824,12 @@ body, html {
 
 .badge {
   padding: 0.25rem 0.75rem;
-  background: rgba(71, 85, 105, 0.3);
+  background: var(--bg-slate);
   color: rgb(203, 213, 225);
   font-size: 0.75rem;
   border-radius: 9999px;
   font-weight: 500;
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid var(--border-medium);
 }
 
 /* Light Controls */
@@ -944,8 +951,8 @@ body, html {
   height: 2rem;
   width: 4rem;
   border-radius: 0.375rem;
-  border: 1px solid rgba(71, 85, 105, 0.5);
-  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid var(--border-medium);
+  background: var(--bg-slate-dark);
   cursor: pointer;
 }
 
@@ -981,7 +988,7 @@ body, html {
   width: 1rem;
   height: 1rem;
   border-radius: 50%;
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid var(--border-medium);
 }
 
 .color-buttons {
@@ -1050,12 +1057,13 @@ button:disabled, input:disabled, select:disabled {
 .select-input {
   width: 100%;
   padding: 0.5rem 0.75rem;
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid var(--border-medium);
   border-radius: 0.375rem;
-  background: rgba(30, 41, 59, 0.8);
+  background: var(--bg-slate-dark);
   color: rgb(203, 213, 225);
   font-size: 0.875rem;
   cursor: pointer;
+  box-sizing: border-box;
 }
 
 .select-input:focus {
@@ -1067,6 +1075,18 @@ button:disabled, input:disabled, select:disabled {
 .select-input:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* Datetime picker icon styling */
+.select-input::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+/* Placeholder text styling */
+.select-input::placeholder {
+  color: rgb(148, 163, 184);
+  opacity: 1;
 }
 
 .checkbox-input {
@@ -1104,12 +1124,12 @@ button:disabled, input:disabled, select:disabled {
 
 .feature-tag {
   padding: 0.25rem 0.5rem;
-  background: rgba(71, 85, 105, 0.3);
+  background: var(--bg-slate);
   color: rgb(203, 213, 225);
   font-size: 0.75rem;
   border-radius: 0.25rem;
   font-weight: 500;
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid var(--border-medium);
 }
 
 .entity-info {
@@ -1149,7 +1169,7 @@ button:disabled, input:disabled, select:disabled {
 
 .cover-button {
   padding: 0.5rem 1rem;
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid var(--border-medium);
   border-radius: 0.375rem;
   background: rgba(30, 41, 59, 0.5);
   color: rgb(203, 213, 225);
@@ -1275,9 +1295,9 @@ button:disabled, input:disabled, select:disabled {
 }
 
 .status-value.inactive {
-  background: rgba(71, 85, 105, 0.3);
+  background: var(--bg-slate);
   color: rgb(148, 163, 184);
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid var(--border-medium);
 }
 
 .status-value.alert {
@@ -1333,12 +1353,12 @@ button:disabled, input:disabled, select:disabled {
 
 .tag {
   padding: 0.25rem 0.5rem;
-  background: rgba(71, 85, 105, 0.3);
+  background: var(--bg-slate);
   color: rgb(203, 213, 225);
   font-size: 0.75rem;
   border-radius: 0.375rem;
   font-weight: 500;
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid var(--border-medium);
 }
 
 .tag.secondary {
@@ -1412,7 +1432,7 @@ button:disabled, input:disabled, select:disabled {
 }
 
 .todo-item:hover {
-  background-color: rgba(71, 85, 105, 0.3);
+  background-color: var(--bg-slate);
 }
 
 /* Camera Card Specific Styles */
@@ -1420,7 +1440,7 @@ button:disabled, input:disabled, select:disabled {
   aspect-ratio: 16 / 9;
   background: rgb(15, 23, 42);
   border-radius: 0.5rem;
-  border: 1px solid rgba(71, 85, 105, 0.5);
+  border: 1px solid var(--border-medium);
   overflow: hidden;
   margin-bottom: 1rem;
 }
@@ -1509,7 +1529,7 @@ button:disabled, input:disabled, select:disabled {
 .dashboard-footer {
   margin-top: 4rem;
   padding-top: 2rem;
-  border-top: 1px solid rgba(71, 85, 105, 0.3);
+  border-top: 1px solid var(--border-light);
   color: rgb(148, 163, 184);
   font-size: 0.875rem;
 }
