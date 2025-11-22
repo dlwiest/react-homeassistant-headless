@@ -10,6 +10,7 @@ export {
   createMockSensorEntity,
   createMockCoverEntity,
   createMockCameraEntity,
+  createMockAlarmControlPanelEntity,
   createMockEntityWithDefaults,
   createMockEntityWithFeatures,
   getMockServiceCall,

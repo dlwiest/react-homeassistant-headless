@@ -38,6 +38,7 @@ export const createMockClimateEntity = createMockEntityFactory('climate')
 export const createMockSensorEntity = createMockEntityFactory('sensor')
 export const createMockCoverEntity = createMockEntityFactory('cover')
 export const createMockCameraEntity = createMockEntityFactory('camera')
+export const createMockAlarmControlPanelEntity = createMockEntityFactory('alarm_control_panel')
 
 // Creates mock entities with typical default attributes for each domain
 export const createMockEntityWithDefaults = {
