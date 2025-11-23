@@ -40,6 +40,16 @@ export const createMockCoverEntity = createMockEntityFactory('cover')
 export const createMockCameraEntity = createMockEntityFactory('camera')
 export const createMockAlarmControlPanelEntity = createMockEntityFactory('alarm_control_panel')
 
+// DateTime is special - it always uses sensor.date_time_iso
+export const createMockDateTimeEntity = (
+  state: string = new Date().toISOString(),
+  attributes: Record<string, unknown> = {}
+) => createMockEntity('sensor.date_time_iso', state, {
+  friendly_name: 'Date & Time',
+  icon: 'mdi:clock',
+  ...attributes
+})
+
 // Creates mock entities with typical default attributes for each domain
 export const createMockEntityWithDefaults = {
   light: (entityName: string = 'test', state: string = 'on') =>

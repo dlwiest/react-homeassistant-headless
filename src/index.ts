@@ -29,6 +29,7 @@ export { useCalendar } from './hooks/useCalendar'
 export { useScene } from './hooks/useScene'
 export { useScenes } from './hooks/useScenes'
 export { useAlarmControlPanel } from './hooks/useAlarmControlPanel'
+export { useDateTime } from './hooks/useDateTime'
 
 // Headless components
 export { Light } from './components/Light'
@@ -49,6 +50,7 @@ export { Vacuum } from './components/Vacuum'
 export { Calendar } from './components/Calendar'
 export { Scene } from './components/Scene'
 export { AlarmControlPanel } from './components/AlarmControlPanel'
+export { DateTime } from './components/DateTime'
 export type { StreamPlayerProps } from './components/Camera/StreamPlayer'
 export type { ImageProps as CameraImageProps } from './components/Camera/Image'
 
@@ -89,6 +91,8 @@ export type {
   SceneAttributes,
   AlarmControlPanelState,
   AlarmControlPanelAttributes,
+  DateTimeState,
+  DateTimeAttributes,
   CurrentUser,
   HAConfig,
   ConnectionStatus,

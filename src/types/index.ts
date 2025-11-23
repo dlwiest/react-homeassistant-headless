@@ -135,3 +135,9 @@ export type {
 } from './entities/alarm_control_panel'
 
 export { AlarmControlPanelFeatures } from './entities/alarm_control_panel'
+
+// Entity types - DateTime
+export type {
+  DateTimeAttributes,
+  DateTimeState,
+} from './entities/datetime'

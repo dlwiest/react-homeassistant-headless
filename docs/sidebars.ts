@@ -27,6 +27,7 @@ const sidebars: SidebarsConfig = {
             'entities/sensor',
             'entities/binary-sensor',
             'entities/number',
+            'entities/datetime',
           ],
         },
         {
