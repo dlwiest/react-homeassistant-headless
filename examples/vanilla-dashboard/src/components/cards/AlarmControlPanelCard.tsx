@@ -19,7 +19,7 @@ export const AlarmControlPanelCard = ({ entityId, name }: AlarmControlPanelCardP
 
   const handleCodeSubmit = async () => {
     if (pendingAction) {
-      await pendingAction(code || undefined)
+      await pendingAction()
       setCodeDialogOpen(false)
       setCode('')
       setPendingAction(null)
