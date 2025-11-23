@@ -28,7 +28,6 @@ export const LockCard = ({ entityId, name }: LockCardProps) => {
                 {name}
               </Typography>
             }
-            subheader={lock.isLocked ? 'Locked' : lock.isUnlocked ? 'Unlocked' : 'Unknown'}
           />
 
           <CardContent sx={{ flexGrow: 1 }}>

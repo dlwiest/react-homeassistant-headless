@@ -1,6 +1,6 @@
 {
   "name": "hass-react",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Headless React components and hooks for building Home Assistant UI without the hassle",
   "type": "module",
   "main": "./dist/index.cjs.js",

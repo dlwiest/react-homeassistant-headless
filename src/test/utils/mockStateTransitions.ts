@@ -80,6 +80,12 @@ export function mockServiceCall(
       ))
       break
 
+    case 'alarm_control_panel':
+      ({ state: newState, attributes: newAttributes } = mockAlarmControlPanelService(
+        service, currentState, newAttributes, params
+      ))
+      break
+
     default:
       // For unknown domains, just handle basic toggle/turn_on/turn_off
       ({ state: newState, attributes: newAttributes } = mockBasicService(
@@ -404,6 +410,61 @@ function mockSceneService(
   }
 }
 
+// Mock alarm control panel-specific services
+function mockAlarmControlPanelService(
+  service: string,
+  currentState: string,
+  attributes: Record<string, unknown>,
+  _params: Record<string, unknown>
+): MockStateTransition {
+  switch (service) {
+    case 'alarm_disarm':
+      return {
+        state: 'disarmed',
+        attributes: { ...attributes, changed_by: 'Manual' }
+      }
+
+    case 'alarm_arm_home':
+      return {
+        state: 'armed_home',
+        attributes: { ...attributes, changed_by: 'Manual' }
+      }
+
+    case 'alarm_arm_away':
+      return {
+        state: 'armed_away',
+        attributes: { ...attributes, changed_by: 'Manual' }
+      }
+
+    case 'alarm_arm_night':
+      return {
+        state: 'armed_night',
+        attributes: { ...attributes, changed_by: 'Manual' }
+      }
+
+    case 'alarm_arm_vacation':
+      return {
+        state: 'armed_vacation',
+        attributes: { ...attributes, changed_by: 'Manual' }
+      }
+
+    case 'alarm_arm_custom_bypass':
+      return {
+        state: 'armed_custom_bypass',
+        attributes: { ...attributes, changed_by: 'Manual' }
+      }
+
+    case 'alarm_trigger':
+      return {
+        state: 'triggered',
+        attributes: { ...attributes, changed_by: 'Manual' }
+      }
+
+    default:
+      return { state: currentState, attributes }
+  }
+}
+
 // Mock basic services for unknown domains in testing
 function mockBasicService(
   service: string,
@@ -414,13 +475,13 @@ function mockBasicService(
   switch (service) {
     case 'toggle':
       return { state: mockToggle(currentState), attributes }
-    
+
     case 'turn_on':
       return { state: 'on', attributes: { ...attributes, ...params } }
-    
+
     case 'turn_off':
       return { state: 'off', attributes }
-    
+
     default:
       return { state: currentState, attributes }
   }

@@ -32,9 +32,6 @@ export const LockCard = ({ entityId, name }: LockCardProps) => {
             <CardHeader>
               <div>
                 <CardTitle className="text-lg">{name}</CardTitle>
-                <CardDescription>
-                  {getStateText()}
-                </CardDescription>
               </div>
             </CardHeader>
 

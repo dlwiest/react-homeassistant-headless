@@ -1,7 +1,7 @@
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
 import { UserGreeting } from './components/layout/UserGreeting'
-import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard, WeatherCard, VacuumCard, CalendarCard, SceneCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard, WeatherCard, VacuumCard, CalendarCard, SceneCard, AlarmControlPanelCard } from './components/cards'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs'
 import { Lightbulb, Thermometer, Shield, Music, ListTodo } from 'lucide-react'
 import './styles/dashboard.css'
@@ -552,6 +552,36 @@ const mockData = {
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-37', parent_id: null, user_id: null }
   },
+
+  // Alarm Control Panels
+  'alarm_control_panel.home_alarm': {
+    entity_id: 'alarm_control_panel.home_alarm',
+    state: 'disarmed',
+    attributes: {
+      friendly_name: 'Home Alarm System',
+      code_format: 'number',
+      changed_by: null,
+      code_arm_required: false,
+      supported_features: 63, // All features
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-38', parent_id: null, user_id: null }
+  },
+  'alarm_control_panel.garage_alarm': {
+    entity_id: 'alarm_control_panel.garage_alarm',
+    state: 'armed_away',
+    attributes: {
+      friendly_name: 'Garage Alarm',
+      code_format: 'number',
+      changed_by: 'Automation',
+      code_arm_required: true,
+      supported_features: 7, // ARM_HOME | ARM_AWAY | ARM_NIGHT
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-39', parent_id: null, user_id: null }
+  },
 }
 
 const Dashboard = () => {
@@ -713,6 +743,14 @@ const Dashboard = () => {
 
           {/* Security & Access Tab */}
           <TabsContent value="security" className="space-y-6">
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Alarm Control Panels</h2>
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <AlarmControlPanelCard entityId="alarm_control_panel.home_alarm" name="Home Alarm System" />
+                <AlarmControlPanelCard entityId="alarm_control_panel.garage_alarm" name="Garage Alarm" />
+              </div>
+            </section>
+
             <section>
               <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-2">Cameras</h2>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

@@ -127,3 +127,11 @@ export type {
   SceneAttributes,
   SceneState,
 } from './entities/scene'
+
+// Entity types - Alarm Control Panel
+export type {
+  AlarmControlPanelAttributes,
+  AlarmControlPanelState,
+} from './entities/alarm_control_panel'
+
+export { AlarmControlPanelFeatures } from './entities/alarm_control_panel'

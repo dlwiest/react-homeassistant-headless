@@ -2,7 +2,7 @@ import React from 'react'
 import { HAProvider } from 'hass-react'
 import { ConnectionStatus } from './components/layout/ConnectionStatus'
 import { UserGreeting } from './components/layout/UserGreeting'
-import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard, WeatherCard, VacuumCard, CalendarCard, SceneCard } from './components/cards'
+import { LightCard, SwitchCard, SensorCard, BinarySensorCard, TodoCard, FanCard, LockCard, CoverCard, MediaPlayerCard, CameraCard, NumberCard, ClimateCard, WeatherCard, VacuumCard, CalendarCard, SceneCard, AlarmControlPanelCard } from './components/cards'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from './components/ui/tabs'
 import { Lightbulb, Thermometer, Shield, Music, ListTodo } from 'lucide-react'
 import './styles/dashboard.css'
@@ -555,6 +555,22 @@ const mockData = {
     last_updated: '2024-01-01T12:00:00.000Z',
     context: { id: 'context-34', parent_id: null, user_id: null }
   },
+
+  // Alarm Control Panel
+  'alarm_control_panel.home': {
+    entity_id: 'alarm_control_panel.home',
+    state: 'disarmed',
+    attributes: {
+      friendly_name: 'Home Security System',
+      code_format: 'number',
+      changed_by: 'Manual',
+      code_arm_required: false,
+      supported_features: 63, // All arming modes + trigger
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-35', parent_id: null, user_id: null }
+  },
 }
 
 const Dashboard = () => {
@@ -698,6 +714,13 @@ const Dashboard = () => {
 
           {/* Security & Access Tab */}
           <TabsContent value="security" className="space-y-6">
+            <section>
+              <h2 className="section-title">Alarm System</h2>
+              <div className="dashboard-grid">
+                <AlarmControlPanelCard entityId="alarm_control_panel.home" name="Home Security System" />
+              </div>
+            </section>
+
             <section>
               <h2 className="section-title">Cameras</h2>
               <div className="dashboard-grid">

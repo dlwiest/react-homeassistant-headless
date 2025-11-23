@@ -28,6 +28,7 @@ export { useVacuum } from './hooks/useVacuum'
 export { useCalendar } from './hooks/useCalendar'
 export { useScene } from './hooks/useScene'
 export { useScenes } from './hooks/useScenes'
+export { useAlarmControlPanel } from './hooks/useAlarmControlPanel'
 
 // Headless components
 export { Light } from './components/Light'
@@ -47,6 +48,7 @@ export { Weather } from './components/Weather'
 export { Vacuum } from './components/Vacuum'
 export { Calendar } from './components/Calendar'
 export { Scene } from './components/Scene'
+export { AlarmControlPanel } from './components/AlarmControlPanel'
 export type { StreamPlayerProps } from './components/Camera/StreamPlayer'
 export type { ImageProps as CameraImageProps } from './components/Camera/Image'
 
@@ -85,6 +87,8 @@ export type {
   CalendarEvent,
   SceneState,
   SceneAttributes,
+  AlarmControlPanelState,
+  AlarmControlPanelAttributes,
   CurrentUser,
   HAConfig,
   ConnectionStatus,
@@ -101,7 +105,7 @@ export type { CoverState } from './hooks/useCover'
 export type { MediaPlayerState, MediaPlayerAttributes, MediaPlayerCapabilities, CameraState, CameraAttributes, CameraCapabilities, StreamState, StreamOptions, StreamType } from './types'
 
 // Constants
-export { LightFeatures, FanFeatures, ClimateFeatures, LockFeatures, TodoFeatures, MediaPlayerFeatures, CameraFeatures, VacuumFeatures, CalendarFeatures } from './types'
+export { LightFeatures, FanFeatures, ClimateFeatures, LockFeatures, TodoFeatures, MediaPlayerFeatures, CameraFeatures, VacuumFeatures, CalendarFeatures, AlarmControlPanelFeatures } from './types'
 
 // Error handling
 export type { ErrorRetryAction } from './utils/errors'

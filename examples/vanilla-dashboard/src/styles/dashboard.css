@@ -1598,6 +1598,219 @@ button:disabled, input:disabled, select:disabled {
   }
 }
 
+/* Alarm Control Panel Styles */
+.alarm-status {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0.5rem 0 1rem 0;
+  text-align: center;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.alarm-status.alarm-disarmed {
+  color: rgb(16, 185, 129);
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.alarm-status.alarm-triggered {
+  color: rgb(239, 68, 68);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  animation: pulse-alert 1s infinite;
+}
+
+.alarm-status.alarm-pending {
+  color: rgb(251, 191, 36);
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.alarm-status.alarm-armed {
+  color: rgb(59, 130, 246);
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.alarm-info {
+  color: rgb(148, 163, 184);
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.alarm-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.alarm-controls-row {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: stretch;
+}
+
+.alarm-button {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: var(--bg-slate);
+  border-color: var(--border-medium);
+  color: rgb(203, 213, 225);
+}
+
+.alarm-button.active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.alarm-button.active:hover:not(:disabled) {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.alarm-button.inactive {
+  background: var(--bg-slate);
+  border-color: var(--border-medium);
+  color: rgb(203, 213, 225);
+}
+
+.alarm-button.inactive:hover:not(:disabled) {
+  background: rgba(71, 85, 105, 0.5);
+  border-color: rgba(71, 85, 105, 0.7);
+}
+
+.alarm-button.danger {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: rgb(248, 113, 113);
+}
+
+.alarm-button.danger:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: rgba(239, 68, 68, 0.7);
+}
+
+.alarm-button.full-width {
+  width: 100%;
+}
+
+.alarm-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Dialog Styles */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.dialog-content {
+  background: var(--bg-slate-dark);
+  border: 1px solid var(--border-medium);
+  border-radius: 0.75rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 100%;
+  animation: slideIn 0.2s ease-out;
+}
+
+.dialog-header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+}
+
+.dialog-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+}
+
+.dialog-body {
+  padding: 0 1.5rem 1rem 1.5rem;
+}
+
+.dialog-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-medium);
+  border-radius: 0.5rem;
+  background: rgba(30, 41, 59, 0.7);
+  color: white;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.dialog-input:focus {
+  outline: none;
+  border-color: rgb(59, 130, 246);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.dialog-input::placeholder {
+  color: rgb(148, 163, 184);
+}
+
+.dialog-footer {
+  padding: 0 1.5rem 1.5rem 1.5rem;
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.dialog-button {
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.5rem;
+  border: 1px solid;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dialog-button.secondary {
+  background: var(--bg-slate);
+  border-color: var(--border-medium);
+  color: rgb(203, 213, 225);
+}
+
+.dialog-button.secondary:hover {
+  background: rgba(71, 85, 105, 0.5);
+  border-color: rgba(71, 85, 105, 0.7);
+}
+
+.dialog-button.primary {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.dialog-button.primary:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
 /* Utility Classes */
 .w-full {
   width: 100%;

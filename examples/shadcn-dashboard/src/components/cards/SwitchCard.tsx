@@ -1,4 +1,3 @@
-import React from 'react'
 import { Switch as SwitchEntity } from 'hass-react'
 import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from '@/components/ui/card'
 import { Switch } from '@/components/ui/switch'
