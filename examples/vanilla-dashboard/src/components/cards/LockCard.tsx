@@ -12,10 +12,7 @@ export const LockCard = ({ entityId, name }: LockCardProps) => {
     <Lock entityId={entityId}>
       {(lock) => (
         <Card>
-          <CardHeader
-            title={name}
-            subtitle={lock.isLocked ? 'Locked' : lock.isUnlocked ? 'Unlocked' : 'Unknown'}
-          />
+          <CardHeader title={name} />
 
           <CardContent>
             <div className={`lock-status ${lock.isLocked ? 'locked' : 'unlocked'}`}>

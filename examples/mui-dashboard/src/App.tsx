@@ -36,7 +36,8 @@ import {
   WeatherCard,
   VacuumCard,
   CalendarCard,
-  SceneCard
+  SceneCard,
+  AlarmControlPanelCard
 } from './components/cards'
 
 // Create dark MUI theme
@@ -557,6 +558,36 @@ const mockData = {
     context: { id: 'context-34', parent_id: null, user_id: null }
   },
 
+  // Alarm Control Panels
+  'alarm_control_panel.home_alarm': {
+    entity_id: 'alarm_control_panel.home_alarm',
+    state: 'disarmed',
+    attributes: {
+      friendly_name: 'Home Alarm System',
+      code_format: 'number',
+      changed_by: null,
+      code_arm_required: false,
+      supported_features: 63, // All features
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-35', parent_id: null, user_id: null }
+  },
+  'alarm_control_panel.garage_alarm': {
+    entity_id: 'alarm_control_panel.garage_alarm',
+    state: 'armed_away',
+    attributes: {
+      friendly_name: 'Garage Alarm',
+      code_format: 'number',
+      changed_by: 'Automation',
+      code_arm_required: true,
+      supported_features: 7, // ARM_HOME | ARM_AWAY | ARM_NIGHT
+    },
+    last_changed: '2024-01-01T12:00:00.000Z',
+    last_updated: '2024-01-01T12:00:00.000Z',
+    context: { id: 'context-36', parent_id: null, user_id: null }
+  },
+
   // Media Players
   'media_player.living_room_speaker': {
     entity_id: 'media_player.living_room_speaker',
@@ -790,6 +821,16 @@ const Dashboard = () => {
 
         {/* Security Tab */}
         <TabPanel value={tabValue} index={2}>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h6" gutterBottom>
+              Alarm Control Panels
+            </Typography>
+            <Box sx={{ display: 'grid', gap: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', maxWidth: '100%', '@media (min-width: 1200px)': { gridTemplateColumns: 'repeat(3, 1fr)' } }}>
+              <AlarmControlPanelCard entityId="alarm_control_panel.home_alarm" name="Home Alarm System" />
+              <AlarmControlPanelCard entityId="alarm_control_panel.garage_alarm" name="Garage Alarm" />
+            </Box>
+          </Box>
+
           <Box sx={{ mb: 4 }}>
             <Typography variant="h6" gutterBottom>
               Cameras
