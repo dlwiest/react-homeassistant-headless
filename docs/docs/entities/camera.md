@@ -168,6 +168,31 @@ import { Camera } from 'hass-react'
 
 The Camera component provides all the same properties and methods as the `useCamera` hook to your render function.
 
+## List All Cameras
+
+Use the `useCameras` hook to retrieve all available camera entities:
+
+```tsx
+import { useCameras } from 'hass-react'
+
+function CameraList() {
+  const cameras = useCameras()
+
+  return (
+    <div>
+      <h2>Available Cameras ({cameras.length})</h2>
+      {cameras.map(camera => (
+        <div key={camera.entity_id}>
+          {camera.attributes.friendly_name || camera.entity_id}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+The `useCameras` hook fetches all camera entities from Home Assistant and returns an array of camera objects.
+
 ## Examples
 
 ### Simple Image Display

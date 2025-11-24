@@ -128,6 +128,31 @@ function MyComponent() {
 
 The `useCalendar` hook returns an object with all the same properties and methods as the component's render props.
 
+## List All Calendars
+
+Use the `useCalendars` hook to retrieve all available calendar entities:
+
+```tsx
+import { useCalendars } from 'hass-react'
+
+function CalendarList() {
+  const calendars = useCalendars()
+
+  return (
+    <div>
+      <h2>Available Calendars ({calendars.length})</h2>
+      {calendars.map(calendar => (
+        <div key={calendar.entity_id}>
+          {calendar.attributes.friendly_name || calendar.entity_id}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+The `useCalendars` hook fetches all calendar entities from Home Assistant and returns an array of calendar objects.
+
 ## Examples
 
 ### Display Current Event

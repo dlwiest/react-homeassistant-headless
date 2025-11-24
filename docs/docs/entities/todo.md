@@ -120,6 +120,31 @@ function MyComponent() {
 
 The `useTodo` hook returns an object with all the same properties and methods as the component's render props.
 
+## List All Todo Lists
+
+Use the `useTodos` hook to retrieve all available todo list entities:
+
+```tsx
+import { useTodos } from 'hass-react'
+
+function TodoListList() {
+  const todos = useTodos()
+
+  return (
+    <div>
+      <h2>Available Todo Lists ({todos.length})</h2>
+      {todos.map(todo => (
+        <div key={todo.entity_id}>
+          {todo.attributes.friendly_name || todo.entity_id}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+The `useTodos` hook fetches all todo list entities from Home Assistant and returns an array of todo list objects.
+
 ## Examples
 
 ### Simple Todo List

@@ -75,6 +75,31 @@ function MyComponent() {
 
 The `useSwitch` hook returns an object with all the same properties and methods as the component's render props.
 
+## List All Switches
+
+Use the `useSwitches` hook to retrieve all available switch entities:
+
+```tsx
+import { useSwitches } from 'hass-react'
+
+function SwitchList() {
+  const switches = useSwitches()
+
+  return (
+    <div>
+      <h2>Available Switches ({switches.length})</h2>
+      {switches.map(switchEntity => (
+        <div key={switchEntity.entity_id}>
+          {switchEntity.attributes.friendly_name || switchEntity.entity_id}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+The `useSwitches` hook fetches all switch entities from Home Assistant and returns an array of switch objects.
+
 ## Examples
 
 ### Simple Toggle

@@ -96,6 +96,31 @@ function MyComponent() {
 
 The `useFan` hook returns an object with all the same properties and methods as the component's render props.
 
+## List All Fans
+
+Use the `useFans` hook to retrieve all available fan entities:
+
+```tsx
+import { useFans } from 'hass-react'
+
+function FanList() {
+  const fans = useFans()
+
+  return (
+    <div>
+      <h2>Available Fans ({fans.length})</h2>
+      {fans.map(fan => (
+        <div key={fan.entity_id}>
+          {fan.attributes.friendly_name || fan.entity_id}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+The `useFans` hook fetches all fan entities from Home Assistant and returns an array of fan objects.
+
 ## Examples
 
 ### Simple Speed Control

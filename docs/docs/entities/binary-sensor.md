@@ -73,6 +73,31 @@ function MyComponent() {
 
 The `useBinarySensor` hook returns an object with all the same properties and methods as the component's render props.
 
+## List All Binary Sensors
+
+Use the `useBinarySensors` hook to retrieve all available binary sensor entities:
+
+```tsx
+import { useBinarySensors } from 'hass-react'
+
+function BinarySensorList() {
+  const binarySensors = useBinarySensors()
+
+  return (
+    <div>
+      <h2>Available Binary Sensors ({binarySensors.length})</h2>
+      {binarySensors.map(sensor => (
+        <div key={sensor.entity_id}>
+          {sensor.attributes.friendly_name || sensor.entity_id}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+The `useBinarySensors` hook fetches all binary sensor entities from Home Assistant and returns an array of binary sensor objects.
+
 ## Examples
 
 ### Door Sensor

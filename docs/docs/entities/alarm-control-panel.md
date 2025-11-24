@@ -104,6 +104,31 @@ function MyComponent() {
 
 The `useAlarmControlPanel` hook returns an object with all the same properties and methods as the component's render props.
 
+## List All Alarm Control Panels
+
+Use the `useAlarmControlPanels` hook to retrieve all available alarm control panel entities:
+
+```tsx
+import { useAlarmControlPanels } from 'hass-react'
+
+function AlarmPanelList() {
+  const alarmPanels = useAlarmControlPanels()
+
+  return (
+    <div>
+      <h2>Available Alarm Panels ({alarmPanels.length})</h2>
+      {alarmPanels.map(panel => (
+        <div key={panel.entity_id}>
+          {panel.attributes.friendly_name || panel.entity_id}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+The `useAlarmControlPanels` hook fetches all alarm control panel entities from Home Assistant and returns an array of alarm panel objects.
+
 ## Examples
 
 ### Simple Alarm Control

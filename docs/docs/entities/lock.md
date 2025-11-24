@@ -87,6 +87,31 @@ function MyComponent() {
 
 The `useLock` hook returns an object with all the same properties and methods as the component's render props.
 
+## List All Locks
+
+Use the `useLocks` hook to retrieve all available lock entities:
+
+```tsx
+import { useLocks } from 'hass-react'
+
+function LockList() {
+  const locks = useLocks()
+
+  return (
+    <div>
+      <h2>Available Locks ({locks.length})</h2>
+      {locks.map(lock => (
+        <div key={lock.entity_id}>
+          {lock.attributes.friendly_name || lock.entity_id}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+The `useLocks` hook fetches all lock entities from Home Assistant and returns an array of lock objects.
+
 ## Examples
 
 ### Simple Lock Control
