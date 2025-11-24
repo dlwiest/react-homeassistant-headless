@@ -32,15 +32,10 @@ export function useDateTime(): DateTimeState {
 
   // Parse ISO 8601 date string into Date object
   let date: Date | null = null
-  try {
-    const parsed = new Date(state)
-    // Validate that the date is valid
-    if (!isNaN(parsed.getTime())) {
-      date = parsed
-    }
-  } catch (error) {
-    // Invalid date string - return null
-    date = null
+  const parsed = new Date(state)
+  // Validate that the date is valid
+  if (!isNaN(parsed.getTime())) {
+    date = parsed
   }
 
   return {
