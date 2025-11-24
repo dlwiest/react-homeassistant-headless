@@ -111,7 +111,7 @@ The `useVacuum` hook returns an object with all the same properties and methods 
 Use the `useVacuums` hook to retrieve all available vacuum entities:
 
 ```tsx
-import { useVacuums} from 'hass-react'
+import { useVacuums } from 'hass-react'
 
 function VacuumList() {
   const vacuums = useVacuums()

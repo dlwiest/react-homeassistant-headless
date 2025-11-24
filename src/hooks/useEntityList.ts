@@ -44,9 +44,28 @@ export function useEntityList<T>(domain: string): T[] {
 
     // Subscribe to state changes to keep the list updated
     const unsubscribe = connection.subscribeEvents((event: StateChangedEvent) => {
-      // When an entity in this domain changes, re-fetch the list
       if (event.data.entity_id.startsWith(`${domain}.`)) {
-        fetchEntities()
+        setEntities(prev => {
+          const index = prev.findIndex((e: any) => e.entity_id === event.data.entity_id)
+
+          if (event.data.new_state) {
+            // Entity exists or was added
+            if (index >= 0) {
+              // Update existing entity
+              const updated = [...prev]
+              updated[index] = event.data.new_state as T
+              return updated
+            } else {
+              // Add new entity
+              return [...prev, event.data.new_state as T]
+            }
+          } else if (index >= 0) {
+            // Entity was removed
+            return prev.filter((e: any) => e.entity_id !== event.data.entity_id)
+          }
+
+          return prev
+        })
       }
     }, 'state_changed')
 
