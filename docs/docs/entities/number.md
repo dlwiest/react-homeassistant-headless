@@ -88,6 +88,31 @@ function MyComponent() {
 
 The `useNumber` hook returns an object with all the same properties and methods as the component's render props.
 
+## List All Numbers
+
+Use the `useNumbers` hook to retrieve all available number entities:
+
+```tsx
+import { useNumbers } from 'hass-react'
+
+function NumberList() {
+  const numbers = useNumbers()
+
+  return (
+    <div>
+      <h2>Available Numbers ({numbers.length})</h2>
+      {numbers.map(number => (
+        <div key={number.entity_id}>
+          {number.attributes.friendly_name || number.entity_id}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+The `useNumbers` hook fetches all number entities from Home Assistant and returns an array of number objects.
+
 ## Examples
 
 ### Simple Slider

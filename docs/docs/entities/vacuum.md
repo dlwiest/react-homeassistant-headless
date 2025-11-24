@@ -106,6 +106,31 @@ function MyComponent() {
 
 The `useVacuum` hook returns an object with all the same properties and methods as the component's render props.
 
+## List All Vacuums
+
+Use the `useVacuums` hook to retrieve all available vacuum entities:
+
+```tsx
+import { useVacuums } from 'hass-react'
+
+function VacuumList() {
+  const vacuums = useVacuums()
+
+  return (
+    <div>
+      <h2>Available Vacuums ({vacuums.length})</h2>
+      {vacuums.map(vacuum => (
+        <div key={vacuum.entity_id}>
+          {vacuum.attributes.friendly_name || vacuum.entity_id}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+The `useVacuums` hook fetches all vacuum entities from Home Assistant and returns an array of vacuum objects.
+
 ## Examples
 
 ### Simple Control

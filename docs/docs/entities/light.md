@@ -91,6 +91,31 @@ function MyComponent() {
 
 The `useLight` hook returns an object with all the same properties and methods as the component's render props.
 
+## List All Lights
+
+Use the `useLights` hook to retrieve all available light entities:
+
+```tsx
+import { useLights } from 'hass-react'
+
+function LightList() {
+  const lights = useLights()
+
+  return (
+    <div>
+      <h2>Available Lights ({lights.length})</h2>
+      {lights.map(light => (
+        <div key={light.entity_id}>
+          {light.attributes.friendly_name || light.entity_id}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+The `useLights` hook fetches all light entities from Home Assistant and returns an array of light objects.
+
 ## Examples
 
 ### Simple Toggle

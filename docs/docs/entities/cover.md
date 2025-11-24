@@ -86,6 +86,31 @@ function MyComponent() {
 
 The `useCover` hook returns an object with all the same properties and methods as the component's render props.
 
+## List All Covers
+
+Use the `useCovers` hook to retrieve all available cover entities:
+
+```tsx
+import { useCovers } from 'hass-react'
+
+function CoverList() {
+  const covers = useCovers()
+
+  return (
+    <div>
+      <h2>Available Covers ({covers.length})</h2>
+      {covers.map(cover => (
+        <div key={cover.entity_id}>
+          {cover.attributes.friendly_name || cover.entity_id}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+The `useCovers` hook fetches all cover entities from Home Assistant and returns an array of cover objects.
+
 ## Examples
 
 ### Simple Cover Control

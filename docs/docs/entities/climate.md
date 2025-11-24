@@ -102,6 +102,31 @@ function MyComponent() {
 
 The `useClimate` hook returns an object with all the same properties and methods as the component's render props.
 
+## List All Climate Devices
+
+Use the `useClimates` hook to retrieve all available climate entities:
+
+```tsx
+import { useClimates } from 'hass-react'
+
+function ClimateList() {
+  const climates = useClimates()
+
+  return (
+    <div>
+      <h2>Available Climate Devices ({climates.length})</h2>
+      {climates.map(climate => (
+        <div key={climate.entity_id}>
+          {climate.attributes.friendly_name || climate.entity_id}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+The `useClimates` hook fetches all climate entities from Home Assistant and returns an array of climate objects.
+
 ## Examples
 
 ### Simple Thermostat

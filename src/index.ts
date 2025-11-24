@@ -31,6 +31,23 @@ export { useScenes } from './hooks/useScenes'
 export { useAlarmControlPanel } from './hooks/useAlarmControlPanel'
 export { useDateTime } from './hooks/useDateTime'
 
+// List hooks
+export { useLights } from './hooks/useLights'
+export { useSwitches } from './hooks/useSwitches'
+export { useSensors } from './hooks/useSensors'
+export { useBinarySensors } from './hooks/useBinarySensors'
+export { useFans } from './hooks/useFans'
+export { useLocks } from './hooks/useLocks'
+export { useCovers } from './hooks/useCovers'
+export { useMediaPlayers } from './hooks/useMediaPlayers'
+export { useCameras } from './hooks/useCameras'
+export { useClimates } from './hooks/useClimates'
+export { useVacuums } from './hooks/useVacuums'
+export { useCalendars } from './hooks/useCalendars'
+export { useTodos } from './hooks/useTodos'
+export { useNumbers } from './hooks/useNumbers'
+export { useAlarmControlPanels } from './hooks/useAlarmControlPanels'
+
 // Headless components
 export { Light } from './components/Light'
 export { Climate } from './components/Climate'

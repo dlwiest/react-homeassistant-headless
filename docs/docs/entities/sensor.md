@@ -75,6 +75,31 @@ function MyComponent() {
 
 The `useSensor` hook returns an object with all the same properties and methods as the component's render props.
 
+## List All Sensors
+
+Use the `useSensors` hook to retrieve all available sensor entities:
+
+```tsx
+import { useSensors } from 'hass-react'
+
+function SensorList() {
+  const sensors = useSensors()
+
+  return (
+    <div>
+      <h2>Available Sensors ({sensors.length})</h2>
+      {sensors.map(sensor => (
+        <div key={sensor.entity_id}>
+          {sensor.attributes.friendly_name || sensor.entity_id}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+The `useSensors` hook fetches all sensor entities from Home Assistant and returns an array of sensor objects.
+
 ## Examples
 
 ### Temperature Sensor

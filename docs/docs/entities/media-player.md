@@ -139,6 +139,31 @@ function MyComponent() {
 
 The `useMediaPlayer` hook returns an object with all the same properties and methods as the component's render props.
 
+## List All Media Players
+
+Use the `useMediaPlayers` hook to retrieve all available media player entities:
+
+```tsx
+import { useMediaPlayers } from 'hass-react'
+
+function MediaPlayerList() {
+  const mediaPlayers = useMediaPlayers()
+
+  return (
+    <div>
+      <h2>Available Media Players ({mediaPlayers.length})</h2>
+      {mediaPlayers.map(player => (
+        <div key={player.entity_id}>
+          {player.attributes.friendly_name || player.entity_id}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+The `useMediaPlayers` hook fetches all media player entities from Home Assistant and returns an array of media player objects.
+
 ## Examples
 
 ### Simple Media Control
