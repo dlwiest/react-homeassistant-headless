@@ -11,6 +11,8 @@ export interface HAConfig {
     reconnectAttempts?: number
     cacheTimeout?: number
     autoReconnect?: boolean
+    tokenRefreshBufferMinutes?: number
+    tokenRefreshIntervalMinutes?: number
     serviceRetry?: {
       maxAttempts?: number
       baseDelay?: number

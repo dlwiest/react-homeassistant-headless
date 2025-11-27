@@ -5,6 +5,7 @@ import { render, screen, act } from '@testing-library/react'
 import { createConnection, createLongLivedTokenAuth, Auth, Connection } from 'home-assistant-js-websocket'
 import { HAProvider, useHAConnection } from '../HAProvider'
 import { useStore } from '../../services/entityStore'
+import { createAuthenticatedConnection, refreshTokenIfNeeded } from '../../services/auth'
 import type { EntityState } from '../../types'
 
 // Mock the home-assistant-js-websocket module
@@ -13,8 +14,20 @@ vi.mock('home-assistant-js-websocket')
 // Mock the entity store
 vi.mock('../../services/entityStore')
 
+// Mock the auth service
+vi.mock('../../services/auth', async () => {
+  const actual = await vi.importActual('../../services/auth')
+  return {
+    ...actual,
+    createAuthenticatedConnection: vi.fn(),
+    refreshTokenIfNeeded: vi.fn()
+  }
+})
+
 const mockCreateConnection = vi.mocked(createConnection)
 const mockCreateLongLivedTokenAuth = vi.mocked(createLongLivedTokenAuth)
+const mockCreateAuthenticatedConnection = vi.mocked(createAuthenticatedConnection)
+const mockRefreshTokenIfNeeded = vi.mocked(refreshTokenIfNeeded)
 const mockUseStore = vi.mocked(useStore)
 
 // Test component
@@ -100,7 +113,7 @@ describe('HAProvider Clean Implementation', () => {
     vi.clearAllMocks()
     vi.clearAllTimers()
     vi.useFakeTimers()
-    
+
     // Setup default mock for useStore
     const defaultState = {
       entities: new Map<string, EntityState>(),
@@ -117,7 +130,7 @@ describe('HAProvider Clean Implementation', () => {
       batchUpdate: vi.fn(),
       clear: vi.fn()
     }
-    
+
     mockUseStore.mockImplementation((selector) => {
       if (typeof selector === 'function') {
         // This handles calls like useStore((state) => state.setConnection)
@@ -126,9 +139,19 @@ describe('HAProvider Clean Implementation', () => {
       // Fallback
       return vi.fn()
     })
-    
+
     // Also mock getState() calls directly
     mockUseStore.getState = vi.fn(() => defaultState)
+
+    // Setup default mock for createAuthenticatedConnection to delegate to createConnection
+    mockCreateAuthenticatedConnection.mockImplementation(async ({ hassUrl, token }) => {
+      const mockAuth = createMockAuth(token || 'test-token')
+      const connection = await mockCreateConnection({ auth: mockAuth })
+      return { connection, auth: mockAuth }
+    })
+
+    // Setup default mock for refreshTokenIfNeeded
+    mockRefreshTokenIfNeeded.mockImplementation((auth: Auth) => Promise.resolve(auth))
   })
 
   afterEach(() => {
@@ -2003,6 +2026,272 @@ describe('HAProvider Clean Implementation', () => {
       })
 
       expect(mockSetConnection).toHaveBeenCalledWith(connection)
+    })
+  })
+
+  describe('Token Refresh Functionality', () => {
+    it('should periodically refresh tokens when connected via OAuth', async () => {
+      vi.useFakeTimers()
+
+      const mockAuth = createMockAuth('oauth-token')
+      const { connection } = createMockConnection()
+
+      // Mock createAuthenticatedConnection to return both connection and auth
+      mockCreateAuthenticatedConnection.mockResolvedValue({
+        connection,
+        auth: mockAuth
+      })
+
+      render(
+        <HAProvider
+          url="http://test:8123"
+          authMode="oauth"
+          options={{
+            tokenRefreshIntervalMinutes: 30,
+            tokenRefreshBufferMinutes: 30
+          }}
+        >
+          <TestComponent />
+        </HAProvider>
+      )
+
+      await vi.waitFor(() => {
+        expect(screen.getByTestId('connected')).toHaveTextContent('true')
+      })
+
+      // Clear initial calls
+      mockRefreshTokenIfNeeded.mockClear()
+
+      // Advance 30 minutes
+      act(() => {
+        vi.advanceTimersByTime(30 * 60 * 1000)
+      })
+
+      await vi.waitFor(() => {
+        expect(mockRefreshTokenIfNeeded).toHaveBeenCalled()
+      })
+
+      vi.useRealTimers()
+    })
+
+    it('should not refresh tokens periodically when using long-lived token', async () => {
+      vi.useFakeTimers()
+
+      const mockAuth = createMockAuth('test-token')
+      const { connection } = createMockConnection()
+
+      mockCreateConnection.mockResolvedValue(connection)
+      mockCreateLongLivedTokenAuth.mockReturnValue(mockAuth)
+
+      render(
+        <HAProvider
+          url="http://test:8123"
+          token="test-token"
+          authMode="token"
+          options={{
+            tokenRefreshIntervalMinutes: 30
+          }}
+        >
+          <TestComponent />
+        </HAProvider>
+      )
+
+      await vi.waitFor(() => {
+        expect(screen.getByTestId('connected')).toHaveTextContent('true')
+      })
+
+      mockRefreshTokenIfNeeded.mockClear()
+
+      // Advance 30 minutes
+      act(() => {
+        vi.advanceTimersByTime(30 * 60 * 1000)
+      })
+
+      // Should not refresh for token auth
+      expect(mockRefreshTokenIfNeeded).not.toHaveBeenCalled()
+
+      vi.useRealTimers()
+    })
+
+    it('should refresh tokens when visibility changes', async () => {
+      const mockAuth = createMockAuth('oauth-token')
+      const { connection } = createMockConnection()
+
+      // Mock createAuthenticatedConnection to return both connection and auth
+      mockCreateAuthenticatedConnection.mockResolvedValue({
+        connection,
+        auth: mockAuth
+      })
+
+      render(
+        <HAProvider
+          url="http://test:8123"
+          authMode="oauth"
+          options={{
+            tokenRefreshBufferMinutes: 30
+          }}
+        >
+          <TestComponent />
+        </HAProvider>
+      )
+
+      await vi.waitFor(() => {
+        expect(screen.getByTestId('connected')).toHaveTextContent('true')
+      })
+
+      mockRefreshTokenIfNeeded.mockClear()
+
+      // Simulate page becoming hidden then visible
+      Object.defineProperty(document, 'visibilityState', {
+        writable: true,
+        configurable: true,
+        value: 'hidden'
+      })
+      document.dispatchEvent(new Event('visibilitychange'))
+
+      Object.defineProperty(document, 'visibilityState', {
+        writable: true,
+        configurable: true,
+        value: 'visible'
+      })
+      document.dispatchEvent(new Event('visibilitychange'))
+
+      await vi.waitFor(() => {
+        expect(mockRefreshTokenIfNeeded).toHaveBeenCalled()
+      })
+    })
+
+    it('should not refresh tokens on visibility change when using token auth', async () => {
+      const mockAuth = createMockAuth('test-token')
+      const { connection } = createMockConnection()
+
+      mockCreateConnection.mockResolvedValue(connection)
+      mockCreateLongLivedTokenAuth.mockReturnValue(mockAuth)
+
+      render(
+        <HAProvider
+          url="http://test:8123"
+          token="test-token"
+          authMode="token"
+        >
+          <TestComponent />
+        </HAProvider>
+      )
+
+      await vi.waitFor(() => {
+        expect(screen.getByTestId('connected')).toHaveTextContent('true')
+      })
+
+      mockRefreshTokenIfNeeded.mockClear()
+
+      // Simulate visibility change
+      Object.defineProperty(document, 'visibilityState', {
+        writable: true,
+        configurable: true,
+        value: 'visible'
+      })
+      document.dispatchEvent(new Event('visibilitychange'))
+
+      // Should not refresh for token auth
+      expect(mockRefreshTokenIfNeeded).not.toHaveBeenCalled()
+    })
+
+    it('should clear token refresh interval on logout', async () => {
+      vi.useFakeTimers()
+
+      const mockAuth = createMockAuth('oauth-token')
+      const { connection } = createMockConnection()
+
+      // Mock createAuthenticatedConnection to return both connection and auth
+      mockCreateAuthenticatedConnection.mockResolvedValue({
+        connection,
+        auth: mockAuth
+      })
+
+      const TestWithLogout = () => {
+        const { logout } = useHAConnection()
+        return (
+          <div>
+            <TestComponent />
+            <button onClick={logout}>Logout</button>
+          </div>
+        )
+      }
+
+      render(
+        <HAProvider
+          url="http://test:8123"
+          authMode="oauth"
+          options={{
+            tokenRefreshIntervalMinutes: 30
+          }}
+        >
+          <TestWithLogout />
+        </HAProvider>
+      )
+
+      await vi.waitFor(() => {
+        expect(screen.getByTestId('connected')).toHaveTextContent('true')
+      })
+
+      mockRefreshTokenIfNeeded.mockClear()
+
+      // Logout
+      act(() => {
+        screen.getByText('Logout').click()
+      })
+
+      // Advance time after logout
+      act(() => {
+        vi.advanceTimersByTime(30 * 60 * 1000)
+      })
+
+      // Should not refresh after logout
+      expect(mockRefreshTokenIfNeeded).not.toHaveBeenCalled()
+
+      vi.useRealTimers()
+    })
+
+    it('should handle token refresh failures gracefully', async () => {
+      const mockAuth = createMockAuth('oauth-token')
+      const { connection } = createMockConnection()
+
+      // Mock createAuthenticatedConnection to return both connection and auth
+      mockCreateAuthenticatedConnection.mockResolvedValue({
+        connection,
+        auth: mockAuth
+      })
+
+      // Mock refresh to fail
+      mockRefreshTokenIfNeeded.mockRejectedValue(new Error('Refresh failed'))
+
+      render(
+        <HAProvider
+          url="http://test:8123"
+          authMode="oauth"
+        >
+          <TestComponent />
+        </HAProvider>
+      )
+
+      await vi.waitFor(() => {
+        expect(screen.getByTestId('connected')).toHaveTextContent('true')
+      })
+
+      // Trigger visibility change
+      Object.defineProperty(document, 'visibilityState', {
+        writable: true,
+        configurable: true,
+        value: 'visible'
+      })
+
+      // Should not crash when refresh fails
+      expect(() => {
+        document.dispatchEvent(new Event('visibilitychange'))
+      }).not.toThrow()
+
+      // Should still be connected despite refresh failure
+      expect(screen.getByTestId('connected')).toHaveTextContent('true')
     })
   })
 })

@@ -12,7 +12,7 @@ import { saveAuthData, loadAuthData, removeAuthData } from './tokenStorage'
 
 // Constants
 const ONE_DAY_MS = 24 * 60 * 60 * 1000
-const DEFAULT_TOKEN_BUFFER_MINUTES = 5
+const DEFAULT_TOKEN_BUFFER_MINUTES = 30 // Buffer time before token expiration to trigger refresh
 
 // Generate OAuth authorization URL for Home Assistant
 export function getOAuthUrl(hassUrl: string, redirectUri?: string): string {
@@ -95,8 +95,8 @@ export async function handleOAuthCallback(hassUrl: string): Promise<Auth> {
 }
 
 // Create connection using stored or provided authentication
-export async function createAuthenticatedConnection(config: AuthConfig): Promise<Connection> {
-  const { hassUrl, token, authMode } = config
+export async function createAuthenticatedConnection(config: AuthConfig): Promise<{ connection: Connection; auth: Auth }> {
+  const { hassUrl, token, authMode, tokenRefreshBufferMinutes = DEFAULT_TOKEN_BUFFER_MINUTES } = config
   
   // Determine auth method
   const shouldUseOAuth = authMode === 'oauth' || (authMode === 'auto' && !token)
@@ -111,7 +111,7 @@ export async function createAuthenticatedConnection(config: AuthConfig): Promise
       // Use stored tokens and refresh if needed
       auth = createAuthFromStoredData(storedAuth)
       try {
-        auth = await refreshTokenIfNeeded(auth)
+        auth = await refreshTokenIfNeeded(auth, tokenRefreshBufferMinutes)
       } catch (refreshError) {
         // Token refresh failed, clear stored tokens and redirect to OAuth
         removeAuthData(hassUrl)
@@ -137,8 +137,9 @@ export async function createAuthenticatedConnection(config: AuthConfig): Promise
     auth = createLongLivedTokenAuth(hassUrl, token)
   }
   
-  // Create and return connection
-  return createConnection({ auth })
+  // Create and return connection with auth object
+  const connection = await createConnection({ auth })
+  return { connection, auth }
 }
 
 // Logout and clear stored authentication
@@ -215,8 +216,8 @@ export function isTokenExpiring(auth: Auth, bufferMinutes: number = DEFAULT_TOKE
 }
 
 // Refresh auth token if needed
-export async function refreshTokenIfNeeded(auth: Auth): Promise<Auth> {
-  if (isTokenExpiring(auth)) {
+export async function refreshTokenIfNeeded(auth: Auth, bufferMinutes: number = DEFAULT_TOKEN_BUFFER_MINUTES): Promise<Auth> {
+  if (isTokenExpiring(auth, bufferMinutes)) {
     try {
       await auth.refreshAccessToken()
       return auth

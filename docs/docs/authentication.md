@@ -19,7 +19,8 @@ OAuth provides secure, user-friendly authentication without exposing tokens in y
 When using OAuth:
 - Users get a standard login flow
 - No tokens to manage or secure
-- Automatic token refresh
+- Automatic token refresh with periodic background refresh and visibility-based refresh
+- Sessions persist across app restarts and long periods of inactivity
 - Users can revoke access from Home Assistant settings
 
 ## Long-lived Token
@@ -118,6 +119,43 @@ The logout function:
     reconnectInterval: 5000,    // Time between reconnection attempts (ms)
     reconnectAttempts: 10,      // Max reconnection attempts
     autoReconnect: true,        // Auto-reconnect on connection loss
+  }}
+/>
+```
+
+### OAuth Token Refresh (OAuth Only)
+
+Configure automatic token refresh behavior to maintain long-lived sessions:
+
+```tsx
+<HAProvider
+  url="http://homeassistant.local:8123"
+  authMode="oauth"
+  options={{
+    tokenRefreshIntervalMinutes: 30,  // Check for token refresh every 30 minutes
+    tokenRefreshBufferMinutes: 30,    // Refresh token if expires within 30 minutes
+  }}
+/>
+```
+
+**How it works:**
+- **Periodic Refresh**: Tokens are checked and refreshed at regular intervals while connected
+- **Visibility Refresh**: When you return to the app after being away, tokens are automatically refreshed if needed
+- **Default Values**: 30 minutes for both interval and buffer, providing proactive token management
+
+This ensures users don't get logged out when:
+- Leaving the app open for extended periods
+- Switching between apps/tabs frequently
+- Returning to the app after hours away
+
+**Example with shorter refresh for testing:**
+```tsx
+<HAProvider
+  url="http://homeassistant.local:8123"
+  authMode="oauth"
+  options={{
+    tokenRefreshIntervalMinutes: 5,   // Refresh every 5 minutes
+    tokenRefreshBufferMinutes: 10,    // Refresh if expires within 10 minutes
   }}
 />
 ```

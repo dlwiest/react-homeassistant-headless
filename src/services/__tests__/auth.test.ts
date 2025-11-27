@@ -309,7 +309,7 @@ describe('OAuth Auth Service', () => {
       it('should not refresh token when not expiring', async () => {
         const mockAuth = {
           expired: false,
-          data: { expires: Date.now() + 10 * 60 * 1000 }, // 10 minutes from now
+          data: { expires: Date.now() + 60 * 60 * 1000 }, // 60 minutes from now
           refreshAccessToken: vi.fn()
         } as any
 
@@ -331,6 +331,37 @@ describe('OAuth Auth Service', () => {
           userMessage: 'Your authentication has expired. Please sign in again.'
         })
       })
+
+      it('should respect custom buffer time parameter', async () => {
+        const mockAuth = {
+          expired: false,
+          data: { expires: Date.now() + 10 * 60 * 1000 }, // 10 minutes from now
+          refreshAccessToken: vi.fn().mockResolvedValue(undefined)
+        } as any
+
+        // With 5 minute buffer, should not refresh (10 > 5)
+        await refreshTokenIfNeeded(mockAuth, 5)
+        expect(mockAuth.refreshAccessToken).not.toHaveBeenCalled()
+
+        // Clear mock for next test
+        mockAuth.refreshAccessToken.mockClear()
+
+        // With 15 minute buffer, should refresh (10 < 15)
+        await refreshTokenIfNeeded(mockAuth, 15)
+        expect(mockAuth.refreshAccessToken).toHaveBeenCalled()
+      })
+
+      it('should use default buffer when not specified', async () => {
+        const mockAuth = {
+          expired: false,
+          data: { expires: Date.now() + 20 * 60 * 1000 }, // 20 minutes from now
+          refreshAccessToken: vi.fn().mockResolvedValue(undefined)
+        } as any
+
+        // Default buffer is 30 minutes, so should refresh (20 < 30)
+        await refreshTokenIfNeeded(mockAuth)
+        expect(mockAuth.refreshAccessToken).toHaveBeenCalled()
+      })
     })
   })
 
@@ -338,7 +369,7 @@ describe('OAuth Auth Service', () => {
     it('should use long-lived token when provided', async () => {
       const mockAuthResult = { data: { access_token: 'test-token' } }
       const mockConnectionResult = { close: vi.fn() }
-      
+
       mockCreateLongLivedTokenAuth.mockReturnValue(mockAuthResult)
       mockCreateConnection.mockResolvedValue(mockConnectionResult)
 
@@ -353,7 +384,7 @@ describe('OAuth Auth Service', () => {
         'test-token'
       )
       expect(mockCreateConnection).toHaveBeenCalledWith({ auth: mockAuthResult })
-      expect(result).toBe(mockConnectionResult)
+      expect(result).toEqual({ connection: mockConnectionResult, auth: mockAuthResult })
     })
 
     it('should use OAuth when no token provided', async () => {
@@ -363,18 +394,18 @@ describe('OAuth Auth Service', () => {
         refresh_token: 'stored-refresh',
         expires_at: Date.now() + 3600000
       }
-      
+
       mockLoadAuthData.mockReturnValue(storedAuth)
-      
-      const mockAuthResult = { 
+
+      const mockAuthResult = {
         data: storedAuth,
         expired: false,
         refreshAccessToken: vi.fn()
       }
       const mockConnectionResult = { close: vi.fn() }
-      
+
       mockCreateConnection.mockResolvedValue(mockConnectionResult)
-      
+
       // Mock the Auth constructor
       mockAuth.mockImplementation(() => mockAuthResult)
 
@@ -385,7 +416,7 @@ describe('OAuth Auth Service', () => {
 
       expect(mockLoadAuthData).toHaveBeenCalledWith('http://homeassistant.local:8123')
       expect(mockCreateConnection).toHaveBeenCalledWith({ auth: mockAuthResult })
-      expect(result).toBe(mockConnectionResult)
+      expect(result).toEqual({ connection: mockConnectionResult, auth: mockAuthResult })
     })
 
     it('should handle OAuth callback when URL has code parameter', async () => {
@@ -401,7 +432,7 @@ describe('OAuth Auth Service', () => {
         }
       }
       const mockConnectionResult = { close: vi.fn() }
-      
+
       mockGetAuth.mockResolvedValue(mockAuthResult)
       mockCreateConnection.mockResolvedValue(mockConnectionResult)
 
@@ -416,7 +447,7 @@ describe('OAuth Auth Service', () => {
         refresh_token: 'callback-refresh',
         expires_at: expect.any(Number)
       })
-      expect(result).toBe(mockConnectionResult)
+      expect(result).toEqual({ connection: mockConnectionResult, auth: mockAuthResult })
     })
   })
 })
