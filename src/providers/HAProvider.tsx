@@ -1,8 +1,9 @@
 import { createContext, useContext, useEffect, useReducer, useCallback, useRef, useState, ReactNode } from 'react'
-import { Connection } from 'home-assistant-js-websocket'
+import { Connection, Auth } from 'home-assistant-js-websocket'
 import { useStore } from '../services/entityStore'
 import { createMockConnection } from '../services/mockConnection'
 import { createAuthenticatedConnection } from '../services/auth'
+import { refreshTokenIfNeeded } from '../services/auth'
 import { useAuth } from '../hooks/useAuth'
 import type { HAConfig, ConnectionStatus, EntityState } from '../types'
 
@@ -143,6 +144,8 @@ export const HAProvider = ({
 
   const retryTimeoutRef = useRef<NodeJS.Timeout>()
   const currentConnectionRef = useRef<Connection | null>(null)
+  const currentAuthRef = useRef<Auth | null>(null)
+  const tokenRefreshIntervalRef = useRef<NodeJS.Timeout>()
   const [lastConnectedAt, setLastConnectedAt] = useState<Date>()
   const [nextRetryIn, setNextRetryIn] = useState<number>()
   const setStoreConnection = (() => {
@@ -219,12 +222,16 @@ export const HAProvider = ({
     }
 
     try {
-      const conn = await createAuthenticatedConnection({
+      const { connection: conn, auth } = await createAuthenticatedConnection({
         hassUrl: url,
         token,
         authMode,
-        redirectUri
+        redirectUri,
+        tokenRefreshBufferMinutes: options.tokenRefreshBufferMinutes
       })
+
+      // Store auth object for token refresh
+      currentAuthRef.current = auth
 
       // Set up event listeners
       conn.addEventListener('disconnected', () => {
@@ -310,7 +317,14 @@ export const HAProvider = ({
   const handleLogout = useCallback(() => {
     // Clear stored authentication
     auth.logout()
-    
+
+    // Clear auth ref and token refresh interval
+    currentAuthRef.current = null
+    if (tokenRefreshIntervalRef.current) {
+      clearInterval(tokenRefreshIntervalRef.current)
+      tokenRefreshIntervalRef.current = undefined
+    }
+
     // Immediately close WebSocket connection
     if (currentConnectionRef.current) {
       currentConnectionRef.current.close()
@@ -360,6 +374,60 @@ export const HAProvider = ({
     }
   }, [state.type, state.retryCount, mockMode, options.autoReconnect, attemptConnection])
 
+  // Periodic token refresh - runs when connected and using OAuth
+  useEffect(() => {
+    if (state.type === 'connected' && currentAuthRef.current && !mockMode && authMode !== 'token') {
+      const refreshIntervalMs = (options.tokenRefreshIntervalMinutes || 30) * 60 * 1000
+      const bufferMinutes = options.tokenRefreshBufferMinutes || 30
+
+      const performTokenRefresh = async () => {
+        if (currentAuthRef.current) {
+          try {
+            const refreshedAuth = await refreshTokenIfNeeded(currentAuthRef.current, bufferMinutes)
+            currentAuthRef.current = refreshedAuth
+          } catch (error) {
+            console.error('Periodic token refresh failed:', error)
+            // Don't disconnect, let the next refresh attempt or visibility check handle it
+          }
+        }
+      }
+
+      tokenRefreshIntervalRef.current = setInterval(performTokenRefresh, refreshIntervalMs)
+
+      return () => {
+        if (tokenRefreshIntervalRef.current) {
+          clearInterval(tokenRefreshIntervalRef.current)
+          tokenRefreshIntervalRef.current = undefined
+        }
+      }
+    }
+  }, [state.type, mockMode, authMode, options.tokenRefreshIntervalMinutes, options.tokenRefreshBufferMinutes])
+
+  // Visibility change handler - refresh tokens when app becomes visible
+  useEffect(() => {
+    if (!mockMode && authMode !== 'token') {
+      const handleVisibilityChange = async () => {
+        if (document.visibilityState === 'visible' && currentAuthRef.current && state.type === 'connected') {
+          const bufferMinutes = options.tokenRefreshBufferMinutes || 30
+          try {
+            const refreshedAuth = await refreshTokenIfNeeded(currentAuthRef.current, bufferMinutes)
+            currentAuthRef.current = refreshedAuth
+          } catch (error) {
+            console.error('Token refresh on visibility change failed:', error)
+            // If refresh fails completely, the user may need to re-authenticate
+            // This will be handled by the next connection attempt
+          }
+        }
+      }
+
+      document.addEventListener('visibilitychange', handleVisibilityChange)
+
+      return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
+      }
+    }
+  }, [state.type, mockMode, authMode, options.tokenRefreshBufferMinutes])
+
   // Auto-connect on mount
   useEffect(() => {
     connect()
@@ -368,10 +436,14 @@ export const HAProvider = ({
       if (retryTimeoutRef.current) {
         clearTimeout(retryTimeoutRef.current)
       }
+      if (tokenRefreshIntervalRef.current) {
+        clearInterval(tokenRefreshIntervalRef.current)
+      }
       if (currentConnectionRef.current) {
         currentConnectionRef.current.close()
         currentConnectionRef.current = null
       }
+      currentAuthRef.current = null
       try {
         useStore.getState().clear()
       } catch (error) {
