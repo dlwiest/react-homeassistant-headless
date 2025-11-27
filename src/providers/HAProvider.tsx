@@ -401,6 +401,7 @@ export const HAProvider = ({
         }
       }
     }
+    return undefined
   }, [state.type, mockMode, authMode, options.tokenRefreshIntervalMinutes, options.tokenRefreshBufferMinutes])
 
   // Visibility change handler - refresh tokens when app becomes visible
@@ -426,6 +427,7 @@ export const HAProvider = ({
         document.removeEventListener('visibilitychange', handleVisibilityChange)
       }
     }
+    return undefined
   }, [state.type, mockMode, authMode, options.tokenRefreshBufferMinutes])
 
   // Auto-connect on mount
