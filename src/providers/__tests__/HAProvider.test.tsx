@@ -2209,7 +2209,7 @@ describe('HAProvider Clean Implementation', () => {
       })
 
       const TestWithLogout = () => {
-        const { logout, connected } = useHAConnection()
+        const { logout } = useHAConnection()
         return (
           <div>
             <TestComponent />
