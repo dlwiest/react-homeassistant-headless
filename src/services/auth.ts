@@ -13,6 +13,7 @@ import { saveAuthData, loadAuthData, removeAuthData } from './tokenStorage'
 // Constants
 const ONE_DAY_MS = 24 * 60 * 60 * 1000
 const DEFAULT_TOKEN_BUFFER_MINUTES = 30 // Buffer time before token expiration to trigger refresh
+const OAUTH_REDIRECT_IN_PROGRESS_KEY = 'hass-oauth-redirecting'
 
 // Generate OAuth authorization URL for Home Assistant
 export function getOAuthUrl(hassUrl: string, redirectUri?: string): string {
@@ -67,9 +68,10 @@ export async function handleOAuthCallback(hassUrl: string): Promise<Auth> {
     throw createAuthError('config_error', 'OAuth state parameter mismatch - possible security issue', 'state_mismatch')
   }
   
-  // Clean up state
+  // Clean up state and redirect flag
   sessionStorage.removeItem('hass-oauth-state')
-  
+  sessionStorage.removeItem(OAUTH_REDIRECT_IN_PROGRESS_KEY)
+
   // Exchange code for tokens
   const auth = await getAuth({
     hassUrl,
@@ -124,6 +126,21 @@ export async function createAuthenticatedConnection(config: AuthConfig): Promise
       if (urlParams.get('code')) {
         auth = await handleOAuthCallback(hassUrl)
       } else {
+        // Check if we're already redirecting to prevent multiple OAuth flows
+        const redirectTimestamp = sessionStorage.getItem(OAUTH_REDIRECT_IN_PROGRESS_KEY)
+        if (redirectTimestamp) {
+          const timeSinceRedirect = Date.now() - parseInt(redirectTimestamp, 10)
+          // If redirect was initiated less than 1 second ago, block duplicate redirects
+          if (timeSinceRedirect < 1000) {
+            throw createAuthError('auth_expired', 'OAuth redirect already in progress')
+          }
+          // If more than 1 second, clear stale flag and allow new redirect
+          sessionStorage.removeItem(OAUTH_REDIRECT_IN_PROGRESS_KEY)
+        }
+
+        // Mark that we're redirecting
+        sessionStorage.setItem(OAUTH_REDIRECT_IN_PROGRESS_KEY, Date.now().toString())
+
         // Redirect to OAuth
         window.location.href = getOAuthUrl(hassUrl, config.redirectUri)
         throw createAuthError('auth_expired', 'Redirecting to authentication')
