@@ -129,13 +129,19 @@ export async function createAuthenticatedConnection(config: AuthConfig): Promise
         // Check if we're already redirecting to prevent multiple OAuth flows
         const redirectTimestamp = sessionStorage.getItem(OAUTH_REDIRECT_IN_PROGRESS_KEY)
         if (redirectTimestamp) {
-          const timeSinceRedirect = Date.now() - parseInt(redirectTimestamp, 10)
-          // If redirect was initiated less than 1 second ago, block duplicate redirects
-          if (timeSinceRedirect < 1000) {
-            throw createAuthError('auth_expired', 'OAuth redirect already in progress')
+          const parsedTimestamp = parseInt(redirectTimestamp, 10)
+          if (isNaN(parsedTimestamp)) {
+            // Clear corrupted data and allow redirect to proceed
+            sessionStorage.removeItem(OAUTH_REDIRECT_IN_PROGRESS_KEY)
+          } else {
+            const timeSinceRedirect = Date.now() - parsedTimestamp
+            // If redirect was initiated less than 1 second ago, block duplicate redirects
+            if (timeSinceRedirect < 1000) {
+              throw createAuthError('auth_expired', 'OAuth redirect already in progress')
+            }
+            // Clear stale flag since more than 1 second has passed
+            sessionStorage.removeItem(OAUTH_REDIRECT_IN_PROGRESS_KEY)
           }
-          // If more than 1 second, clear stale flag and allow new redirect
-          sessionStorage.removeItem(OAUTH_REDIRECT_IN_PROGRESS_KEY)
         }
 
         // Mark that we're redirecting
