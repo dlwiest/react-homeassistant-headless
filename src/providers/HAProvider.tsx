@@ -379,20 +379,38 @@ export const HAProvider = ({
     if (state.type === 'connected' && currentAuthRef.current && !mockMode && authMode !== 'token') {
       const refreshIntervalMs = (options.tokenRefreshIntervalMinutes || 30) * 60 * 1000
       const bufferMinutes = options.tokenRefreshBufferMinutes || 30
+      const maxRetries = 5
 
-      const performTokenRefresh = async () => {
-        if (currentAuthRef.current) {
-          try {
-            const refreshedAuth = await refreshTokenIfNeeded(currentAuthRef.current, bufferMinutes)
-            currentAuthRef.current = refreshedAuth
-          } catch (error) {
-            console.error('Periodic token refresh failed:', error)
-            // Don't disconnect, let the next refresh attempt or visibility check handle it
+      const performTokenRefreshWithRetry = async (retryCount = 0): Promise<void> => {
+        if (!currentAuthRef.current) return
+
+        try {
+          const refreshedAuth = await refreshTokenIfNeeded(currentAuthRef.current, bufferMinutes)
+          currentAuthRef.current = refreshedAuth
+        } catch (error) {
+          if (retryCount < maxRetries) {
+            // Exponential backoff: 1min, 2min, 4min, 8min, 16min
+            const delayMs = Math.min(Math.pow(2, retryCount) * 60 * 1000, 16 * 60 * 1000)
+            console.warn(
+              `Token refresh failed (attempt ${retryCount + 1}/${maxRetries + 1}). ` +
+              `Retrying in ${delayMs / 60000} minutes...`,
+              error
+            )
+
+            setTimeout(() => {
+              performTokenRefreshWithRetry(retryCount + 1)
+            }, delayMs)
+          } else {
+            console.error(
+              'Token refresh failed after maximum retries. ' +
+              'Authentication may expire. Please refresh the page to re-authenticate.',
+              error
+            )
           }
         }
       }
 
-      tokenRefreshIntervalRef.current = setInterval(performTokenRefresh, refreshIntervalMs)
+      tokenRefreshIntervalRef.current = setInterval(() => performTokenRefreshWithRetry(), refreshIntervalMs)
 
       return () => {
         if (tokenRefreshIntervalRef.current) {
@@ -407,17 +425,39 @@ export const HAProvider = ({
   // Visibility change handler - refresh tokens when app becomes visible
   useEffect(() => {
     if (!mockMode && authMode !== 'token') {
+      const maxRetries = 3
+
+      const refreshOnVisibilityWithRetry = async (retryCount = 0): Promise<void> => {
+        if (!currentAuthRef.current) return
+
+        const bufferMinutes = options.tokenRefreshBufferMinutes || 30
+        try {
+          const refreshedAuth = await refreshTokenIfNeeded(currentAuthRef.current, bufferMinutes)
+          currentAuthRef.current = refreshedAuth
+        } catch (error) {
+          if (retryCount < maxRetries) {
+            const delayMs = Math.pow(2, retryCount) * 30 * 1000 // 30s, 60s, 120s
+            console.warn(
+              `Visibility change token refresh failed (attempt ${retryCount + 1}/${maxRetries + 1}). ` +
+              `Retrying in ${delayMs / 1000} seconds...`,
+              error
+            )
+
+            setTimeout(() => {
+              refreshOnVisibilityWithRetry(retryCount + 1)
+            }, delayMs)
+          } else {
+            console.error(
+              'Token refresh on visibility change failed after maximum retries.',
+              error
+            )
+          }
+        }
+      }
+
       const handleVisibilityChange = async () => {
         if (document.visibilityState === 'visible' && currentAuthRef.current && state.type === 'connected') {
-          const bufferMinutes = options.tokenRefreshBufferMinutes || 30
-          try {
-            const refreshedAuth = await refreshTokenIfNeeded(currentAuthRef.current, bufferMinutes)
-            currentAuthRef.current = refreshedAuth
-          } catch (error) {
-            console.error('Token refresh on visibility change failed:', error)
-            // If refresh fails completely, the user may need to re-authenticate
-            // This will be handled by the next connection attempt
-          }
+          refreshOnVisibilityWithRetry()
         }
       }
 

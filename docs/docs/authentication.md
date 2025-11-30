@@ -132,33 +132,39 @@ Configure automatic token refresh behavior to maintain long-lived sessions:
   url="http://homeassistant.local:8123"
   authMode="oauth"
   options={{
-    tokenRefreshIntervalMinutes: 30,  // Check for token refresh every 30 minutes
-    tokenRefreshBufferMinutes: 30,    // Refresh token if expires within 30 minutes
+    tokenRefreshIntervalMinutes: 30,  // Check for token refresh every 30 minutes (default)
+    tokenRefreshBufferMinutes: 5,     // Refresh token if expires within 5 minutes (default)
   }}
 />
 ```
 
 **How it works:**
-- **Periodic Refresh**: Tokens are checked and refreshed at regular intervals while connected
+- **Periodic Refresh**: Tokens are checked and refreshed every 30 minutes (default) while connected
 - **Visibility Refresh**: When you return to the app after being away, tokens are automatically refreshed if needed
-- **Default Values**: 30 minutes for both interval and buffer, providing proactive token management
+- **Retry with Exponential Backoff**: If token refresh fails (e.g., network issue), the library automatically retries:
+  - Periodic refresh: up to 5 retries (1min, 2min, 4min, 8min, 16min delays)
+  - Visibility refresh: up to 3 retries (30s, 60s, 120s delays)
+- **Default Values**: 30 minutes for refresh interval, 5 minutes for buffer
 
 This ensures users don't get logged out when:
-- Leaving the app open for extended periods
+- Leaving the app open for extended periods (ideal for wall-mounted tablets)
+- Experiencing temporary network connectivity issues
 - Switching between apps/tabs frequently
 - Returning to the app after hours away
 
-**Example with shorter refresh for testing:**
+**Example with more frequent refresh checks:**
 ```tsx
 <HAProvider
   url="http://homeassistant.local:8123"
   authMode="oauth"
   options={{
-    tokenRefreshIntervalMinutes: 5,   // Refresh every 5 minutes
-    tokenRefreshBufferMinutes: 10,    // Refresh if expires within 10 minutes
+    tokenRefreshIntervalMinutes: 5,   // Check for token refresh every 5 minutes
+    tokenRefreshBufferMinutes: 10,    // Refresh if token expires within 10 minutes
   }}
 />
 ```
+
+**Note**: The retry mechanism ensures that even if refresh fails temporarily, the app will keep trying automatically without logging the user out. This is especially useful for always-on control panels like wall-mounted tablets.
 
 ### Service Call Retry
 
