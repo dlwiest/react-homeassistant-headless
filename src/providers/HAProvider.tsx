@@ -53,6 +53,8 @@ function createRetryExecutor(config: RetryConfig) {
           error
         )
 
+        // Schedule retry asynchronously (fire-and-forget pattern)
+        // The caller doesn't need to wait for retries - state is tracked via inProgress flag
         const timeoutId = setTimeout(() => {
           config.retryState.timeouts.delete(timeoutId)
           executeWithRetry(fn, retryCount + 1).catch(err => {
