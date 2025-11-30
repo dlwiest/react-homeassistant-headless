@@ -1,17 +1,19 @@
 import { useEffect, useRef } from 'react'
 import { useEntity } from './useEntity'
+import { useHAConnection } from '../providers/HAProvider'
 import type { DateTimeState, DateTimeAttributes } from '../types'
 
 const DATETIME_ENTITY_ID = 'sensor.date_time_iso'
 
 export function useDateTime(): DateTimeState {
   const entity = useEntity<DateTimeAttributes>(DATETIME_ENTITY_ID)
+  const { connected } = useHAConnection()
   const { state } = entity
   const hasLoggedWarning = useRef(false)
 
-  // Log warning once if sensor is unavailable
+  // Log warning once if sensor is unavailable (but only after connection is established)
   useEffect(() => {
-    if ((state === 'unavailable' || state === 'unknown') && !hasLoggedWarning.current) {
+    if (connected && (state === 'unavailable' || state === 'unknown') && !hasLoggedWarning.current) {
       console.warn(
         'Home Assistant date_time sensor is unavailable. ' +
         'To enable it: Go to Settings → Devices & Services → Integrations → Time & Date → Add Service → Select "Date & Time (ISO)" → Submit. ' +
@@ -19,7 +21,7 @@ export function useDateTime(): DateTimeState {
       )
       hasLoggedWarning.current = true
     }
-  }, [state])
+  }, [connected, state])
 
   // Return null for unavailable/unknown states
   if (state === 'unavailable' || state === 'unknown') {
