@@ -2,8 +2,7 @@ import { createContext, useContext, useEffect, useReducer, useCallback, useRef, 
 import { Connection, Auth } from 'home-assistant-js-websocket'
 import { useStore } from '../services/entityStore'
 import { createMockConnection } from '../services/mockConnection'
-import { createAuthenticatedConnection } from '../services/auth'
-import { refreshTokenIfNeeded } from '../services/auth'
+import { createAuthenticatedConnection, refreshTokenIfNeeded, DEFAULT_TOKEN_BUFFER_MINUTES } from '../services/auth'
 import { useAuth } from '../hooks/useAuth'
 import type { HAConfig, ConnectionStatus, EntityState } from '../types'
 
@@ -146,6 +145,7 @@ export const HAProvider = ({
   const currentConnectionRef = useRef<Connection | null>(null)
   const currentAuthRef = useRef<Auth | null>(null)
   const tokenRefreshIntervalRef = useRef<NodeJS.Timeout>()
+  const tokenRefreshRetryTimeoutsRef = useRef<Set<NodeJS.Timeout>>(new Set())
   const [lastConnectedAt, setLastConnectedAt] = useState<Date>()
   const [nextRetryIn, setNextRetryIn] = useState<number>()
   const setStoreConnection = (() => {
@@ -226,8 +226,7 @@ export const HAProvider = ({
         hassUrl: url,
         token,
         authMode,
-        redirectUri,
-        tokenRefreshBufferMinutes: options.tokenRefreshBufferMinutes
+        redirectUri
       })
 
       // Store auth object for token refresh
@@ -378,7 +377,7 @@ export const HAProvider = ({
   useEffect(() => {
     if (state.type === 'connected' && currentAuthRef.current && !mockMode && authMode !== 'token') {
       const refreshIntervalMs = (options.tokenRefreshIntervalMinutes || 30) * 60 * 1000
-      const bufferMinutes = options.tokenRefreshBufferMinutes || 30
+      const bufferMinutes = options.tokenRefreshBufferMinutes || DEFAULT_TOKEN_BUFFER_MINUTES
       const maxRetries = 5
 
       const performTokenRefreshWithRetry = async (retryCount = 0): Promise<void> => {
@@ -397,9 +396,11 @@ export const HAProvider = ({
               error
             )
 
-            setTimeout(() => {
+            const timeoutId = setTimeout(() => {
+              tokenRefreshRetryTimeoutsRef.current.delete(timeoutId)
               performTokenRefreshWithRetry(retryCount + 1)
             }, delayMs)
+            tokenRefreshRetryTimeoutsRef.current.add(timeoutId)
           } else {
             console.error(
               'Token refresh failed after maximum retries. ' +
@@ -417,6 +418,9 @@ export const HAProvider = ({
           clearInterval(tokenRefreshIntervalRef.current)
           tokenRefreshIntervalRef.current = undefined
         }
+        // Clear any pending retry timeouts
+        tokenRefreshRetryTimeoutsRef.current.forEach(clearTimeout)
+        tokenRefreshRetryTimeoutsRef.current.clear()
       }
     }
     return undefined
@@ -430,7 +434,7 @@ export const HAProvider = ({
       const refreshOnVisibilityWithRetry = async (retryCount = 0): Promise<void> => {
         if (!currentAuthRef.current) return
 
-        const bufferMinutes = options.tokenRefreshBufferMinutes || 30
+        const bufferMinutes = options.tokenRefreshBufferMinutes || DEFAULT_TOKEN_BUFFER_MINUTES
         try {
           const refreshedAuth = await refreshTokenIfNeeded(currentAuthRef.current, bufferMinutes)
           currentAuthRef.current = refreshedAuth
@@ -443,9 +447,11 @@ export const HAProvider = ({
               error
             )
 
-            setTimeout(() => {
+            const timeoutId = setTimeout(() => {
+              tokenRefreshRetryTimeoutsRef.current.delete(timeoutId)
               refreshOnVisibilityWithRetry(retryCount + 1)
             }, delayMs)
+            tokenRefreshRetryTimeoutsRef.current.add(timeoutId)
           } else {
             console.error(
               'Token refresh on visibility change failed after maximum retries.',

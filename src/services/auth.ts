@@ -12,7 +12,7 @@ import { saveAuthData, loadAuthData, removeAuthData } from './tokenStorage'
 
 // Constants
 const ONE_DAY_MS = 24 * 60 * 60 * 1000
-const DEFAULT_TOKEN_BUFFER_MINUTES = 5 // Buffer time before token expiration to trigger refresh
+export const DEFAULT_TOKEN_BUFFER_MINUTES = 5 // Buffer time before token expiration to trigger refresh
 const OAUTH_REDIRECT_IN_PROGRESS_KEY = 'hass-oauth-redirecting'
 
 // Generate OAuth authorization URL for Home Assistant
