@@ -20,23 +20,32 @@ export function getOAuthUrl(hassUrl: string, redirectUri?: string): string {
   if (!hassUrl || typeof hassUrl !== 'string') {
     throw createAuthError('config_error', 'hassUrl is required and must be a string')
   }
-  
+
   const cleanUrl = hassUrl.replace(/\/$/, '')
   // Convert WebSocket URL to HTTP URL for OAuth
   const httpUrl = cleanUrl.replace(/^ws:\/\//, 'http://').replace(/^wss:\/\//, 'https://')
-  const redirect = redirectUri || window.location.href
+
+  // Clean redirect URI - remove query params to avoid including old OAuth codes
+  let redirect: string
+  if (redirectUri) {
+    redirect = redirectUri
+  } else {
+    // Use current URL without query parameters to prevent OAuth code reuse issues
+    redirect = window.location.origin + window.location.pathname
+  }
+
   const state = generateRandomState()
-  
+
   // Store state for verification
   sessionStorage.setItem('hass-oauth-state', state)
-  
+
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: new URL(redirect).origin, // Use origin only as client_id
     redirect_uri: redirect,
     state
   })
-  
+
   return `${httpUrl}/auth/authorize?${params.toString()}`
 }
 
