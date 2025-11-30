@@ -20,23 +20,34 @@ export function getOAuthUrl(hassUrl: string, redirectUri?: string): string {
   if (!hassUrl || typeof hassUrl !== 'string') {
     throw createAuthError('config_error', 'hassUrl is required and must be a string')
   }
-  
+
   const cleanUrl = hassUrl.replace(/\/$/, '')
   // Convert WebSocket URL to HTTP URL for OAuth
   const httpUrl = cleanUrl.replace(/^ws:\/\//, 'http://').replace(/^wss:\/\//, 'https://')
-  const redirect = redirectUri || window.location.href
+
+  // Clean redirect URI - remove query params to avoid including old OAuth codes
+  let redirect: string
+  if (redirectUri) {
+    // Remove query parameters from provided redirectUri for consistency
+    const url = new URL(redirectUri)
+    redirect = url.origin + url.pathname
+  } else {
+    // Use current URL without query parameters to prevent OAuth code reuse issues
+    redirect = window.location.origin + window.location.pathname
+  }
+
   const state = generateRandomState()
-  
+
   // Store state for verification
   sessionStorage.setItem('hass-oauth-state', state)
-  
+
   const params = new URLSearchParams({
     response_type: 'code',
     client_id: new URL(redirect).origin, // Use origin only as client_id
     redirect_uri: redirect,
     state
   })
-  
+
   return `${httpUrl}/auth/authorize?${params.toString()}`
 }
 
@@ -84,7 +95,8 @@ export async function handleOAuthCallback(hassUrl: string): Promise<Auth> {
   saveAuthData(hassUrl, {
     access_token: auth.data.access_token,
     refresh_token: auth.data.refresh_token,
-    expires_at: auth.data.expires
+    expires_at: auth.data.expires,
+    client_id: window.location.origin
   })
   
   // Clean up OAuth parameters from URL
@@ -200,7 +212,7 @@ function createAuthFromStoredData(storedAuth: StoredAuthData): Auth {
     // Create OAuth auth with refresh capability
     const authData: AuthData = {
       hassUrl: storedAuth.hassUrl,
-      clientId: null,
+      clientId: storedAuth.client_id || null,
       expires: storedAuth.expires_at || Date.now() + ONE_DAY_MS,
       refresh_token: storedAuth.refresh_token,
       access_token: storedAuth.access_token,
@@ -213,7 +225,8 @@ function createAuthFromStoredData(storedAuth: StoredAuthData): Auth {
         saveAuthData(storedAuth.hassUrl, {
           access_token: data.access_token,
           refresh_token: data.refresh_token,
-          expires_at: data.expires
+          expires_at: data.expires,
+          client_id: data.clientId
         })
       }
     }
@@ -228,11 +241,15 @@ function createAuthFromStoredData(storedAuth: StoredAuthData): Auth {
 // Check if auth token is expired or will expire soon
 export function isTokenExpiring(auth: Auth, bufferMinutes: number = DEFAULT_TOKEN_BUFFER_MINUTES): boolean {
   try {
-    if (auth.expired) return true
-    
+    if (auth.expired) {
+      return true
+    }
+
     // Check if expires within buffer time
     const bufferMs = bufferMinutes * 60 * 1000
-    return auth.data.expires <= Date.now() + bufferMs
+    const isExpiring = auth.data.expires <= Date.now() + bufferMs
+
+    return isExpiring
   } catch {
     return false
   }
@@ -245,6 +262,7 @@ export async function refreshTokenIfNeeded(auth: Auth, bufferMinutes: number = D
       await auth.refreshAccessToken()
       return auth
     } catch (error) {
+      console.error('[Auth] Token refresh failed:', error)
       // Refresh failed - token might be revoked
       throw createAuthError('auth_expired', 'Token refresh failed: ' + (error instanceof Error ? error.message : 'Unknown error'))
     }

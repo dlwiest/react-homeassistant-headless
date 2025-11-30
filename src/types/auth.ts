@@ -8,6 +8,7 @@ export interface StoredAuthData {
   expires_at?: number
   hassUrl: string
   created_at: number
+  client_id?: string | null
 }
 
 export interface AuthError {

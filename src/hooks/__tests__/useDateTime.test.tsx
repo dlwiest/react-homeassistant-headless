@@ -2,9 +2,11 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import { useDateTime } from '../useDateTime'
 import { useEntity } from '../useEntity'
+import { useHAConnection } from '../../providers/HAProvider'
 
-// Mock useEntity since useDateTime depends on it
+// Mock dependencies
 vi.mock('../useEntity')
+vi.mock('../../providers/HAProvider')
 
 // Mock datetime entity response
 const createMockDateTimeEntity = (
@@ -25,12 +27,22 @@ const createMockDateTimeEntity = (
 
 describe('useDateTime', () => {
   const mockUseEntity = useEntity as any
+  const mockUseHAConnection = useHAConnection as any
 
   beforeEach(() => {
     vi.clearAllMocks()
 
     // Default mock for useEntity
     mockUseEntity.mockReturnValue(createMockDateTimeEntity())
+
+    // Default mock for useHAConnection - connected by default
+    mockUseHAConnection.mockReturnValue({
+      connected: true,
+      connecting: false,
+      error: null,
+      reconnect: vi.fn(),
+      logout: vi.fn(),
+    })
   })
 
   afterEach(() => {
