@@ -473,8 +473,11 @@ export const HAProvider = ({
 
       // Set up periodic refresh interval
       periodicRefreshState.current.intervalRef = setInterval(() => {
+        console.log('[HAProvider] Periodic refresh interval triggered - checking if token refresh needed')
+
         // Skip if a retry is already in progress
         if (periodicRefreshState.current.retry.inProgress) {
+          console.log('[HAProvider] Skipping periodic refresh - retry already in progress')
           return
         }
 
@@ -519,8 +522,11 @@ export const HAProvider = ({
 
       const handleVisibilityChange = async () => {
         if (document.visibilityState === 'visible' && currentAuthRef.current && state.type === 'connected') {
+          console.log('[HAProvider] Visibility change detected - checking if token refresh needed')
+
           // Skip if a retry is already in progress
           if (visibilityRefreshState.current.retry.inProgress) {
+            console.log('[HAProvider] Skipping visibility refresh - retry already in progress')
             return
           }
 

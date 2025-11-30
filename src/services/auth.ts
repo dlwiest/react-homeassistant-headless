@@ -90,11 +90,18 @@ export async function handleOAuthCallback(hassUrl: string): Promise<Auth> {
   })
   
   // Store the auth data
-  saveAuthData(hassUrl, {
+  const authData = {
     access_token: auth.data.access_token,
     refresh_token: auth.data.refresh_token,
-    expires_at: auth.data.expires
+    expires_at: auth.data.expires,
+    client_id: window.location.origin
+  }
+  console.log('[Auth] Storing OAuth tokens:', {
+    expiresAt: new Date(auth.data.expires).toISOString(),
+    expiresInMinutes: Math.floor((auth.data.expires - Date.now()) / 1000 / 60),
+    clientId: window.location.origin
   })
+  saveAuthData(hassUrl, authData)
   
   // Clean up OAuth parameters from URL
   const url = new URL(window.location.href)
@@ -119,11 +126,18 @@ export async function createAuthenticatedConnection(config: AuthConfig): Promise
     const storedAuth = loadAuthData(hassUrl)
 
     if (storedAuth) {
+      console.log('[Auth] Found stored OAuth tokens:', {
+        expiresAt: storedAuth.expires_at ? new Date(storedAuth.expires_at).toISOString() : 'unknown',
+        expiresInMinutes: storedAuth.expires_at ? Math.floor((storedAuth.expires_at - Date.now()) / 1000 / 60) : 'unknown'
+      })
+
       // Check if stored token is already expired
       if (storedAuth.expires_at && storedAuth.expires_at < Date.now()) {
+        console.log('[Auth] Stored token is expired - clearing and redirecting to OAuth')
         // Token expired - clear it and fall through to OAuth flow
         removeAuthData(hassUrl)
       } else {
+        console.log('[Auth] Using stored tokens')
         // Use stored tokens - periodic refresh will handle renewal for expiring tokens
         auth = createAuthFromStoredData(storedAuth)
       }
@@ -209,7 +223,7 @@ function createAuthFromStoredData(storedAuth: StoredAuthData): Auth {
     // Create OAuth auth with refresh capability
     const authData: AuthData = {
       hassUrl: storedAuth.hassUrl,
-      clientId: null,
+      clientId: storedAuth.client_id || null,
       expires: storedAuth.expires_at || Date.now() + ONE_DAY_MS,
       refresh_token: storedAuth.refresh_token,
       access_token: storedAuth.access_token,
@@ -219,10 +233,16 @@ function createAuthFromStoredData(storedAuth: StoredAuthData): Auth {
     // Create save function that updates our localStorage
     const saveTokens: SaveTokensFunc = (data: AuthData | null) => {
       if (data) {
+        console.log('[Auth] Updating stored tokens after refresh:', {
+          expiresAt: new Date(data.expires).toISOString(),
+          expiresInMinutes: Math.floor((data.expires - Date.now()) / 1000 / 60),
+          clientId: data.clientId
+        })
         saveAuthData(storedAuth.hassUrl, {
           access_token: data.access_token,
           refresh_token: data.refresh_token,
-          expires_at: data.expires
+          expires_at: data.expires,
+          client_id: data.clientId
         })
       }
     }
@@ -237,11 +257,25 @@ function createAuthFromStoredData(storedAuth: StoredAuthData): Auth {
 // Check if auth token is expired or will expire soon
 export function isTokenExpiring(auth: Auth, bufferMinutes: number = DEFAULT_TOKEN_BUFFER_MINUTES): boolean {
   try {
-    if (auth.expired) return true
-    
+    if (auth.expired) {
+      console.log('[Auth] Token is expired')
+      return true
+    }
+
     // Check if expires within buffer time
     const bufferMs = bufferMinutes * 60 * 1000
-    return auth.data.expires <= Date.now() + bufferMs
+    const expiresAt = new Date(auth.data.expires)
+    const expiresIn = (auth.data.expires - Date.now()) / 1000 / 60 // minutes
+    const isExpiring = auth.data.expires <= Date.now() + bufferMs
+
+    console.log('[Auth] Token expiration check:', {
+      expiresAt: expiresAt.toISOString(),
+      expiresInMinutes: Math.floor(expiresIn),
+      bufferMinutes,
+      needsRefresh: isExpiring
+    })
+
+    return isExpiring
   } catch {
     return false
   }
@@ -250,14 +284,18 @@ export function isTokenExpiring(auth: Auth, bufferMinutes: number = DEFAULT_TOKE
 // Refresh auth token if needed
 export async function refreshTokenIfNeeded(auth: Auth, bufferMinutes: number = DEFAULT_TOKEN_BUFFER_MINUTES): Promise<Auth> {
   if (isTokenExpiring(auth, bufferMinutes)) {
+    console.log('[Auth] Refreshing token...')
     try {
       await auth.refreshAccessToken()
+      console.log('[Auth] Token refresh successful, new expires:', new Date(auth.data.expires).toISOString())
       return auth
     } catch (error) {
+      console.error('[Auth] Token refresh failed:', error)
       // Refresh failed - token might be revoked
       throw createAuthError('auth_expired', 'Token refresh failed: ' + (error instanceof Error ? error.message : 'Unknown error'))
     }
   }
+  console.log('[Auth] Token refresh not needed')
   return auth
 }
 

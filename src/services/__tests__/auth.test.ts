@@ -151,7 +151,8 @@ describe('OAuth Auth Service', () => {
       expect(mockSaveAuthData).toHaveBeenCalledWith('http://homeassistant.local:8123', {
         access_token: 'test-access-token',
         refresh_token: 'test-refresh-token',
-        expires_at: expect.any(Number)
+        expires_at: expect.any(Number),
+        client_id: 'http://localhost:3000'
       })
       expect(result).toBeDefined()
     })
@@ -445,7 +446,8 @@ describe('OAuth Auth Service', () => {
       expect(mockSaveAuthData).toHaveBeenCalledWith('http://homeassistant.local:8123', {
         access_token: 'callback-token',
         refresh_token: 'callback-refresh',
-        expires_at: expect.any(Number)
+        expires_at: expect.any(Number),
+        client_id: 'http://localhost:3000'
       })
       expect(result).toEqual({ connection: mockConnectionResult, auth: mockAuthResult })
     })
