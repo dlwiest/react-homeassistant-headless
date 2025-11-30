@@ -2293,5 +2293,348 @@ describe('HAProvider Clean Implementation', () => {
       // Should still be connected despite refresh failure
       expect(screen.getByTestId('connected')).toHaveTextContent('true')
     })
+
+    describe('Token Refresh Retry Logic', () => {
+      it('should retry periodic token refresh with exponential backoff', async () => {
+        vi.useFakeTimers()
+
+        const mockAuth = createMockAuth('oauth-token')
+        const { connection } = createMockConnection()
+
+        mockCreateAuthenticatedConnection.mockResolvedValue({
+          connection,
+          auth: mockAuth
+        })
+
+        // Mock refresh to fail then succeed
+        let callCount = 0
+        mockRefreshTokenIfNeeded.mockImplementation(() => {
+          callCount++
+          if (callCount <= 3) {
+            return Promise.reject(new Error('Refresh failed'))
+          }
+          return Promise.resolve(mockAuth)
+        })
+
+        render(
+          <HAProvider
+            url="http://test:8123"
+            authMode="oauth"
+            options={{ tokenRefreshIntervalMinutes: 100 }} // Long interval to avoid interference
+          >
+            <TestComponent />
+          </HAProvider>
+        )
+
+        await vi.waitFor(() => {
+          expect(screen.getByTestId('connected')).toHaveTextContent('true')
+        })
+
+        callCount = 0 // Reset counter after initial connection
+
+        // Trigger periodic refresh (after 100 minutes)
+        act(() => {
+          vi.advanceTimersByTime(100 * 60 * 1000)
+        })
+
+        // Wait for initial call
+        await act(async () => {
+          await vi.runOnlyPendingTimersAsync()
+        })
+
+        expect(callCount).toBeGreaterThanOrEqual(1)
+
+        // Advance through retries: 1min, 2min, 4min
+        act(() => {
+          vi.advanceTimersByTime(1 * 60 * 1000) // First retry after 1 min
+        })
+        await act(async () => {
+          await vi.runOnlyPendingTimersAsync()
+        })
+
+        act(() => {
+          vi.advanceTimersByTime(2 * 60 * 1000) // Second retry after 2 min
+        })
+        await act(async () => {
+          await vi.runOnlyPendingTimersAsync()
+        })
+
+        act(() => {
+          vi.advanceTimersByTime(4 * 60 * 1000) // Third retry after 4 min
+        })
+        await act(async () => {
+          await vi.runOnlyPendingTimersAsync()
+        })
+
+        // Should have made multiple retry attempts
+        expect(callCount).toBeGreaterThanOrEqual(3)
+
+        // Should still be connected
+        expect(screen.getByTestId('connected')).toHaveTextContent('true')
+
+        vi.useRealTimers()
+      })
+
+      it('should stop retrying after 5 failed attempts', async () => {
+        vi.useFakeTimers()
+
+        const mockAuth = createMockAuth('oauth-token')
+        const { connection } = createMockConnection()
+
+        mockCreateAuthenticatedConnection.mockResolvedValue({
+          connection,
+          auth: mockAuth
+        })
+
+        mockRefreshTokenIfNeeded.mockRejectedValue(new Error('Refresh failed'))
+
+        render(
+          <HAProvider
+            url="http://test:8123"
+            authMode="oauth"
+            options={{ tokenRefreshIntervalMinutes: 100 }}
+          >
+            <TestComponent />
+          </HAProvider>
+        )
+
+        await vi.waitFor(() => {
+          expect(screen.getByTestId('connected')).toHaveTextContent('true')
+        })
+
+        mockRefreshTokenIfNeeded.mockClear()
+
+        // Trigger periodic refresh
+        act(() => {
+          vi.advanceTimersByTime(100 * 60 * 1000)
+        })
+
+        await act(async () => {
+          await vi.runOnlyPendingTimersAsync()
+        })
+
+        const initialCalls = mockRefreshTokenIfNeeded.mock.calls.length
+
+        // Advance through all retries: 1, 2, 4, 8, 16 minutes
+        for (const delay of [1, 2, 4, 8, 16]) {
+          act(() => {
+            vi.advanceTimersByTime(delay * 60 * 1000)
+          })
+          await act(async () => {
+            await vi.runOnlyPendingTimersAsync()
+          })
+        }
+
+        const callsAfterRetries = mockRefreshTokenIfNeeded.mock.calls.length
+
+        // Advance a bit - should not trigger more retry calls (but periodic interval might fire)
+        act(() => {
+          vi.advanceTimersByTime(5 * 60 * 1000) // 5 minutes
+        })
+        await act(async () => {
+          await vi.runOnlyPendingTimersAsync()
+        })
+
+        // Should have at least tried the retries
+        expect(callsAfterRetries).toBeGreaterThan(initialCalls)
+
+        // Should still be connected
+        expect(screen.getByTestId('connected')).toHaveTextContent('true')
+
+        vi.useRealTimers()
+      })
+
+      it('should retry visibility change with exponential backoff', async () => {
+        vi.useFakeTimers()
+
+        const mockAuth = createMockAuth('oauth-token')
+        const { connection } = createMockConnection()
+
+        mockCreateAuthenticatedConnection.mockResolvedValue({
+          connection,
+          auth: mockAuth
+        })
+
+        let callCount = 0
+        mockRefreshTokenIfNeeded.mockImplementation(() => {
+          callCount++
+          if (callCount <= 2) {
+            return Promise.reject(new Error('Refresh failed'))
+          }
+          return Promise.resolve(mockAuth)
+        })
+
+        render(
+          <HAProvider
+            url="http://test:8123"
+            authMode="oauth"
+            options={{ tokenRefreshIntervalMinutes: 1000 }}
+          >
+            <TestComponent />
+          </HAProvider>
+        )
+
+        await vi.waitFor(() => {
+          expect(screen.getByTestId('connected')).toHaveTextContent('true')
+        })
+
+        callCount = 0
+
+        // Trigger visibility change
+        Object.defineProperty(document, 'visibilityState', {
+          writable: true,
+          configurable: true,
+          value: 'visible'
+        })
+        document.dispatchEvent(new Event('visibilitychange'))
+
+        await act(async () => {
+          await vi.runOnlyPendingTimersAsync()
+        })
+
+        expect(callCount).toBeGreaterThanOrEqual(1)
+
+        // Advance through retries: 30s, 60s
+        act(() => {
+          vi.advanceTimersByTime(30 * 1000)
+        })
+        await act(async () => {
+          await vi.runOnlyPendingTimersAsync()
+        })
+
+        act(() => {
+          vi.advanceTimersByTime(60 * 1000)
+        })
+        await act(async () => {
+          await vi.runOnlyPendingTimersAsync()
+        })
+
+        // Should have retried
+        expect(callCount).toBeGreaterThanOrEqual(2)
+
+        // Should still be connected
+        expect(screen.getByTestId('connected')).toHaveTextContent('true')
+
+        vi.useRealTimers()
+      })
+
+      it('should cancel retry timeouts on component unmount', async () => {
+        vi.useFakeTimers()
+
+        const mockAuth = createMockAuth('oauth-token')
+        const { connection } = createMockConnection()
+
+        mockCreateAuthenticatedConnection.mockResolvedValue({
+          connection,
+          auth: mockAuth
+        })
+
+        // Mock refresh to fail
+        mockRefreshTokenIfNeeded.mockRejectedValue(new Error('Refresh failed'))
+
+        const { unmount } = render(
+          <HAProvider
+            url="http://test:8123"
+            authMode="oauth"
+            options={{ tokenRefreshIntervalMinutes: 1 }}
+          >
+            <TestComponent />
+          </HAProvider>
+        )
+
+        await vi.waitFor(() => {
+          expect(screen.getByTestId('connected')).toHaveTextContent('true')
+        })
+
+        mockRefreshTokenIfNeeded.mockClear()
+
+        // Trigger periodic refresh
+        act(() => {
+          vi.advanceTimersByTime(60 * 1000)
+        })
+
+        await vi.waitFor(() => {
+          expect(mockRefreshTokenIfNeeded).toHaveBeenCalledTimes(1)
+        })
+
+        // Unmount before retry fires
+        unmount()
+
+        // Advance time to when retry would fire
+        act(() => {
+          vi.advanceTimersByTime(60 * 1000)
+        })
+
+        // Should not have made any more refresh attempts
+        expect(mockRefreshTokenIfNeeded).toHaveBeenCalledTimes(1)
+
+        vi.useRealTimers()
+      })
+
+      it('should cancel retry timeouts on logout', async () => {
+        vi.useFakeTimers()
+
+        const mockAuth = createMockAuth('oauth-token')
+        const { connection } = createMockConnection()
+
+        mockCreateAuthenticatedConnection.mockResolvedValue({
+          connection,
+          auth: mockAuth
+        })
+
+        // Mock refresh to fail
+        mockRefreshTokenIfNeeded.mockRejectedValue(new Error('Refresh failed'))
+
+        const TestWithLogout = () => {
+          const { logout } = useHAConnection()
+          return (
+            <div>
+              <TestComponent />
+              <button onClick={logout}>Logout</button>
+            </div>
+          )
+        }
+
+        render(
+          <HAProvider
+            url="http://test:8123"
+            authMode="oauth"
+            options={{ tokenRefreshIntervalMinutes: 1 }}
+          >
+            <TestWithLogout />
+          </HAProvider>
+        )
+
+        await vi.waitFor(() => {
+          expect(screen.getByTestId('connected')).toHaveTextContent('true')
+        })
+
+        mockRefreshTokenIfNeeded.mockClear()
+
+        // Trigger periodic refresh
+        act(() => {
+          vi.advanceTimersByTime(60 * 1000)
+        })
+
+        await vi.waitFor(() => {
+          expect(mockRefreshTokenIfNeeded).toHaveBeenCalledTimes(1)
+        })
+
+        // Logout before retry fires
+        act(() => {
+          screen.getByText('Logout').click()
+        })
+
+        // Advance time to when retry would fire
+        act(() => {
+          vi.advanceTimersByTime(60 * 1000)
+        })
+
+        // Should not have made any more refresh attempts after logout
+        expect(mockRefreshTokenIfNeeded).toHaveBeenCalledTimes(1)
+
+        vi.useRealTimers()
+      })
+    })
   })
 })

@@ -12,7 +12,7 @@ import { saveAuthData, loadAuthData, removeAuthData } from './tokenStorage'
 
 // Constants
 const ONE_DAY_MS = 24 * 60 * 60 * 1000
-const DEFAULT_TOKEN_BUFFER_MINUTES = 30 // Buffer time before token expiration to trigger refresh
+export const DEFAULT_TOKEN_BUFFER_MINUTES = 5 // Buffer time before token expiration to trigger refresh
 const OAUTH_REDIRECT_IN_PROGRESS_KEY = 'hass-oauth-redirecting'
 
 // Generate OAuth authorization URL for Home Assistant
@@ -98,29 +98,29 @@ export async function handleOAuthCallback(hassUrl: string): Promise<Auth> {
 
 // Create connection using stored or provided authentication
 export async function createAuthenticatedConnection(config: AuthConfig): Promise<{ connection: Connection; auth: Auth }> {
-  const { hassUrl, token, authMode, tokenRefreshBufferMinutes = DEFAULT_TOKEN_BUFFER_MINUTES } = config
+  const { hassUrl, token, authMode } = config
   
   // Determine auth method
   const shouldUseOAuth = authMode === 'oauth' || (authMode === 'auto' && !token)
-  
-  let auth: Auth
+
+  let auth: Auth | undefined
   
   if (shouldUseOAuth) {
     // Try to load stored OAuth tokens
     const storedAuth = loadAuthData(hassUrl)
-    
+
     if (storedAuth) {
-      // Use stored tokens and refresh if needed
-      auth = createAuthFromStoredData(storedAuth)
-      try {
-        auth = await refreshTokenIfNeeded(auth, tokenRefreshBufferMinutes)
-      } catch (refreshError) {
-        // Token refresh failed, clear stored tokens and redirect to OAuth
+      // Check if stored token is already expired
+      if (storedAuth.expires_at && storedAuth.expires_at < Date.now()) {
+        // Token expired - clear it and fall through to OAuth flow
         removeAuthData(hassUrl)
-        window.location.href = getOAuthUrl(hassUrl, config.redirectUri)
-        throw refreshError
+      } else {
+        // Use stored tokens - periodic refresh will handle renewal for expiring tokens
+        auth = createAuthFromStoredData(storedAuth)
       }
-    } else {
+    }
+
+    if (!auth) {
       // Check if this is an OAuth callback
       const urlParams = new URLSearchParams(window.location.search)
       if (urlParams.get('code')) {

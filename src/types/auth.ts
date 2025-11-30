@@ -32,7 +32,6 @@ export interface AuthConfig {
   redirectUri?: string
   authMode?: AuthMode
   token?: string
-  tokenRefreshBufferMinutes?: number
 }
 
 export interface OAuthCallbackData {

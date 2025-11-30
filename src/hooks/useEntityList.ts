@@ -7,7 +7,7 @@ import type { StateChangedEvent } from '../types/websocket'
  * Generic hook for fetching all entities of a specific domain
  * @internal
  */
-export function useEntityList<T>(domain: string): T[] {
+export function useEntityList<T extends { entity_id: string }>(domain: string): T[] {
   const [entities, setEntities] = useState<T[]>([])
   const connection = useStore((state) => state.connection)
 
@@ -26,7 +26,7 @@ export function useEntityList<T>(domain: string): T[] {
         // Filter for entities in this domain
         const domainEntities = states.filter(
           (entity) => entity.entity_id.startsWith(`${domain}.`)
-        ) as T[]
+        ) as unknown as T[]
 
         if (isMounted) {
           setEntities(domainEntities)
@@ -46,22 +46,22 @@ export function useEntityList<T>(domain: string): T[] {
     const unsubscribe = connection.subscribeEvents((event: StateChangedEvent) => {
       if (event.data.entity_id.startsWith(`${domain}.`)) {
         setEntities(prev => {
-          const index = prev.findIndex((e: any) => e.entity_id === event.data.entity_id)
+          const index = prev.findIndex((e: T) => e.entity_id === event.data.entity_id)
 
           if (event.data.new_state) {
             // Entity exists or was added
             if (index >= 0) {
               // Update existing entity
               const updated = [...prev]
-              updated[index] = event.data.new_state as T
+              updated[index] = event.data.new_state as unknown as T
               return updated
             } else {
               // Add new entity
-              return [...prev, event.data.new_state as T]
+              return [...prev, event.data.new_state as unknown as T]
             }
           } else if (index >= 0) {
             // Entity was removed
-            return prev.filter((e: any) => e.entity_id !== event.data.entity_id)
+            return prev.filter((e: T) => e.entity_id !== event.data.entity_id)
           }
 
           return prev

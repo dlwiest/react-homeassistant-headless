@@ -2,10 +2,76 @@ import { createContext, useContext, useEffect, useReducer, useCallback, useRef, 
 import { Connection, Auth } from 'home-assistant-js-websocket'
 import { useStore } from '../services/entityStore'
 import { createMockConnection } from '../services/mockConnection'
-import { createAuthenticatedConnection } from '../services/auth'
-import { refreshTokenIfNeeded } from '../services/auth'
+import { createAuthenticatedConnection, refreshTokenIfNeeded, DEFAULT_TOKEN_BUFFER_MINUTES } from '../services/auth'
 import { useAuth } from '../hooks/useAuth'
 import type { HAConfig, ConnectionStatus, EntityState } from '../types'
+
+// Token refresh retry constants
+const BASE_PERIODIC_RETRY_DELAY_MS = 60 * 1000 // 1 minute
+const MAX_PERIODIC_RETRY_DELAY_MS = 16 * 60 * 1000 // 16 minutes
+const BASE_VISIBILITY_RETRY_DELAY_MS = 30 * 1000 // 30 seconds
+
+// Token refresh retry state
+interface RetryState {
+  timeouts: Set<NodeJS.Timeout>
+  inProgress: boolean
+}
+
+interface RetryConfig {
+  maxRetries: number
+  baseDelayMs: number
+  maxDelayMs?: number
+  retryState: RetryState
+  logContext: string // e.g., "Token refresh" or "Visibility change token refresh"
+}
+
+// Reusable retry helper with exponential backoff
+function createRetryExecutor(config: RetryConfig) {
+  return async function executeWithRetry<T>(
+    fn: () => Promise<T>,
+    retryCount = 0
+  ): Promise<T | void> {
+    config.retryState.inProgress = true
+
+    try {
+      const result = await fn()
+      config.retryState.inProgress = false
+      return result
+    } catch (error) {
+      if (retryCount < config.maxRetries) {
+        const delayMs = Math.min(
+          Math.pow(2, retryCount) * config.baseDelayMs,
+          config.maxDelayMs || Infinity
+        )
+        const delayDisplay = config.baseDelayMs >= 60000
+          ? `${delayMs / 60000} minutes`
+          : `${delayMs / 1000} seconds`
+
+        console.warn(
+          `${config.logContext} failed on attempt ${retryCount + 1} of ${config.maxRetries + 1}. ` +
+          `Retrying in ${delayDisplay}...`,
+          error
+        )
+
+        // Schedule retry asynchronously (fire-and-forget pattern)
+        // The caller doesn't need to wait for retries - state is tracked via inProgress flag
+        const timeoutId = setTimeout(() => {
+          config.retryState.timeouts.delete(timeoutId)
+          executeWithRetry(fn, retryCount + 1).catch(err => {
+            console.error(`${config.logContext} retry attempt threw an unhandled error:`, err)
+          })
+        }, delayMs)
+        config.retryState.timeouts.add(timeoutId)
+      } else {
+        console.error(
+          `${config.logContext} failed after maximum retries.`,
+          error
+        )
+        config.retryState.inProgress = false
+      }
+    }
+  }
+}
 
 // Valid connection states
 type ConnectionState =
@@ -145,7 +211,15 @@ export const HAProvider = ({
   const retryTimeoutRef = useRef<NodeJS.Timeout>()
   const currentConnectionRef = useRef<Connection | null>(null)
   const currentAuthRef = useRef<Auth | null>(null)
-  const tokenRefreshIntervalRef = useRef<NodeJS.Timeout>()
+
+  // Grouped token refresh state
+  const periodicRefreshState = useRef({
+    intervalRef: undefined as NodeJS.Timeout | undefined,
+    retry: { timeouts: new Set<NodeJS.Timeout>(), inProgress: false } as RetryState
+  })
+  const visibilityRefreshState = useRef({
+    retry: { timeouts: new Set<NodeJS.Timeout>(), inProgress: false } as RetryState
+  })
   const [lastConnectedAt, setLastConnectedAt] = useState<Date>()
   const [nextRetryIn, setNextRetryIn] = useState<number>()
   const setStoreConnection = (() => {
@@ -226,8 +300,7 @@ export const HAProvider = ({
         hassUrl: url,
         token,
         authMode,
-        redirectUri,
-        tokenRefreshBufferMinutes: options.tokenRefreshBufferMinutes
+        redirectUri
       })
 
       // Store auth object for token refresh
@@ -318,12 +391,21 @@ export const HAProvider = ({
     // Clear stored authentication
     auth.logout()
 
-    // Clear auth ref and token refresh interval
+    // Clear auth ref and token refresh state
     currentAuthRef.current = null
-    if (tokenRefreshIntervalRef.current) {
-      clearInterval(tokenRefreshIntervalRef.current)
-      tokenRefreshIntervalRef.current = undefined
+    if (periodicRefreshState.current.intervalRef) {
+      clearInterval(periodicRefreshState.current.intervalRef)
+      periodicRefreshState.current.intervalRef = undefined
     }
+
+    // Clear all pending retry timeouts and reset state
+    periodicRefreshState.current.retry.timeouts.forEach(clearTimeout)
+    periodicRefreshState.current.retry.timeouts.clear()
+    periodicRefreshState.current.retry.inProgress = false
+
+    visibilityRefreshState.current.retry.timeouts.forEach(clearTimeout)
+    visibilityRefreshState.current.retry.timeouts.clear()
+    visibilityRefreshState.current.retry.inProgress = false
 
     // Immediately close WebSocket connection
     if (currentConnectionRef.current) {
@@ -378,27 +460,45 @@ export const HAProvider = ({
   useEffect(() => {
     if (state.type === 'connected' && currentAuthRef.current && !mockMode && authMode !== 'token') {
       const refreshIntervalMs = (options.tokenRefreshIntervalMinutes || 30) * 60 * 1000
-      const bufferMinutes = options.tokenRefreshBufferMinutes || 30
+      const bufferMinutes = options.tokenRefreshBufferMinutes || DEFAULT_TOKEN_BUFFER_MINUTES
 
-      const performTokenRefresh = async () => {
-        if (currentAuthRef.current) {
-          try {
-            const refreshedAuth = await refreshTokenIfNeeded(currentAuthRef.current, bufferMinutes)
-            currentAuthRef.current = refreshedAuth
-          } catch (error) {
-            console.error('Periodic token refresh failed:', error)
-            // Don't disconnect, let the next refresh attempt or visibility check handle it
-          }
+      // Create retry executor with exponential backoff
+      const executePeriodicRefresh = createRetryExecutor({
+        maxRetries: 5,
+        baseDelayMs: BASE_PERIODIC_RETRY_DELAY_MS,
+        maxDelayMs: MAX_PERIODIC_RETRY_DELAY_MS,
+        retryState: periodicRefreshState.current.retry,
+        logContext: 'Token refresh'
+      })
+
+      // Set up periodic refresh interval
+      periodicRefreshState.current.intervalRef = setInterval(() => {
+        // Skip if a retry is already in progress
+        if (periodicRefreshState.current.retry.inProgress) {
+          return
         }
-      }
 
-      tokenRefreshIntervalRef.current = setInterval(performTokenRefresh, refreshIntervalMs)
+        // Clear any pending retry timeouts before starting a new sequence
+        periodicRefreshState.current.retry.timeouts.forEach(clearTimeout)
+        periodicRefreshState.current.retry.timeouts.clear()
+
+        // Execute token refresh with retry
+        executePeriodicRefresh(async () => {
+          if (!currentAuthRef.current) return
+          const refreshedAuth = await refreshTokenIfNeeded(currentAuthRef.current, bufferMinutes)
+          currentAuthRef.current = refreshedAuth
+        })
+      }, refreshIntervalMs)
 
       return () => {
-        if (tokenRefreshIntervalRef.current) {
-          clearInterval(tokenRefreshIntervalRef.current)
-          tokenRefreshIntervalRef.current = undefined
+        if (periodicRefreshState.current.intervalRef) {
+          clearInterval(periodicRefreshState.current.intervalRef)
+          periodicRefreshState.current.intervalRef = undefined
         }
+        // Clear any pending retry timeouts
+        periodicRefreshState.current.retry.timeouts.forEach(clearTimeout)
+        periodicRefreshState.current.retry.timeouts.clear()
+        periodicRefreshState.current.retry.inProgress = false
       }
     }
     return undefined
@@ -407,17 +507,33 @@ export const HAProvider = ({
   // Visibility change handler - refresh tokens when app becomes visible
   useEffect(() => {
     if (!mockMode && authMode !== 'token') {
+      const bufferMinutes = options.tokenRefreshBufferMinutes || DEFAULT_TOKEN_BUFFER_MINUTES
+
+      // Create retry executor with exponential backoff
+      const executeVisibilityRefresh = createRetryExecutor({
+        maxRetries: 3,
+        baseDelayMs: BASE_VISIBILITY_RETRY_DELAY_MS,
+        retryState: visibilityRefreshState.current.retry,
+        logContext: 'Visibility change token refresh'
+      })
+
       const handleVisibilityChange = async () => {
         if (document.visibilityState === 'visible' && currentAuthRef.current && state.type === 'connected') {
-          const bufferMinutes = options.tokenRefreshBufferMinutes || 30
-          try {
+          // Skip if a retry is already in progress
+          if (visibilityRefreshState.current.retry.inProgress) {
+            return
+          }
+
+          // Clear any pending retry timeouts before starting a new sequence
+          visibilityRefreshState.current.retry.timeouts.forEach(clearTimeout)
+          visibilityRefreshState.current.retry.timeouts.clear()
+
+          // Execute token refresh with retry
+          executeVisibilityRefresh(async () => {
+            if (!currentAuthRef.current) return
             const refreshedAuth = await refreshTokenIfNeeded(currentAuthRef.current, bufferMinutes)
             currentAuthRef.current = refreshedAuth
-          } catch (error) {
-            console.error('Token refresh on visibility change failed:', error)
-            // If refresh fails completely, the user may need to re-authenticate
-            // This will be handled by the next connection attempt
-          }
+          })
         }
       }
 
@@ -425,6 +541,10 @@ export const HAProvider = ({
 
       return () => {
         document.removeEventListener('visibilitychange', handleVisibilityChange)
+        // Clear any pending visibility refresh retry timeouts
+        visibilityRefreshState.current.retry.timeouts.forEach(clearTimeout)
+        visibilityRefreshState.current.retry.timeouts.clear()
+        visibilityRefreshState.current.retry.inProgress = false
       }
     }
     return undefined
@@ -438,9 +558,18 @@ export const HAProvider = ({
       if (retryTimeoutRef.current) {
         clearTimeout(retryTimeoutRef.current)
       }
-      if (tokenRefreshIntervalRef.current) {
-        clearInterval(tokenRefreshIntervalRef.current)
+      if (periodicRefreshState.current.intervalRef) {
+        clearInterval(periodicRefreshState.current.intervalRef)
       }
+      // Clear all pending retry timeouts and reset state
+      periodicRefreshState.current.retry.timeouts.forEach(clearTimeout)
+      periodicRefreshState.current.retry.timeouts.clear()
+      periodicRefreshState.current.retry.inProgress = false
+
+      visibilityRefreshState.current.retry.timeouts.forEach(clearTimeout)
+      visibilityRefreshState.current.retry.timeouts.clear()
+      visibilityRefreshState.current.retry.inProgress = false
+
       if (currentConnectionRef.current) {
         currentConnectionRef.current.close()
         currentConnectionRef.current = null

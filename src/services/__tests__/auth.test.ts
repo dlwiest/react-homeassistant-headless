@@ -354,11 +354,11 @@ describe('OAuth Auth Service', () => {
       it('should use default buffer when not specified', async () => {
         const mockAuth = {
           expired: false,
-          data: { expires: Date.now() + 20 * 60 * 1000 }, // 20 minutes from now
+          data: { expires: Date.now() + 3 * 60 * 1000 }, // 3 minutes from now
           refreshAccessToken: vi.fn().mockResolvedValue(undefined)
         } as any
 
-        // Default buffer is 30 minutes, so should refresh (20 < 30)
+        // Default buffer is 5 minutes, so should refresh (3 < 5)
         await refreshTokenIfNeeded(mockAuth)
         expect(mockAuth.refreshAccessToken).toHaveBeenCalled()
       })
