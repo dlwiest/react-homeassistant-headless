@@ -146,6 +146,7 @@ export const HAProvider = ({
   const currentAuthRef = useRef<Auth | null>(null)
   const tokenRefreshIntervalRef = useRef<NodeJS.Timeout>()
   const tokenRefreshRetryTimeoutsRef = useRef<Set<NodeJS.Timeout>>(new Set())
+  const visibilityRefreshRetryTimeoutsRef = useRef<Set<NodeJS.Timeout>>(new Set())
   const [lastConnectedAt, setLastConnectedAt] = useState<Date>()
   const [nextRetryIn, setNextRetryIn] = useState<number>()
   const setStoreConnection = (() => {
@@ -324,6 +325,12 @@ export const HAProvider = ({
       tokenRefreshIntervalRef.current = undefined
     }
 
+    // Clear any pending retry timeouts
+    tokenRefreshRetryTimeoutsRef.current.forEach(clearTimeout)
+    tokenRefreshRetryTimeoutsRef.current.clear()
+    visibilityRefreshRetryTimeoutsRef.current.forEach(clearTimeout)
+    visibilityRefreshRetryTimeoutsRef.current.clear()
+
     // Immediately close WebSocket connection
     if (currentConnectionRef.current) {
       currentConnectionRef.current.close()
@@ -391,7 +398,7 @@ export const HAProvider = ({
             // Exponential backoff: 1min, 2min, 4min, 8min, 16min
             const delayMs = Math.min(Math.pow(2, retryCount) * 60 * 1000, 16 * 60 * 1000)
             console.warn(
-              `Token refresh failed (attempt ${retryCount + 1}/${maxRetries + 1}). ` +
+              `Token refresh failed on attempt ${retryCount + 1} of ${maxRetries + 1}. ` +
               `Retrying in ${delayMs / 60000} minutes...`,
               error
             )
@@ -442,16 +449,16 @@ export const HAProvider = ({
           if (retryCount < maxRetries) {
             const delayMs = Math.pow(2, retryCount) * 30 * 1000 // 30s, 60s, 120s
             console.warn(
-              `Visibility change token refresh failed (attempt ${retryCount + 1}/${maxRetries + 1}). ` +
+              `Visibility change token refresh failed on attempt ${retryCount + 1} of ${maxRetries + 1}. ` +
               `Retrying in ${delayMs / 1000} seconds...`,
               error
             )
 
             const timeoutId = setTimeout(() => {
-              tokenRefreshRetryTimeoutsRef.current.delete(timeoutId)
+              visibilityRefreshRetryTimeoutsRef.current.delete(timeoutId)
               refreshOnVisibilityWithRetry(retryCount + 1)
             }, delayMs)
-            tokenRefreshRetryTimeoutsRef.current.add(timeoutId)
+            visibilityRefreshRetryTimeoutsRef.current.add(timeoutId)
           } else {
             console.error(
               'Token refresh on visibility change failed after maximum retries.',
@@ -471,6 +478,9 @@ export const HAProvider = ({
 
       return () => {
         document.removeEventListener('visibilitychange', handleVisibilityChange)
+        // Clear any pending visibility refresh retry timeouts
+        visibilityRefreshRetryTimeoutsRef.current.forEach(clearTimeout)
+        visibilityRefreshRetryTimeoutsRef.current.clear()
       }
     }
     return undefined
@@ -487,6 +497,11 @@ export const HAProvider = ({
       if (tokenRefreshIntervalRef.current) {
         clearInterval(tokenRefreshIntervalRef.current)
       }
+      // Clear all pending retry timeouts
+      tokenRefreshRetryTimeoutsRef.current.forEach(clearTimeout)
+      tokenRefreshRetryTimeoutsRef.current.clear()
+      visibilityRefreshRetryTimeoutsRef.current.forEach(clearTimeout)
+      visibilityRefreshRetryTimeoutsRef.current.clear()
       if (currentConnectionRef.current) {
         currentConnectionRef.current.close()
         currentConnectionRef.current = null
