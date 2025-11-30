@@ -102,17 +102,25 @@ export async function createAuthenticatedConnection(config: AuthConfig): Promise
   
   // Determine auth method
   const shouldUseOAuth = authMode === 'oauth' || (authMode === 'auto' && !token)
-  
-  let auth: Auth
+
+  let auth: Auth | undefined
   
   if (shouldUseOAuth) {
     // Try to load stored OAuth tokens
     const storedAuth = loadAuthData(hassUrl)
 
     if (storedAuth) {
-      // Use stored tokens - periodic refresh will handle renewal
-      auth = createAuthFromStoredData(storedAuth)
-    } else {
+      // Check if stored token is already expired
+      if (storedAuth.expires_at && storedAuth.expires_at < Date.now()) {
+        // Token expired - clear it and fall through to OAuth flow
+        removeAuthData(hassUrl)
+      } else {
+        // Use stored tokens - periodic refresh will handle renewal for expiring tokens
+        auth = createAuthFromStoredData(storedAuth)
+      }
+    }
+
+    if (!auth) {
       // Check if this is an OAuth callback
       const urlParams = new URLSearchParams(window.location.search)
       if (urlParams.get('code')) {

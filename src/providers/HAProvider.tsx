@@ -55,7 +55,9 @@ function createRetryExecutor(config: RetryConfig) {
 
         const timeoutId = setTimeout(() => {
           config.retryState.timeouts.delete(timeoutId)
-          executeWithRetry(fn, retryCount + 1)
+          executeWithRetry(fn, retryCount + 1).catch(err => {
+            console.error(`${config.logContext} retry attempt threw an unhandled error:`, err)
+          })
         }, delayMs)
         config.retryState.timeouts.add(timeoutId)
       } else {
