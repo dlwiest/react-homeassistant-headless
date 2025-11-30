@@ -6,6 +6,11 @@ import { createAuthenticatedConnection, refreshTokenIfNeeded, DEFAULT_TOKEN_BUFF
 import { useAuth } from '../hooks/useAuth'
 import type { HAConfig, ConnectionStatus, EntityState } from '../types'
 
+// Token refresh retry constants
+const BASE_PERIODIC_RETRY_DELAY_MS = 60 * 1000 // 1 minute
+const MAX_PERIODIC_RETRY_DELAY_MS = 16 * 60 * 1000 // 16 minutes
+const BASE_VISIBILITY_RETRY_DELAY_MS = 30 * 1000 // 30 seconds
+
 // Valid connection states
 type ConnectionState =
   | { type: 'idle'; connection: null; error: null; retryCount: 0 }
@@ -396,7 +401,7 @@ export const HAProvider = ({
         } catch (error) {
           if (retryCount < maxRetries) {
             // Exponential backoff: 1min, 2min, 4min, 8min, 16min
-            const delayMs = Math.min(Math.pow(2, retryCount) * 60 * 1000, 16 * 60 * 1000)
+            const delayMs = Math.min(Math.pow(2, retryCount) * BASE_PERIODIC_RETRY_DELAY_MS, MAX_PERIODIC_RETRY_DELAY_MS)
             console.warn(
               `Token refresh failed on attempt ${retryCount + 1} of ${maxRetries + 1}. ` +
               `Retrying in ${delayMs / 60000} minutes...`,
@@ -447,7 +452,8 @@ export const HAProvider = ({
           currentAuthRef.current = refreshedAuth
         } catch (error) {
           if (retryCount < maxRetries) {
-            const delayMs = Math.pow(2, retryCount) * 30 * 1000 // 30s, 60s, 120s
+            // Exponential backoff: 30s, 60s, 120s
+            const delayMs = Math.pow(2, retryCount) * BASE_VISIBILITY_RETRY_DELAY_MS
             console.warn(
               `Visibility change token refresh failed on attempt ${retryCount + 1} of ${maxRetries + 1}. ` +
               `Retrying in ${delayMs / 1000} seconds...`,
