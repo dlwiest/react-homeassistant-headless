@@ -134,7 +134,7 @@ describe('useDateTime', () => {
       vi.advanceTimersByTime(3000)
 
       expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Home Assistant date_time sensor is unavailable')
+        expect.stringContaining('sensor.date_time_iso) is unavailable')
       )
 
       consoleWarnSpy.mockRestore()

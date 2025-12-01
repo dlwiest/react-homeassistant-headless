@@ -18,11 +18,11 @@ export function useDateTime(): DateTimeState {
     }
 
     // Wait 3 seconds before showing warning to allow time for initial state updates
+    // If state becomes available before this fires, the cleanup will cancel this timeout
     const timeoutId = setTimeout(() => {
-      // Re-check state after delay in case it became available
-      if ((state === 'unavailable' || state === 'unknown') && !hasLoggedWarning.current) {
+      if (!hasLoggedWarning.current) {
         console.warn(
-          'Home Assistant date_time sensor is unavailable. ' +
+          'Home Assistant Date & Time (ISO) sensor (sensor.date_time_iso) is unavailable. ' +
           'To enable it: Go to Settings → Devices & Services → Integrations → Time & Date → Add Service → Select "Date & Time (ISO)" → Submit. ' +
           'See https://hass-react.com/docs/entities/datetime for more information.'
         )
