@@ -119,27 +119,39 @@ describe('useDateTime', () => {
       expect(result.current.isAvailable).toBe(false)
     })
 
-    it('should log warning when sensor is unavailable', () => {
+    it('should log warning when sensor is unavailable after delay', () => {
+      vi.useFakeTimers()
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       mockUseEntity.mockReturnValue(createMockDateTimeEntity('unavailable'))
 
       renderHook(() => useDateTime())
 
+      // Warning should not appear immediately
+      expect(consoleWarnSpy).not.toHaveBeenCalled()
+
+      // Advance time by 3 seconds
+      vi.advanceTimersByTime(3000)
+
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         expect.stringContaining('Home Assistant date_time sensor is unavailable')
       )
 
       consoleWarnSpy.mockRestore()
+      vi.useRealTimers()
     })
 
     it('should only log warning once even with multiple rerenders', () => {
+      vi.useFakeTimers()
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       mockUseEntity.mockReturnValue(createMockDateTimeEntity('unavailable'))
 
       const { rerender } = renderHook(() => useDateTime())
 
+      // Advance time by 3 seconds
+      vi.advanceTimersByTime(3000)
+
       expect(consoleWarnSpy).toHaveBeenCalledTimes(1)
 
       rerender()
@@ -148,6 +160,60 @@ describe('useDateTime', () => {
       expect(consoleWarnSpy).toHaveBeenCalledTimes(1)
 
       consoleWarnSpy.mockRestore()
+      vi.useRealTimers()
+    })
+
+    it('should not log warning if sensor becomes available before delay expires', () => {
+      vi.useFakeTimers()
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      // Start with unavailable
+      mockUseEntity.mockReturnValue(createMockDateTimeEntity('unavailable'))
+
+      const { rerender } = renderHook(() => useDateTime())
+
+      // Advance time by 1 second
+      vi.advanceTimersByTime(1000)
+
+      // Become available before the 3 second delay expires
+      mockUseEntity.mockReturnValue(createMockDateTimeEntity('2024-01-15T14:30:00Z'))
+      rerender()
+
+      // Advance remaining time
+      vi.advanceTimersByTime(3000)
+
+      // Warning should not have been logged
+      expect(consoleWarnSpy).not.toHaveBeenCalled()
+
+      consoleWarnSpy.mockRestore()
+      vi.useRealTimers()
+    })
+
+    it('should not log warning before connection is established', () => {
+      vi.useFakeTimers()
+      const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      // Mock not connected
+      mockUseHAConnection.mockReturnValue({
+        connected: false,
+        connecting: true,
+        error: null,
+        reconnect: vi.fn(),
+        logout: vi.fn(),
+      })
+
+      mockUseEntity.mockReturnValue(createMockDateTimeEntity('unavailable'))
+
+      renderHook(() => useDateTime())
+
+      // Advance time
+      vi.advanceTimersByTime(5000)
+
+      // Warning should not appear when not connected
+      expect(consoleWarnSpy).not.toHaveBeenCalled()
+
+      consoleWarnSpy.mockRestore()
+      vi.useRealTimers()
     })
   })
 

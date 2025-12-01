@@ -178,13 +178,39 @@ describe('OAuth Auth Service', () => {
 
     it('should handle state parameter mismatch', async () => {
       mockWindow.location.search = '?code=test-code&state=wrong-state'
+      mockWindow.location.href = 'http://localhost:3000/?code=test-code&state=wrong-state'
       window.sessionStorage.getItem = vi.fn().mockReturnValue('correct-state')
 
       await expect(handleOAuthCallback('http://homeassistant.local:8123')).rejects.toThrow()
       await expect(handleOAuthCallback('http://homeassistant.local:8123')).rejects.toMatchObject({
-        type: 'config_error',
-        code: 'state_mismatch'
+        type: 'auth_expired'
       })
+
+      // Should clean up URL parameters
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        {},
+        expect.any(String),
+        'http://localhost:3000/'
+      )
+    })
+
+    it('should handle stale OAuth parameters (sessionStorage cleared)', async () => {
+      mockWindow.location.search = '?code=test-code&state=stale-state'
+      mockWindow.location.href = 'http://localhost:3000/?code=test-code&state=stale-state'
+      window.sessionStorage.getItem = vi.fn().mockReturnValue(null) // sessionStorage was cleared
+
+      await expect(handleOAuthCallback('http://homeassistant.local:8123')).rejects.toThrow()
+      await expect(handleOAuthCallback('http://homeassistant.local:8123')).rejects.toMatchObject({
+        type: 'auth_expired',
+        message: 'Invalid OAuth state - redirecting to authentication'
+      })
+
+      // Should clean up stale OAuth parameters from URL
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        {},
+        expect.any(String),
+        'http://localhost:3000/'
+      )
     })
 
     it('should clean up URL parameters after successful callback', async () => {
