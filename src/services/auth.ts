@@ -75,8 +75,21 @@ export async function handleOAuthCallback(hassUrl: string): Promise<Auth> {
   // Verify state parameter
   const storedState = sessionStorage.getItem('hass-oauth-state')
   if (state !== storedState) {
-    console.warn('OAuth state mismatch:', { received: state, stored: storedState })
-    throw createAuthError('config_error', 'OAuth state parameter mismatch - possible security issue', 'state_mismatch')
+    // Clean up the invalid OAuth parameters from URL regardless of the reason
+    const url = new URL(window.location.href)
+    url.searchParams.delete('code')
+    url.searchParams.delete('state')
+    window.history.replaceState({}, document.title, url.toString())
+
+    // Log appropriate message based on whether this is stale or a genuine mismatch
+    if (storedState === null) {
+      console.warn('Detected stale OAuth callback parameters (sessionStorage cleared) - cleaning up and will redirect to fresh OAuth flow')
+    } else {
+      console.warn('OAuth state parameter mismatch - possible security issue. Cleaning up and will redirect to fresh OAuth flow.', { received: state, stored: storedState })
+    }
+
+    // Throw auth_expired to trigger a fresh OAuth flow instead of infinite retries
+    throw createAuthError('auth_expired', 'Invalid OAuth state - redirecting to authentication')
   }
   
   // Clean up state and redirect flag

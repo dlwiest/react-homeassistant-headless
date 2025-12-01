@@ -11,16 +11,26 @@ export function useDateTime(): DateTimeState {
   const { state } = entity
   const hasLoggedWarning = useRef(false)
 
-  // Log warning once if sensor is unavailable (but only after connection is established)
+  // Log warning once if sensor is unavailable (but only after connection is established and a delay)
   useEffect(() => {
-    if (connected && (state === 'unavailable' || state === 'unknown') && !hasLoggedWarning.current) {
-      console.warn(
-        'Home Assistant date_time sensor is unavailable. ' +
-        'To enable it: Go to Settings → Devices & Services → Integrations → Time & Date → Add Service → Select "Date & Time (ISO)" → Submit. ' +
-        'See https://hass-react.com/docs/entities/datetime for more information.'
-      )
-      hasLoggedWarning.current = true
+    if (!connected || (state !== 'unavailable' && state !== 'unknown') || hasLoggedWarning.current) {
+      return
     }
+
+    // Wait 3 seconds before showing warning to allow time for initial state updates
+    // If state becomes available before this fires, the cleanup will cancel this timeout
+    const timeoutId = setTimeout(() => {
+      if (!hasLoggedWarning.current) {
+        console.warn(
+          'Home Assistant Date & Time (ISO) sensor (sensor.date_time_iso) is unavailable. ' +
+          'To enable it: Go to Settings → Devices & Services → Integrations → Time & Date → Add Service → Select "Date & Time (ISO)" → Submit. ' +
+          'See https://hass-react.com/docs/entities/datetime for more information.'
+        )
+        hasLoggedWarning.current = true
+      }
+    }, 3000)
+
+    return () => clearTimeout(timeoutId)
   }, [connected, state])
 
   // Return null for unavailable/unknown states
