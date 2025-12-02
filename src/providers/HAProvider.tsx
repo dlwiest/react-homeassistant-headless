@@ -481,7 +481,7 @@ export const HAProvider = ({
         periodicRefreshState.current.retry.timeouts.forEach(clearTimeout)
         periodicRefreshState.current.retry.timeouts.clear()
 
-        // Refresh the access token on each interval to prevent expiration
+        // Periodically refresh the access token to keep it valid
         executePeriodicRefresh(async () => {
           if (!currentAuthRef.current) return
           await currentAuthRef.current.refreshAccessToken()
