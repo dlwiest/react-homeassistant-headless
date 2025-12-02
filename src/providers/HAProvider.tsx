@@ -460,7 +460,6 @@ export const HAProvider = ({
   useEffect(() => {
     if (state.type === 'connected' && currentAuthRef.current && !mockMode && authMode !== 'token') {
       const refreshIntervalMs = (options.tokenRefreshIntervalMinutes || 30) * 60 * 1000
-      const bufferMinutes = options.tokenRefreshBufferMinutes || DEFAULT_TOKEN_BUFFER_MINUTES
 
       // Create retry executor with exponential backoff
       const executePeriodicRefresh = createRetryExecutor({
@@ -482,11 +481,10 @@ export const HAProvider = ({
         periodicRefreshState.current.retry.timeouts.forEach(clearTimeout)
         periodicRefreshState.current.retry.timeouts.clear()
 
-        // Execute token refresh with retry
+        // Refresh the access token on each interval to prevent expiration
         executePeriodicRefresh(async () => {
           if (!currentAuthRef.current) return
-          const refreshedAuth = await refreshTokenIfNeeded(currentAuthRef.current, bufferMinutes)
-          currentAuthRef.current = refreshedAuth
+          await currentAuthRef.current.refreshAccessToken()
         })
       }, refreshIntervalMs)
 

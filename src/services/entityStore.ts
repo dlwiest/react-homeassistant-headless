@@ -52,13 +52,19 @@ export const useStore = create<EntityStore>()(
     // Update the WebSocket connection and resubscribe to all registered entities
     setConnection: async (connection) => {
       const oldConnection = get().connection
-      
+
       // Clean up old subscriptions if connection changed
       if (oldConnection && oldConnection !== connection) {
-        get().websocketSubscriptions.forEach(sub => sub.unsubscribe())
-        set({ 
+        // Unsubscribe from all existing subscriptions
+        // Catch errors since unsubscribe may fail if connection is already closed
+        get().websocketSubscriptions.forEach(sub => {
+          Promise.resolve(sub.unsubscribe()).catch(() => {
+            // Ignore unsubscribe errors when connection is already closed
+          })
+        })
+        set({
           websocketSubscriptions: new Map(),
-          connection 
+          connection
         })
       } else {
         set({ connection })

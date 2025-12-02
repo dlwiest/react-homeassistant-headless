@@ -2060,7 +2060,7 @@ describe('HAProvider Clean Implementation', () => {
       })
 
       // Clear initial calls
-      mockRefreshTokenIfNeeded.mockClear()
+      mockAuth.refreshAccessToken.mockClear()
 
       // Advance 30 minutes
       act(() => {
@@ -2068,7 +2068,7 @@ describe('HAProvider Clean Implementation', () => {
       })
 
       await vi.waitFor(() => {
-        expect(mockRefreshTokenIfNeeded).toHaveBeenCalled()
+        expect(mockAuth.refreshAccessToken).toHaveBeenCalled()
       })
 
       vi.useRealTimers()
@@ -2308,12 +2308,12 @@ describe('HAProvider Clean Implementation', () => {
 
         // Mock refresh to fail then succeed
         let callCount = 0
-        mockRefreshTokenIfNeeded.mockImplementation(() => {
+        mockAuth.refreshAccessToken.mockImplementation(() => {
           callCount++
           if (callCount <= 3) {
             return Promise.reject(new Error('Refresh failed'))
           }
-          return Promise.resolve(mockAuth)
+          return Promise.resolve()
         })
 
         render(
@@ -2386,7 +2386,7 @@ describe('HAProvider Clean Implementation', () => {
           auth: mockAuth
         })
 
-        mockRefreshTokenIfNeeded.mockRejectedValue(new Error('Refresh failed'))
+        mockAuth.refreshAccessToken.mockRejectedValue(new Error('Refresh failed'))
 
         render(
           <HAProvider
@@ -2402,7 +2402,7 @@ describe('HAProvider Clean Implementation', () => {
           expect(screen.getByTestId('connected')).toHaveTextContent('true')
         })
 
-        mockRefreshTokenIfNeeded.mockClear()
+        mockAuth.refreshAccessToken.mockClear()
 
         // Trigger periodic refresh
         act(() => {
@@ -2413,7 +2413,7 @@ describe('HAProvider Clean Implementation', () => {
           await vi.runOnlyPendingTimersAsync()
         })
 
-        const initialCalls = mockRefreshTokenIfNeeded.mock.calls.length
+        const initialCalls = mockAuth.refreshAccessToken.mock.calls.length
 
         // Advance through all retries: 1, 2, 4, 8, 16 minutes
         for (const delay of [1, 2, 4, 8, 16]) {
@@ -2425,7 +2425,7 @@ describe('HAProvider Clean Implementation', () => {
           })
         }
 
-        const callsAfterRetries = mockRefreshTokenIfNeeded.mock.calls.length
+        const callsAfterRetries = mockAuth.refreshAccessToken.mock.calls.length
 
         // Advance a bit - should not trigger more retry calls (but periodic interval might fire)
         act(() => {
@@ -2530,7 +2530,7 @@ describe('HAProvider Clean Implementation', () => {
         })
 
         // Mock refresh to fail
-        mockRefreshTokenIfNeeded.mockRejectedValue(new Error('Refresh failed'))
+        mockAuth.refreshAccessToken.mockRejectedValue(new Error('Refresh failed'))
 
         const { unmount } = render(
           <HAProvider
@@ -2546,7 +2546,7 @@ describe('HAProvider Clean Implementation', () => {
           expect(screen.getByTestId('connected')).toHaveTextContent('true')
         })
 
-        mockRefreshTokenIfNeeded.mockClear()
+        mockAuth.refreshAccessToken.mockClear()
 
         // Trigger periodic refresh
         act(() => {
@@ -2554,7 +2554,7 @@ describe('HAProvider Clean Implementation', () => {
         })
 
         await vi.waitFor(() => {
-          expect(mockRefreshTokenIfNeeded).toHaveBeenCalledTimes(1)
+          expect(mockAuth.refreshAccessToken).toHaveBeenCalledTimes(1)
         })
 
         // Unmount before retry fires
@@ -2566,7 +2566,7 @@ describe('HAProvider Clean Implementation', () => {
         })
 
         // Should not have made any more refresh attempts
-        expect(mockRefreshTokenIfNeeded).toHaveBeenCalledTimes(1)
+        expect(mockAuth.refreshAccessToken).toHaveBeenCalledTimes(1)
 
         vi.useRealTimers()
       })
@@ -2583,7 +2583,7 @@ describe('HAProvider Clean Implementation', () => {
         })
 
         // Mock refresh to fail
-        mockRefreshTokenIfNeeded.mockRejectedValue(new Error('Refresh failed'))
+        mockAuth.refreshAccessToken.mockRejectedValue(new Error('Refresh failed'))
 
         const TestWithLogout = () => {
           const { logout } = useHAConnection()
@@ -2609,7 +2609,7 @@ describe('HAProvider Clean Implementation', () => {
           expect(screen.getByTestId('connected')).toHaveTextContent('true')
         })
 
-        mockRefreshTokenIfNeeded.mockClear()
+        mockAuth.refreshAccessToken.mockClear()
 
         // Trigger periodic refresh
         act(() => {
@@ -2617,7 +2617,7 @@ describe('HAProvider Clean Implementation', () => {
         })
 
         await vi.waitFor(() => {
-          expect(mockRefreshTokenIfNeeded).toHaveBeenCalledTimes(1)
+          expect(mockAuth.refreshAccessToken).toHaveBeenCalledTimes(1)
         })
 
         // Logout before retry fires
@@ -2631,7 +2631,7 @@ describe('HAProvider Clean Implementation', () => {
         })
 
         // Should not have made any more refresh attempts after logout
-        expect(mockRefreshTokenIfNeeded).toHaveBeenCalledTimes(1)
+        expect(mockAuth.refreshAccessToken).toHaveBeenCalledTimes(1)
 
         vi.useRealTimers()
       })
