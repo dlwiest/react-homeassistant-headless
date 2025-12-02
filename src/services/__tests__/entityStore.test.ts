@@ -275,31 +275,31 @@ describe('EntityStore', () => {
   })
 
   describe('Connection Management', () => {
-    it('should set connection and clear when connection changes', () => {
+    it('should set connection and clear when connection changes', async () => {
       const mockConn1 = createMockConnection()
       const mockConn2 = createMockConnection()
 
-      act(() => {
-        useStore.getState().setConnection(mockConn1)
+      await act(async () => {
+        await useStore.getState().setConnection(mockConn1)
       })
       expect(useStore.getState().connection).toBe(mockConn1)
 
-      act(() => {
-        useStore.getState().setConnection(mockConn2)
+      await act(async () => {
+        await useStore.getState().setConnection(mockConn2)
       })
       expect(useStore.getState().connection).toBe(mockConn2)
     })
 
-    it('should clear connection when set to null', () => {
+    it('should clear connection when set to null', async () => {
       const mockConn = createMockConnection()
 
-      act(() => {
-        useStore.getState().setConnection(mockConn)
+      await act(async () => {
+        await useStore.getState().setConnection(mockConn)
       })
       expect(useStore.getState().connection).toBe(mockConn)
 
-      act(() => {
-        useStore.getState().setConnection(null)
+      await act(async () => {
+        await useStore.getState().setConnection(null)
       })
       expect(useStore.getState().connection).toBeNull()
     })
