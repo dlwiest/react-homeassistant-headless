@@ -291,6 +291,14 @@ async function subscribeToEntityUpdates(
     )
 
     // Store the subscription so we can clean it up later
+    // First, unsubscribe from any existing subscription for this entity to prevent leaks
+    const existingSub = get().websocketSubscriptions.get(entityId)
+    if (existingSub) {
+      await Promise.resolve(existingSub.unsubscribe()).catch(() => {
+        // Ignore errors from cleaning up old subscription
+      })
+    }
+
     set((store) => {
       const newWsSubs = new Map(store.websocketSubscriptions)
       newWsSubs.set(entityId, { unsubscribe })
