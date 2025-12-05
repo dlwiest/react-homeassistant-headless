@@ -572,6 +572,52 @@ describe('EntityStore', () => {
       expect(useStore.getState().websocketSubscriptions.size).toBe(1)
       expect(subscriptionCount).toBe(2) // One for initial, one for reconnect
     })
+
+    it('should not delete newer subscription if it was added during cleanup', async () => {
+      const mockConn1 = createMockConnection()
+      const mockConn2 = createMockConnection()
+      const entity = createMockEntity('light.living_room', 'on')
+      const callback = vi.fn()
+      const unsubscribe1 = vi.fn()
+      const unsubscribe2 = vi.fn()
+
+      // Set up first connection
+      mockConn1.sendMessagePromise = vi.fn().mockResolvedValue([entity])
+      mockConn1.subscribeEvents = vi.fn().mockResolvedValue(unsubscribe1)
+
+      await act(async () => {
+        await useStore.getState().setConnection(mockConn1)
+      })
+
+      await act(async () => {
+        await useStore.getState().registerEntity('light.living_room', callback)
+      })
+
+      // Should have the first subscription
+      expect(useStore.getState().websocketSubscriptions.size).toBe(1)
+      const firstSub = useStore.getState().websocketSubscriptions.get('light.living_room')
+      expect(firstSub?.unsubscribe).toBe(unsubscribe1)
+
+      // Set up second connection - this will trigger resubscription
+      mockConn2.sendMessagePromise = vi.fn().mockResolvedValue([entity])
+      mockConn2.subscribeEvents = vi.fn().mockResolvedValue(unsubscribe2)
+
+      // Change connection - this triggers cleanup of old subs and creation of new ones
+      await act(async () => {
+        await useStore.getState().setConnection(mockConn2)
+      })
+
+      // Old subscription should have been unsubscribed
+      expect(unsubscribe1).toHaveBeenCalled()
+
+      // Should have exactly 1 subscription (the new one)
+      expect(useStore.getState().websocketSubscriptions.size).toBe(1)
+      const finalSub = useStore.getState().websocketSubscriptions.get('light.living_room')
+
+      // The subscription in the Map should be the NEW one from mockConn2
+      expect(finalSub?.unsubscribe).toBe(unsubscribe2)
+      expect(finalSub?.unsubscribe).not.toBe(unsubscribe1)
+    })
   })
 
   describe('Store Cleanup', () => {

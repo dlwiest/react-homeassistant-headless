@@ -290,7 +290,10 @@ async function subscribeToEntityUpdates(
       // Remove the old subscription from the Map
       set((store) => {
         const newWsSubs = new Map(store.websocketSubscriptions)
-        newWsSubs.delete(entityId)
+        // Only delete if it's still the same subscription we just unsubscribed
+        if (newWsSubs.get(entityId) === existingSub) {
+          newWsSubs.delete(entityId)
+        }
         return { websocketSubscriptions: newWsSubs }
       })
     }
