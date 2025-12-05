@@ -280,6 +280,15 @@ async function subscribeToEntityUpdates(
   set: (partial: Partial<EntityStore> | ((state: EntityStore) => Partial<EntityStore>)) => void
 ) {
   try {
+    // First, unsubscribe from any existing subscription for this entity to prevent leaks
+    // Do this BEFORE creating the new subscription to avoid race conditions
+    const existingSub = get().websocketSubscriptions.get(entityId)
+    if (existingSub) {
+      await Promise.resolve(existingSub.unsubscribe()).catch(() => {
+        // Ignore errors from cleaning up old subscription
+      })
+    }
+
     // Subscribe to state_changed events for this entity
     const unsubscribe = await connection.subscribeEvents(
       (event: StateChangedEvent) => {
@@ -291,14 +300,6 @@ async function subscribeToEntityUpdates(
     )
 
     // Store the subscription so we can clean it up later
-    // First, unsubscribe from any existing subscription for this entity to prevent leaks
-    const existingSub = get().websocketSubscriptions.get(entityId)
-    if (existingSub) {
-      await Promise.resolve(existingSub.unsubscribe()).catch(() => {
-        // Ignore errors from cleaning up old subscription
-      })
-    }
-
     set((store) => {
       const newWsSubs = new Map(store.websocketSubscriptions)
       newWsSubs.set(entityId, { unsubscribe })
