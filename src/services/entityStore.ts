@@ -287,6 +287,12 @@ async function subscribeToEntityUpdates(
       await Promise.resolve(existingSub.unsubscribe()).catch(() => {
         // Ignore errors from cleaning up old subscription
       })
+      // Remove the old subscription from the Map
+      set((store) => {
+        const newWsSubs = new Map(store.websocketSubscriptions)
+        newWsSubs.delete(entityId)
+        return { websocketSubscriptions: newWsSubs }
+      })
     }
 
     // Subscribe to state_changed events for this entity
